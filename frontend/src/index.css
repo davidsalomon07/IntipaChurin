@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* 1. Esto activa el deslizamiento suave (Smooth Scroll) en toda la web */
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  background-color: #FCFCFC;
+}
+
+/* 2. Scrollbar elegante y minimalista */
+::-webkit-scrollbar { 
+  width: 6px; 
+}
+
+::-webkit-scrollbar-track { 
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb { 
+  background: #d6d3d1; /* Gris piedra sutil */
+  border-radius: 10px; 
+}
+
+::-webkit-scrollbar-thumb:hover { 
+  background: #a8a29e; /* Gris más oscuro al pasar el mouse */
+}
