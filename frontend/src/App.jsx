@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; // <-- 1. Importamos la librería aquí
+
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -14,6 +16,41 @@ function App() {
   return (
     <Router>
       <div className="bg-fog-white min-h-screen text-fog-black font-sans selection:bg-fog-gray">
+        
+        {/* 2. Colocamos el Toaster aquí, con un diseño premium y minimalista */}
+        <Toaster 
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#ffffff',
+              color: '#1c1917', 
+              border: '1px solid #e7e5e4', 
+              borderRadius: '1rem', 
+              fontSize: '14px',
+              fontWeight: '500',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+              padding: '16px 24px',
+            },
+            success: {
+              iconTheme: {
+                primary: '#1c1917', 
+                secondary: '#ffffff',
+              },
+            },
+            error: {
+              style: {
+                background: '#fef2f2', 
+                color: '#dc2626', 
+                border: '1px solid #fee2e2', 
+              },
+              iconTheme: {
+                primary: '#dc2626',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
+
         <Routes>
           <Route path="/" element={<Home />} />
           {/* Ruta para la página de Login */}

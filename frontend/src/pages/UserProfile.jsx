@@ -1,30 +1,100 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MiniFooter from '../components/MiniFooter';
+import toast from 'react-hot-toast';
 
 const UserProfile = () => {
-  useEffect(() => { window.scrollTo(0, 0); }, []);
-
-  // Estado para simular qué pestaña está activa
   const [activeTab, setActiveTab] = useState('pedidos');
+  const [userData, setUserData] = useState(null); 
+  
+  const [isEditing, setIsEditing] = useState(false);
+  // Añadimos el email al estado del formulario
+  const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '' });
 
-  // Datos simulados del usuario
-  const usuario = {
-    nombre: "David Salomón",
-    email: "david@ejemplo.com",
-    miembroDesde: "Febrero 2026"
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+
+    if (!storedToken || !storedUser) {
+      navigate('/login');
+    } else {
+      const parsedUser = JSON.parse(storedUser);
+      setUserData(parsedUser);
+      // Inicializamos el formulario incluyendo el correo
+      setFormData({
+        first_name: parsedUser.first_name,
+        last_name: parsedUser.last_name,
+        email: parsedUser.email
+      });
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
-  // Historial de pedidos simulado
+  const handleCancelEdit = () => {
+    // Restauramos todos los campos, incluyendo el correo
+    setFormData({
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      email: userData.email
+    });
+    setIsEditing(false);
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('http://localhost:3000/api/usuarios/perfil', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ocurrió un error al actualizar los datos');
+      }
+
+      setUserData(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user)); 
+      setIsEditing(false); 
+      
+      // ✨ MAGIA AQUÍ: Reemplazamos el alert por un toast.success
+      toast.success("¡Tus datos han sido actualizados exitosamente!");
+
+    } catch (err) {
+      // Reemplazamos el alert de error por toast.error
+      toast.error(err.message);
+    }
+  };
+
   const pedidos = [
     { id: "ORD-0921", fecha: "15 Abr 2026", total: 140.00, estado: "Entregado", items: "Essential Hoodie, Classic Boxy Tee" },
     { id: "ORD-0854", fecha: "02 Mar 2026", total: 75.00, estado: "Entregado", items: "Cargo Pant Parachute" }
   ];
 
+  if (!userData) return null;
+
   return (
     <div className="bg-[#FCFCFC] min-h-screen text-stone-900 font-sans selection:bg-stone-200 flex flex-col">
       
-      {/* --- NAVBAR SIMPLIFICADO --- */}
       <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-stone-100 h-20">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex justify-between items-center relative">
           <div className="flex-1">
@@ -37,24 +107,25 @@ const UserProfile = () => {
             Intipa Churin
           </div>
           <div className="flex-1 flex justify-end">
-            <button className="text-stone-400 hover:text-red-500 transition-colors text-[11px] font-bold uppercase tracking-widest">
+            <button 
+              onClick={handleLogout}
+              className="text-stone-400 hover:text-red-500 transition-colors text-[11px] font-bold uppercase tracking-widest"
+            >
               Cerrar Sesión
             </button>
           </div>
         </div>
       </nav>
 
-      {/* --- CONTENIDO DEL PERFIL --- */}
       <main className="max-w-[1200px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full flex flex-col md:flex-row gap-12">
         
-        {/* Columna Izquierda: Menú y Resumen */}
         <aside className="w-full md:w-1/4">
           <div className="bg-stone-100 p-8 rounded-3xl mb-8 text-center">
-            <div className="w-20 h-20 bg-stone-300 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-stone-600">
-              {usuario.nombre.charAt(0)}
+            <div className="w-20 h-20 bg-stone-300 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-stone-600 uppercase">
+              {userData.first_name.charAt(0)}
             </div>
-            <h2 className="font-bold text-lg">{usuario.nombre}</h2>
-            <p className="text-sm text-stone-500">{usuario.email}</p>
+            <h2 className="font-bold text-lg">{userData.first_name} {userData.last_name}</h2>
+            <p className="text-sm text-stone-500">{userData.email}</p>
           </div>
 
           <nav className="flex flex-col gap-2">
@@ -65,7 +136,10 @@ const UserProfile = () => {
               Mis Pedidos
             </button>
             <button 
-              onClick={() => setActiveTab('datos')}
+              onClick={() => {
+                setActiveTab('datos');
+                setIsEditing(false); 
+              }}
               className={`text-left px-6 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'datos' ? 'bg-stone-900 text-white' : 'hover:bg-stone-100 text-stone-600'}`}
             >
               Datos Personales
@@ -79,10 +153,8 @@ const UserProfile = () => {
           </nav>
         </aside>
 
-        {/* Columna Derecha: Contenido Dinámico */}
         <div className="w-full md:w-3/4">
           
-          {/* Vista de Pedidos */}
           {activeTab === 'pedidos' && (
             <div>
               <h1 className="text-2xl font-bold mb-8 tracking-tight">Historial de Pedidos</h1>
@@ -116,29 +188,78 @@ const UserProfile = () => {
             </div>
           )}
 
-          {/* Vista de Datos (Plantilla visual) */}
           {activeTab === 'datos' && (
             <div>
-              <h1 className="text-2xl font-bold mb-8 tracking-tight">Datos Personales</h1>
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-2xl font-bold tracking-tight">Datos Personales</h1>
+                
+                {!isEditing && (
+                  <button 
+                    onClick={() => setIsEditing(true)}
+                    className="text-xs font-bold uppercase tracking-wider text-stone-900 border-b border-stone-900 pb-0.5 hover:text-stone-500 hover:border-stone-500 transition-colors"
+                  >
+                    Editar
+                  </button>
+                )}
+              </div>
+
               <div className="bg-white border border-stone-100 p-8 rounded-3xl shadow-sm space-y-6">
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Nombre Completo</label>
-                    <input type="text" defaultValue={usuario.nombre} className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 transition-all" />
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Nombre</label>
+                    <input 
+                      type="text" 
+                      value={formData.first_name} 
+                      onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                      disabled={!isEditing}
+                      className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`} 
+                    />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Correo Electrónico</label>
-                    <input type="email" defaultValue={usuario.email} disabled className="w-full px-4 py-2.5 bg-stone-100 border border-stone-200 rounded-xl text-sm text-stone-400 cursor-not-allowed" />
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Apellido</label>
+                    <input 
+                      type="text" 
+                      value={formData.last_name}
+                      onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                      disabled={!isEditing}
+                      className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`} 
+                    />
                   </div>
                 </div>
-                <button className="bg-stone-900 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors">
-                  Guardar Cambios
-                </button>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Correo Electrónico</label>
+                  {/* El campo de correo ahora responde al estado isEditing */}
+                  <input 
+                    type="email" 
+                    value={formData.email} 
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    disabled={!isEditing} 
+                    className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`}
+                  />
+                </div>
+
+                {isEditing && (
+                  <div className="flex gap-4 pt-2">
+                    <button 
+                      onClick={handleSaveChanges}
+                      className="bg-stone-900 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors"
+                    >
+                      Guardar Cambios
+                    </button>
+                    <button 
+                      onClick={handleCancelEdit}
+                      className="bg-stone-100 text-stone-600 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-200 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Vista de Direcciones (Plantilla visual) */}
           {activeTab === 'direcciones' && (
             <div>
               <h1 className="text-2xl font-bold mb-8 tracking-tight">Direcciones Guardadas</h1>

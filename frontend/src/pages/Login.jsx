@@ -1,17 +1,62 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   // Estados para capturar los datos
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // Nuevo estado para controlar la visibilidad de la contraseña
+  // Estado para controlar la visibilidad de la contraseña
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  // NUEVO: Estados para manejar la respuesta del backend
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Intentando iniciar sesión con:', { email, password });
+    setError(''); // Limpiamos errores previos
+    setIsLoading(true);
+
+    try {
+      // 1. Hacemos la petición a nuestra nueva ruta de login
+      const response = await fetch('http://localhost:3000/api/usuarios/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      // 2. Si las credenciales son incorrectas
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión');
+      }
+
+      // 3. ¡ÉXITO! Guardamos el token y los datos del usuario en el navegador
+      localStorage.setItem('token', data.token);
+      // Guardamos la info del usuario como texto plano (JSON)
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // 4. Redirigimos al usuario. 
+      // Si el rol es 1 (Asumiendo que 1 es ADMIN), lo mandamos al dashboard.
+      // Si no, lo mandamos a su perfil normal.
+      // Nota: Ajusta el número 1 si el ID de ADMIN en tu BD es diferente.
+      if (data.user.role_id === 1) {
+        navigate('/admin'); // <-- Luego crearemos esta ruta
+      } else {
+        navigate('/profile');
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -25,7 +70,7 @@ const Login = () => {
         </Link>
       </div>
 
-      {/* Contenedor Principal (Proporciones amplias originales) */}
+      {/* Contenedor Principal */}
       <div className="w-full max-w-md bg-white p-10 md:p-12 rounded-[2rem] shadow-sm border border-stone-100">
         
         {/* Cabecera del Formulario */}
@@ -39,6 +84,13 @@ const Login = () => {
             <p className="text-sm text-stone-500">Ingresa tus credenciales para continuar.</p>
           </div>
         </div>
+
+        {/* --- MENSAJE DE ERROR --- */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600 font-medium">
+            {error}
+          </div>
+        )}
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -69,20 +121,16 @@ const Login = () => {
               </a>
             </div>
             
-            {/* Contenedor relativo para posicionar el ícono del ojo */}
             <div className="relative">
               <input 
-                // El tipo cambia dinámicamente según el estado showPassword
                 type={showPassword ? "text" : "password"} 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
-                // Añadido pr-12 (padding-right) para que el texto no se monte sobre el ícono
                 className="w-full pl-4 pr-12 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 transition-all placeholder:text-stone-300"
               />
               
-              {/* Botón flotante para ver/ocultar contraseña */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -90,13 +138,11 @@ const Login = () => {
                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
                 {showPassword ? (
-                  // Ícono de "Ojo tachado" (Ocultar)
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                     <line x1="1" y1="1" x2="23" y2="23"></line>
                   </svg>
                 ) : (
-                  // Ícono de "Ojo normal" (Mostrar)
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
@@ -106,12 +152,13 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Botón Submit */}
+          {/* Botón Submit Dinámico */}
           <button 
             type="submit" 
-            className="w-full bg-stone-900 text-white py-4 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors shadow-sm mt-4"
+            disabled={isLoading}
+            className={`w-full bg-stone-900 text-white py-4 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors shadow-sm mt-4 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            Entrar
+            {isLoading ? 'Verificando...' : 'Entrar'}
           </button>
         </form>
 

@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const pool = require('./db'); // Importamos la conexión que acabamos de crear
+const bcrypt = require('bcrypt');
+const pool = require('./db'); 
+const jwt = require('jsonwebtoken'); // <-- NUEVO: Para generar el token de sesión
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +16,141 @@ app.get('/api/status', (req, res) => {
     message: 'Servidor de Intipa Churin funcionando',
     db_status: 'Conectada' 
   });
+});
+
+// ==========================================
+// 1. CREATE: Registro de Usuarios
+// ==========================================
+app.post('/api/usuarios/registro', async (req, res) => {
+  try {
+    // 1. Recibimos los datos actualizados que envía el frontend (Register.jsx)
+    const { first_name, last_name, email, password } = req.body;
+
+    // 2. Verificamos si el correo ya existe en la base de datos
+    const userCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userCheck.rows.length > 0) {
+      return res.status(400).json({ error: "Este correo electrónico ya está registrado." });
+    }
+
+    // 3. Buscamos automáticamente el ID del rol 'CLIENTE'
+    const roleQuery = await pool.query("SELECT id FROM roles WHERE name = 'CLIENTE'");
+    if (roleQuery.rows.length === 0) {
+      return res.status(500).json({ error: "Error crítico: El rol CLIENTE no existe en la BD." });
+    }
+    const clienteRoleId = roleQuery.rows[0].id;
+
+    // 4. Encriptamos la contraseña (nadie, ni el admin, debe poder verla)
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password, salt);
+
+    // 5. Guardamos al usuario en la tabla 'users' con nombre y apellido
+    const newUser = await pool.query(
+      'INSERT INTO users (role_id, email, password_hash, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING id, first_name, last_name, email, created_at',
+      [clienteRoleId, email, password_hash, first_name, last_name]
+    );
+
+    // 6. Le respondemos al Frontend que fue un éxito
+    res.status(201).json({
+      message: "¡Cuenta creada con éxito!",
+      user: newUser.rows[0]
+    });
+
+  } catch (error) {
+    console.error("❌ Error en el registro:", error.message);
+    res.status(500).json({ error: "Hubo un problema al crear la cuenta. Intenta más tarde." });
+  }
+});
+
+// ==========================================
+// 2. READ / AUTH: Inicio de Sesión (Login)
+// ==========================================
+app.post('/api/usuarios/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Verificamos si el usuario existe en la base de datos
+    const userQuery = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userQuery.rows.length === 0) {
+      return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+    }
+
+    const user = userQuery.rows[0];
+
+    // 2. Comparamos la contraseña enviada con la contraseña encriptada (Hash)
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+    }
+
+    // 3. Creamos el Token de sesión (Firma digital)
+    // En producción, la palabra 'secreto_intipa_2026' debe ir en tu archivo .env
+    const token = jwt.sign(
+      { id: user.id, role_id: user.role_id }, 
+      'secreto_intipa_2026', 
+      { expiresIn: '24h' } // El token caduca en 1 día
+    );
+
+    // 4. Respondemos con éxito, enviando el token y los datos básicos
+    res.json({
+      message: "¡Inicio de sesión exitoso!",
+      token,
+      user: {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role_id: user.role_id
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Error en el login:", error.message);
+    res.status(500).json({ error: "Hubo un problema al iniciar sesión." });
+  }
+});
+
+// ==========================================
+// 3. UPDATE: Actualizar Perfil de Usuario
+// ==========================================
+app.put('/api/usuarios/perfil', async (req, res) => {
+  try {
+    // 1. Verificamos que el usuario tenga su llave de acceso (Token)
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: "No autorizado. Falta el token." });
+    }
+
+    const token = authHeader.split(' ')[1]; // Separamos la palabra "Bearer" del token real
+    
+    // 2. Desencriptamos el token para saber quién es (sacamos su id)
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    // 3. Recibimos los nuevos datos que mandó el frontend
+    const { first_name, last_name, email } = req.body;
+
+    // 4. Verificamos que el nuevo correo no esté siendo usado por OTRA persona
+    const emailCheck = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, userId]);
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ error: "Este correo ya está en uso por otra cuenta." });
+    }
+
+    // 5. Actualizamos la base de datos en PostgreSQL
+    const updateQuery = await pool.query(
+      'UPDATE users SET first_name = $1, last_name = $2, email = $3 WHERE id = $4 RETURNING id, first_name, last_name, email, role_id',
+      [first_name, last_name, email, userId]
+    );
+
+    // 6. Devolvemos los datos actualizados
+    res.json({
+      message: "Perfil actualizado correctamente",
+      user: updateQuery.rows[0]
+    });
+
+  } catch (error) {
+    console.error("❌ Error al actualizar:", error.message);
+    res.status(500).json({ error: "Error al actualizar el perfil." });
+  }
 });
 
 app.listen(PORT, () => {
