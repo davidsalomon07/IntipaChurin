@@ -126,8 +126,8 @@ app.put('/api/usuarios/perfil', async (req, res) => {
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
 
-    // 3. Recibimos los nuevos datos que mandó el frontend
-    const { first_name, last_name, email } = req.body;
+    // 3. Recibimos los nuevos datos que mandó el frontend, incluyendo el teléfono
+    const { first_name, last_name, email, phone } = req.body;
 
     // 4. Verificamos que el nuevo correo no esté siendo usado por OTRA persona
     const emailCheck = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, userId]);
@@ -137,8 +137,8 @@ app.put('/api/usuarios/perfil', async (req, res) => {
 
     // 5. Actualizamos la base de datos en PostgreSQL
     const updateQuery = await pool.query(
-      'UPDATE users SET first_name = $1, last_name = $2, email = $3 WHERE id = $4 RETURNING id, first_name, last_name, email, role_id',
-      [first_name, last_name, email, userId]
+      'UPDATE users SET first_name = $1, last_name = $2, email = $3, phone = $4 WHERE id = $5 RETURNING id, first_name, last_name, email, phone, role_id',
+      [first_name, last_name, email, phone, userId]
     );
 
     // 6. Devolvemos los datos actualizados
@@ -150,6 +150,134 @@ app.put('/api/usuarios/perfil', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al actualizar:", error.message);
     res.status(500).json({ error: "Error al actualizar el perfil." });
+  }
+});
+
+// ==========================================
+// 4. CREATE: Agregar nueva dirección
+// ==========================================
+app.post('/api/usuarios/direcciones', async (req, res) => {
+  try {
+    // 1. Verificamos la identidad del usuario (Token)
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    // 2. Recibimos los datos de la nueva dirección
+    const { title, street_address, city, postal_code, phone_number } = req.body;
+
+    // 3. Guardamos la dirección en la base de datos
+    const newAddress = await pool.query(
+      'INSERT INTO addresses (user_id, title, street_address, city, postal_code, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [userId, title, street_address, city, postal_code, phone_number]
+    );
+
+    res.status(201).json({
+      message: "Dirección agregada exitosamente",
+      address: newAddress.rows[0]
+    });
+
+  } catch (error) {
+    console.error("❌ Error al agregar dirección:", error.message);
+    res.status(500).json({ error: "Error al guardar la dirección." });
+  }
+});
+
+// ==========================================
+// 5. READ: Leer/Obtener todas las direcciones
+// ==========================================
+app.get('/api/usuarios/direcciones', async (req, res) => {
+  try {
+    // 1. Verificamos la identidad del usuario
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    // 2. Buscamos solo las direcciones que le pertenecen a este usuario
+    const addresses = await pool.query(
+      'SELECT * FROM addresses WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+
+    res.json(addresses.rows);
+
+  } catch (error) {
+    console.error("❌ Error al obtener direcciones:", error.message);
+    res.status(500).json({ error: "Error al cargar tus direcciones." });
+  }
+});
+
+// ==========================================
+// 6. UPDATE: Editar una dirección existente
+// ==========================================
+app.put('/api/usuarios/direcciones/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    const addressId = req.params.id; // El ID de la dirección que viene en la URL
+    const { title, street_address, city, postal_code, phone_number } = req.body;
+
+    // Actualizamos validando que la dirección le pertenezca a este usuario (seguridad extra)
+    const updateQuery = await pool.query(
+      'UPDATE addresses SET title = $1, street_address = $2, city = $3, postal_code = $4, phone_number = $5 WHERE id = $6 AND user_id = $7 RETURNING *',
+      [title, street_address, city, postal_code, phone_number, addressId, userId]
+    );
+
+    if (updateQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Dirección no encontrada o no autorizada." });
+    }
+
+    res.json({
+      message: "Dirección actualizada correctamente",
+      address: updateQuery.rows[0]
+    });
+
+  } catch (error) {
+    console.error("❌ Error al actualizar dirección:", error.message);
+    res.status(500).json({ error: "Error al actualizar la dirección." });
+  }
+});
+
+// ==========================================
+// 7. DELETE: Eliminar una dirección
+// ==========================================
+app.delete('/api/usuarios/direcciones/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    const addressId = req.params.id;
+
+    // Eliminamos asegurándonos de que sea SU dirección
+    const deleteQuery = await pool.query(
+      'DELETE FROM addresses WHERE id = $1 AND user_id = $2 RETURNING id',
+      [addressId, userId]
+    );
+
+    if (deleteQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Dirección no encontrada o no autorizada." });
+    }
+
+    res.json({ message: "Dirección eliminada exitosamente." });
+
+  } catch (error) {
+    console.error("❌ Error al eliminar dirección:", error.message);
+    res.status(500).json({ error: "Error al intentar eliminar la dirección." });
   }
 });
 
