@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import Navbar from '../components/Navbar'; // <-- Usamos el Navbar de tu amigo
 import MiniFooter from '../components/MiniFooter';
-import CartDrawer from '../components/CartDrawer';
 import { useCart } from '../context/CartContext';
 
-// Íconos SVG para el Navbar
-const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
-const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
-const CartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>;
-
+// Base de datos de prueba
 const productosSimulados = [
   { id: 1, nombre: "Essential Hoodie", precio: 65.00, categoria: "hoodies" },
   { id: 2, nombre: "Oversize Basic Tee", precio: 35.00, categoria: "camisetas" },
@@ -23,9 +19,10 @@ const productosSimulados = [
 const Shop = () => {
   const { category } = useParams();
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   
-  const { agregarAlCarrito, totalItems } = useCart();
+  // Extraemos la función para añadir productos. 
+  // (La apertura del carrito y el totalItems ahora los maneja el componente Navbar directamente)
+  const { agregarAlCarrito } = useCart();
   
   const [sortOption, setSortOption] = useState('Ordenar por: Destacados');
   const sortOptions = ['Ordenar por: Destacados', 'Precio: Menor a Mayor', 'Precio: Mayor a Menor', 'Nuevos'];
@@ -45,49 +42,10 @@ const Shop = () => {
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 flex flex-col transition-colors duration-300">
       
-      {/* --- NAVBAR --- */}
-      <nav className="fixed top-0 w-full z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 h-20 transition-colors duration-300">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex justify-between items-center relative">
-          
-          <div className="hidden md:flex gap-8 text-[13px] font-medium text-zinc-500 dark:text-zinc-400 flex-1 justify-start items-center">
-            <Link to="/" className="hover:text-zinc-900 dark:hover:text-white transition-colors uppercase tracking-wider text-[11px]">Inicio</Link>
-            
-            <div className="relative group py-8">
-              <span className="text-zinc-900 dark:text-zinc-100 cursor-pointer uppercase tracking-wider text-[11px] flex items-center gap-1 transition-colors duration-300">
-                Colecciones <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-              </span>
-              <div className="absolute top-[60px] left-0 w-48 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 shadow-xl rounded-2xl py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                <Link to="/shop" className="block px-6 py-2 text-[12px] font-bold text-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-b border-zinc-100 dark:border-zinc-700 mb-1 pb-3">Catálogo Completo</Link>
-                <Link to="/shop/hoodies" className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">Hoodies</Link>
-                <Link to="/shop/camisetas" className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">Camisetas</Link>
-                <Link to="/shop/pantalones" className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">Pantalones</Link>
-              </div>
-            </div>
-            <Link to="/shop/nuevos" className="hover:text-zinc-900 dark:hover:text-white transition-colors uppercase tracking-wider text-[11px]">Nuevos</Link>
-          </div>
+      {/* --- INYECTAMOS EL NAVBAR REUTILIZABLE --- */}
+      <Navbar />
 
-          <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 shrink-0 dark:text-white">
-            Intipa Churin
-          </div>
-
-          <div className="flex gap-6 text-zinc-600 dark:text-zinc-300 flex-1 justify-end">
-            <button className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"><SearchIcon /></button>
-            <Link to="/profile" className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"><UserIcon /></Link>
-            
-            <button 
-              onClick={() => setCartOpen(true)}
-              className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110 relative"
-            >
-              <CartIcon />
-              <span className="absolute -top-2 -right-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center transition-colors">
-                {totalItems}
-              </span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* --- CONTENIDO --- */}
+      {/* --- CONTENIDO DE LA TIENDA --- */}
       <main className="max-w-[1600px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full">
         
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-zinc-100 dark:border-zinc-800 pb-6 gap-4 relative">
@@ -164,8 +122,6 @@ const Shop = () => {
       </main>
 
       <MiniFooter />
-      
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 };

@@ -235,21 +235,13 @@ const UserProfile = () => {
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-[#333] dark:text-zinc-50 font-sans selection:bg-blue-100 dark:selection:bg-blue-900/50 flex flex-col transition-colors duration-300">
       
       {/* NAVBAR */}
-      <nav className="fixed top-0 w-full z-50 bg-white dark:bg-zinc-900/95 shadow-sm dark:border-b dark:border-zinc-800 h-16 transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
-          <Link to="/shop" className="text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors font-medium text-sm flex items-center gap-2">
-            ← Volver a la tienda
-          </Link>
-          <div className="text-xl font-bold tracking-tight text-gray-800 dark:text-white">Intipa Churin</div>
-          <div className="w-24"></div>
-        </div>
-      </nav>
+      <Navbar backButton={true} />
 
       <main className="max-w-[1100px] mx-auto px-6 pt-28 pb-24 flex-grow w-full flex flex-col md:flex-row gap-8">
         
         {/* SIDEBAR */}
         <aside className="w-full md:w-80 flex flex-col gap-6">
-          <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
+          <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase transition-colors duration-300">
                 {userData.first_name ? userData.first_name.charAt(0) : 'U'}
@@ -293,7 +285,7 @@ const UserProfile = () => {
           
           {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
               
               {!isEditing ? (
                 <button onClick={() => setIsEditing(true)} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
@@ -347,7 +339,7 @@ const UserProfile = () => {
 
           {/* VISTA: CONFIGURACIÓN */}
           {activeTab === 'configuracion' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 max-w-xl dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 max-w-xl dark:border dark:border-zinc-800 transition-colors duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
                 <h2 className="text-xl font-medium dark:text-white">Configuración</h2>
               </div>
@@ -390,7 +382,7 @@ const UserProfile = () => {
 
           {/* VISTA: DIRECCIONES */}
           {activeTab === 'direcciones' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
                 <h1 className="text-xl font-medium dark:text-white">Direcciones</h1>
                 {!showAddressForm && (
@@ -474,7 +466,7 @@ const UserProfile = () => {
 
           {/* VISTA: PEDIDOS */}
           {activeTab === 'pedidos' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
               <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Mis Pedidos</h1>
               {pedidos.length > 0 ? (
                 <div className="space-y-4">
