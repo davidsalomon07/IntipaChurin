@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import MiniFooter from '../components/MiniFooter';
+import MiniFooter from '../components/MiniFooter'; // <-- Importamos el MiniFooter
+import CartDrawer from '../components/CartDrawer';
+import { useCart } from '../context/CartContext';
+import Navbar from '../components/Navbar';
 
 // Íconos SVG para el Navbar
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
@@ -23,6 +26,8 @@ const Shop = () => {
   const { category } = useParams();
 
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const { agregarAlCarrito} = useCart();
   const [sortOption, setSortOption] = useState('Ordenar por: Destacados');
   const sortOptions = ['Ordenar por: Destacados', 'Precio: Menor a Mayor', 'Precio: Mayor a Menor', 'Nuevos'];
 
@@ -127,7 +132,10 @@ const Shop = () => {
                     alt={item.nombre}
                   />
                   <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-4 group-hover:translate-y-0">
-                    <button className="w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm text-zinc-900 dark:text-white py-3 rounded-xl text-sm font-semibold hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-900 transition-colors shadow-lg">
+                    <button
+                      onClick={() => agregarAlCarrito(item)}
+                      className="w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm text-zinc-900 dark:text-white py-3 rounded-xl text-sm font-semibold hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-900 transition-colors shadow-lg"
+                    >
                       Agregar al carrito
                     </button>
                   </div>
@@ -145,7 +153,7 @@ const Shop = () => {
       </main>
 
       <MiniFooter />
-
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 };
