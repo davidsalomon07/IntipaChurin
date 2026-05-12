@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useLoadScript, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
 import MiniFooter from '../components/MiniFooter';
+import Navbar from '../components/Navbar';
 
 // Configuraciones de Google Maps
 const libraries = ['places'];

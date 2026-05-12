@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 // Íconos SVG
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
@@ -21,52 +22,7 @@ const Home = () => {
     <div className="bg-[#FCFCFC] min-h-screen text-stone-900 font-sans selection:bg-stone-200 relative">
       
       {/* --- NAVBAR --- */}
-      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-stone-100">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-20 flex justify-between items-center relative">
-          
-          {/* Izquierda: Menú */}
-          <div className="hidden md:flex gap-8 text-[13px] font-medium text-stone-500 flex-1 justify-start items-center">
-            <button onClick={scrollToTop} className="hover:text-stone-900 transition-colors uppercase tracking-wider text-[11px]">
-              Inicio
-            </button>
-            
-            {/* Menú Desplegable: Colecciones */}
-            <div className="relative group py-8">
-              <button className="hover:text-stone-900 transition-colors uppercase tracking-wider text-[11px] flex items-center gap-1">
-                Colecciones
-                <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-              </button>
-              
-              {/* Caja del Dropdown */}
-              <div className="absolute top-[60px] left-0 w-48 bg-white border border-stone-100 shadow-xl rounded-2xl py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                <Link to="/shop" className="block px-6 py-2 text-[12px] font-bold text-stone-900 hover:bg-stone-50 transition-colors border-b border-stone-100 mb-1 pb-3">Catálogo Completo</Link>
-                <Link to="/shop/Hoddies" className="block px-6 py-2 text-[12px] hover:bg-stone-50 hover:text-stone-900 transition-colors">Hoodies</Link>
-                <Link to="/shop/Camisetas" className="block px-6 py-2 text-[12px] hover:bg-stone-50 hover:text-stone-900 transition-colors">Camisetas</Link>
-                <Link to="/shop/Pantalones" className="block px-6 py-2 text-[12px] hover:bg-stone-50 hover:text-stone-900 transition-colors">Pantalones</Link>
-              </div>
-            </div>
-
-            <Link to="/shop/nuevos" className="hover:text-stone-900 transition-colors uppercase tracking-wider text-[11px]">
-              Nuevos
-            </Link>
-          </div>
-
-          {/* Centro: Logo */}
-          <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 shrink-0">
-            Intipa Churin
-          </div>
-
-          {/* Derecha: Íconos */}
-          <div className="flex gap-6 text-stone-600 flex-1 justify-end">
-            <button className="hover:text-stone-900 transition-transform hover:scale-110"><SearchIcon /></button>
-            <Link to="/login" className="hover:text-stone-900 transition-transform hover:scale-110"><UserIcon /></Link>
-            <button className="hover:text-stone-900 transition-transform hover:scale-110 relative">
-              <CartIcon />
-              <span className="absolute -top-2 -right-2 bg-stone-900 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />  
 
       {/* --- HERO SECTION --- */}
       <section className="pt-28 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
