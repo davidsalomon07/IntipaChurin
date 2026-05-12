@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
+import { LanguageContext } from '../context/LanguageContext';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useLoadScript, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
@@ -10,17 +12,17 @@ const mapContainerStyle = { width: '100%', height: '200px', borderRadius: '0.75r
 const defaultCenter = { lat: -0.2103, lng: -78.4889 }; // Centrado en Quito
 
 const UserProfile = () => {
-  const [activeTab, setActiveTab] = useState('pedidos');
+  const [activeTab, setActiveTab] = useState('datos'); 
   const [userData, setUserData] = useState(null); 
   
   // Estados para Datos Personales
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '', phone: '' });
 
-  // NUEVO: Estados para Direcciones
-  const [addresses, setAddresses] = useState([]); // Lista de direcciones
-  const [showAddressForm, setShowAddressForm] = useState(false); // Mostrar/Ocultar formulario
-  const [editingAddressId, setEditingAddressId] = useState(null); // Saber si creamos o editamos
+  // Estados para Direcciones
+  const [addresses, setAddresses] = useState([]); 
+  const [showAddressForm, setShowAddressForm] = useState(false); 
+  const [editingAddressId, setEditingAddressId] = useState(null); 
   const [addressFormData, setAddressFormData] = useState({
     title: '', street_address: '', city: '', postal_code: '', phone_number: ''
   });
@@ -32,18 +34,21 @@ const UserProfile = () => {
   });
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [autocompleteRef, setAutocompleteRef] = useState(null);
-  
-  // NUEVO: Estado para controlar cuándo dibujar el mapa y ahorrar cuota
   const [showMap, setShowMap] = useState(false);
 
-  // NUEVO: Estado para el Modal de confirmación de eliminación
+  // Estado para el Modal de confirmación de eliminación
   const [addressToDelete, setAddressToDelete] = useState(null);
+
+  // Estados para Configuración y Custom Dropdowns
+  const { theme, setTheme } = useContext(ThemeContext);
+  const { language, setLanguage } = useContext(LanguageContext);
+  const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
 
@@ -58,7 +63,6 @@ const UserProfile = () => {
         email: parsedUser.email || '',
         phone: parsedUser.phone || ''
       });
-      // Cuando carga el perfil, pedimos las direcciones al backend
       fetchAddresses(storedToken);
     }
   }, [navigate]);
@@ -96,7 +100,7 @@ const UserProfile = () => {
       setUserData(data.user);
       localStorage.setItem('user', JSON.stringify(data.user)); 
       setIsEditing(false); 
-      toast.success("¡Tus datos han sido actualizados exitosamente!");
+      toast.success("¡Datos actualizados correctamente!");
     } catch (err) {
       toast.error(err.message);
     }
@@ -105,8 +109,6 @@ const UserProfile = () => {
   // ==========================================
   // FUNCIONES DE DIRECCIONES (CRUD)
   // ==========================================
-
-  // 1. READ: Obtener direcciones
   const fetchAddresses = async (token) => {
     try {
       const res = await fetch('http://localhost:3000/api/usuarios/direcciones', {
@@ -117,21 +119,19 @@ const UserProfile = () => {
         setAddresses(data);
       }
     } catch (err) {
-      console.error("Error cargando direcciones:", err);
+      console.error("Error:", err);
     }
   };
 
-  // 2. CREATE / UPDATE: Guardar formulario
   const handleSaveAddress = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
       const url = editingAddressId 
-        ? `http://localhost:3000/api/usuarios/direcciones/${editingAddressId}` // Si hay ID, es UPDATE
-        : 'http://localhost:3000/api/usuarios/direcciones'; // Si no hay ID, es CREATE
+        ? `http://localhost:3000/api/usuarios/direcciones/${editingAddressId}` 
+        : 'http://localhost:3000/api/usuarios/direcciones';
       
       const method = editingAddressId ? 'PUT' : 'POST';
-
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -142,34 +142,29 @@ const UserProfile = () => {
       if (!response.ok) throw new Error(data.error);
 
       toast.success(data.message);
-      fetchAddresses(token); // Recargamos la lista
-      closeAddressForm(); // Cerramos y limpiamos
+      fetchAddresses(token); 
+      closeAddressForm(); 
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  // 3. DELETE: Lógica de eliminación con Modal Personalizado
-  const handleDeleteAddressClick = (id) => {
-    setAddressToDelete(id);
-  };
+  const handleDeleteAddressClick = (id) => setAddressToDelete(id);
 
   const confirmDeleteAddress = async () => {
     if (!addressToDelete) return;
-    
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:3000/api/usuarios/direcciones/${addressToDelete}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
       toast.success(data.message);
-      fetchAddresses(token); // Recargamos la lista
-      setAddressToDelete(null); // Cerramos el modal
+      fetchAddresses(token); 
+      setAddressToDelete(null); 
     } catch (err) {
       toast.error(err.message);
       setAddressToDelete(null);
@@ -201,12 +196,11 @@ const UserProfile = () => {
     }
   };
 
-  // Controladores de UI del formulario
   const openNewAddressForm = () => {
     setAddressFormData({ title: '', street_address: '', city: '', postal_code: '', phone_number: '' });
-    setMapCenter(defaultCenter); // Reseteamos el mapa a Quito
+    setMapCenter(defaultCenter);
     setEditingAddressId(null);
-    setShowMap(false); // Nos aseguramos de que el mapa inicie oculto
+    setShowMap(false);
     setShowAddressForm(true);
   };
 
@@ -219,7 +213,7 @@ const UserProfile = () => {
       phone_number: address.phone_number || ''
     });
     setEditingAddressId(address.id);
-    setShowMap(false); // Nos aseguramos de que el mapa inicie oculto
+    setShowMap(false);
     setShowAddressForm(true);
   };
 
@@ -229,7 +223,6 @@ const UserProfile = () => {
     setShowMap(false);
   };
 
-  // Mock de pedidos
   const pedidos = [
     { id: "ORD-0921", fecha: "15 Abr 2026", total: 140.00, estado: "Entregado", items: "Essential Hoodie, Classic Boxy Tee" },
     { id: "ORD-0854", fecha: "02 Mar 2026", total: 75.00, estado: "Entregado", items: "Cargo Pant Parachute" }
@@ -238,267 +231,282 @@ const UserProfile = () => {
   if (!userData) return null;
 
   return (
-    <div className="bg-[#FCFCFC] min-h-screen text-stone-900 font-sans selection:bg-stone-200 flex flex-col">
+    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-[#333] dark:text-zinc-50 font-sans selection:bg-blue-100 dark:selection:bg-blue-900/50 flex flex-col transition-colors duration-300">
       
       {/* NAVBAR */}
-      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-stone-100 h-20">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex justify-between items-center relative">
-          <div className="flex-1">
-            <Link to="/shop" className="text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest w-fit">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-              Seguir Comprando
-            </Link>
-          </div>
-          <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2">
-            Intipa Churin
-          </div>
-          <div className="flex-1 flex justify-end">
-            <button onClick={handleLogout} className="text-stone-400 hover:text-red-500 transition-colors text-[11px] font-bold uppercase tracking-widest">
-              Cerrar Sesión
-            </button>
-          </div>
+      <nav className="fixed top-0 w-full z-50 bg-white dark:bg-zinc-900/95 shadow-sm dark:border-b dark:border-zinc-800 h-16 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
+          <Link to="/shop" className="text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors font-medium text-sm flex items-center gap-2">
+            ← Volver a la tienda
+          </Link>
+          <div className="text-xl font-bold tracking-tight text-gray-800 dark:text-white">Intipa Churin</div>
+          <div className="w-24"></div>
         </div>
       </nav>
 
-      <main className="max-w-[1200px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full flex flex-col md:flex-row gap-12">
+      <main className="max-w-[1100px] mx-auto px-6 pt-28 pb-24 flex-grow w-full flex flex-col md:flex-row gap-8">
         
-        {/* SIDEBAR LATERAL */}
-        <aside className="w-full md:w-1/4">
-          <div className="bg-stone-100 p-8 rounded-3xl mb-8 text-center">
-            <div className="w-20 h-20 bg-stone-300 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-stone-600 uppercase">
-              {userData.first_name ? userData.first_name.charAt(0) : 'U'}
+        {/* SIDEBAR */}
+        <aside className="w-full md:w-80 flex flex-col gap-6">
+          <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase transition-colors duration-300">
+                {userData.first_name ? userData.first_name.charAt(0) : 'U'}
+              </div>
+              <div>
+                <h2 className="font-semibold text-[15px] dark:text-white">{userData.first_name} {userData.last_name}</h2>
+                <p className="text-[13px] text-gray-500 dark:text-zinc-400">{userData.email}</p>
+              </div>
             </div>
-            <h2 className="font-bold text-lg">{userData.first_name} {userData.last_name}</h2>
-            <p className="text-sm text-stone-500">{userData.email}</p>
-          </div>
 
-          <nav className="flex flex-col gap-2">
-            <button onClick={() => setActiveTab('pedidos')} className={`text-left px-6 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'pedidos' ? 'bg-stone-900 text-white' : 'hover:bg-stone-100 text-stone-600'}`}>Mis Pedidos</button>
-            <button onClick={() => { setActiveTab('datos'); setIsEditing(false); }} className={`text-left px-6 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'datos' ? 'bg-stone-900 text-white' : 'hover:bg-stone-100 text-stone-600'}`}>Datos Personales</button>
-            <button onClick={() => setActiveTab('direcciones')} className={`text-left px-6 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'direcciones' ? 'bg-stone-900 text-white' : 'hover:bg-stone-100 text-stone-600'}`}>Direcciones</button>
-          </nav>
+            <nav className="flex flex-col gap-1">
+              <button onClick={() => { setActiveTab('datos'); setIsEditing(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'datos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                Datos Personales
+              </button>
+              <button onClick={() => setActiveTab('direcciones')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'direcciones' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Direcciones
+              </button>
+              <button onClick={() => setActiveTab('pedidos')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'pedidos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                Mis Pedidos
+              </button>
+              <button onClick={() => setActiveTab('configuracion')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'configuracion' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Configuración
+              </button>
+            </nav>
+
+            <div className="mt-8 pt-4 border-t border-gray-100 dark:border-zinc-800">
+              <button onClick={handleLogout} className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
         </aside>
 
-        {/* AREA PRINCIPAL */}
-        <div className="w-full md:w-3/4">
+        {/* CONTENIDO PRINCIPAL */}
+        <div className="flex-1">
           
-          {/* VISTA: PEDIDOS */}
-          {activeTab === 'pedidos' && (
-            <div>
-              <h1 className="text-2xl font-bold mb-8 tracking-tight">Historial de Pedidos</h1>
-              {pedidos.length > 0 ? (
-                <div className="space-y-4">
-                  {pedidos.map((pedido, index) => (
-                    <div key={index} className="bg-white border border-stone-100 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-shadow">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="font-bold">{pedido.id}</span>
-                          <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-md font-semibold">{pedido.estado}</span>
-                        </div>
-                        <p className="text-sm text-stone-500">{pedido.fecha}</p>
-                        <p className="text-sm text-stone-600 mt-2">{pedido.items}</p>
-                      </div>
-                      <div className="text-right w-full md:w-auto">
-                        <p className="font-bold text-lg mb-2">${pedido.total.toFixed(2)}</p>
-                        <button className="text-xs font-bold uppercase tracking-wider text-stone-900 border-b border-stone-900 pb-0.5 hover:text-stone-500 hover:border-stone-500 transition-colors">Ver Detalles</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-stone-50 p-12 rounded-3xl text-center border border-stone-100">
-                  <p className="text-stone-500 mb-4">Aún no has realizado ningún pedido.</p>
-                  <Link to="/shop" className="text-sm font-bold border-b border-stone-900 pb-1">Explorar catálogo</Link>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
-            <div>
-              <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold tracking-tight">Datos Personales</h1>
-                {!isEditing && (
-                  <button onClick={() => setIsEditing(true)} className="text-xs font-bold uppercase tracking-wider text-stone-900 border-b border-stone-900 pb-0.5 hover:text-stone-500 hover:border-stone-500 transition-colors">Editar</button>
-                )}
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
+              
+              {!isEditing ? (
+                <button onClick={() => setIsEditing(true)} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                </button>
+              ) : (
+                <button onClick={handleCancelEdit} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              )}
+
+              <div className="flex flex-col items-center mb-12">
+                <div className="w-20 h-20 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-3xl font-bold text-gray-500 dark:text-zinc-400 relative uppercase transition-colors duration-300">
+                  {userData.first_name ? userData.first_name.charAt(0) : 'U'}
+                </div>
+                <h2 className="text-xl font-medium mt-4 dark:text-white">{formData.first_name} {formData.last_name}</h2>
+                <p className="text-gray-500 dark:text-zinc-400 text-sm">{formData.email}</p>
               </div>
 
-              <div className="bg-white border border-stone-100 p-8 rounded-3xl shadow-sm space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Nombre</label>
-                    <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} disabled={!isEditing} className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`} />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Apellido</label>
-                    <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} disabled={!isEditing} className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`} />
-                  </div>
+              <div className="space-y-6 max-w-2xl mx-auto">
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Nombre</label>
+                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Apellido</label>
+                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Correo Electrónico</label>
-                    <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} disabled={!isEditing} className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`} />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Teléfono</label>
-                    <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} disabled={!isEditing} placeholder="Ej. 0987654321" className={`w-full px-4 py-2.5 border rounded-xl text-sm transition-all focus:outline-none ${!isEditing ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' : 'bg-stone-50 border-stone-300 text-stone-900 focus:border-stone-500 focus:ring-1 focus:ring-stone-500'}`} />
-                  </div>
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Cuenta de Correo</label>
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Número Móvil</label>
+                  <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} disabled={!isEditing} placeholder={isEditing ? "" : "Añadir número"} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400 dark:placeholder-zinc-600'}`} />
                 </div>
 
                 {isEditing && (
-                  <div className="flex gap-4 pt-2">
-                    <button onClick={handleSaveChanges} className="bg-stone-900 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors">Guardar Cambios</button>
-                    <button onClick={handleCancelEdit} className="bg-stone-100 text-stone-600 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-200 transition-colors">Cancelar</button>
+                  <div className="pt-8">
+                    <button onClick={handleSaveChanges} className="bg-[#2B80FF] hover:bg-blue-600 text-white px-8 py-3 rounded-xl text-[14px] font-medium transition-colors shadow-lg shadow-blue-500/20">
+                      Guardar Cambios
+                    </button>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* VISTA: CONFIGURACIÓN */}
+          {activeTab === 'configuracion' && (
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 max-w-xl dark:border dark:border-zinc-800 transition-colors duration-300">
+              <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
+                <h2 className="text-xl font-medium dark:text-white">Configuración</h2>
+              </div>
+
+              <div className="space-y-2">
+                {/* Custom Dropdown Tema */}
+                <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
+                  <span className="text-[15px] text-gray-700 dark:text-zinc-300">Tema</span>
+                  <div className="relative">
+                    <button onClick={() => setIsThemeOpen(!isThemeOpen)} onBlur={() => setTimeout(() => setIsThemeOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-[130px]">
+                      <span>{theme}</span>
+                      <svg className={`w-4 h-4 text-gray-400 dark:text-zinc-500 transition-transform duration-300 ${isThemeOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div className={`absolute top-full right-0 mt-2 w-full min-w-[130px] bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isThemeOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                      {['Light', 'Dark'].map((opt) => (
+                        <button key={opt} onClick={() => { setTheme(opt); setIsThemeOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${theme === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Custom Dropdown Idioma */}
+                <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
+                  <span className="text-[15px] text-gray-700 dark:text-zinc-300">Idioma</span>
+                  <div className="relative">
+                    <button onClick={() => setIsLanguageOpen(!isLanguageOpen)} onBlur={() => setTimeout(() => setIsLanguageOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-[130px]">
+                      <span>{language}</span>
+                      <svg className={`w-4 h-4 text-gray-400 dark:text-zinc-500 transition-transform duration-300 ${isLanguageOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div className={`absolute top-full right-0 mt-2 w-full min-w-[130px] bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isLanguageOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                      {['Español', 'Inglés'].map((opt) => (
+                        <button key={opt} onClick={() => { setLanguage(opt); setIsLanguageOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${language === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {/* VISTA: DIRECCIONES */}
           {activeTab === 'direcciones' && (
-            <div>
-              <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold tracking-tight">Libreta de Direcciones</h1>
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+              <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
+                <h1 className="text-xl font-medium dark:text-white">Direcciones</h1>
                 {!showAddressForm && (
-                  <button onClick={openNewAddressForm} className="text-xs font-bold uppercase tracking-wider text-stone-900 border-b border-stone-900 pb-0.5 hover:text-stone-500 hover:border-stone-500 transition-colors">
-                    + Nueva
-                  </button>
+                  <button onClick={openNewAddressForm} className="text-sm font-medium text-[#2B80FF] hover:text-blue-700 transition-colors">+ Añadir Nueva</button>
                 )}
               </div>
 
               {showAddressForm ? (
-                /* FORMULARIO DE DIRECCIÓN */
-                <form onSubmit={handleSaveAddress} className="bg-white border border-stone-100 p-8 rounded-3xl shadow-sm space-y-6">
-                  <h3 className="font-bold text-lg mb-4">{editingAddressId ? 'Editar Dirección' : 'Agregar Dirección'}</h3>
-                  
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Título de la dirección</label>
-                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-500" />
+                <form onSubmit={handleSaveAddress} className="space-y-6 max-w-2xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center py-3 border-b border-gray-100 dark:border-zinc-800">
+                    <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mb-1 sm:mb-0">Título</label>
+                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
                   </div>
                   
-                  {/* INYECCIÓN CONDICIONAL DE GOOGLE MAPS */}
                   {!showMap ? (
-                    <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Dirección completa</label>
-                      <div className="flex gap-3">
-                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-500" />
-                        <button type="button" onClick={() => setShowMap(true)} className="px-4 py-2 bg-stone-200 text-stone-700 text-xs font-bold uppercase rounded-xl hover:bg-stone-300 transition-colors whitespace-nowrap">
-                          📍 Usar Mapa
-                        </button>
+                    <div className="flex flex-col sm:flex-row sm:items-start py-3 border-b border-gray-100 dark:border-zinc-800">
+                      <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mt-2">Dirección</label>
+                      <div className="flex-1 flex gap-3">
+                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
+                        <button type="button" onClick={() => setShowMap(true)} className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-xs rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">📍 Mapa</button>
                       </div>
                     </div>
                   ) : (
                     isLoaded ? (
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex justify-between items-end mb-1.5">
-                            <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600">Dirección completa (Busca en el mapa)</label>
-                            <button type="button" onClick={() => setShowMap(false)} className="text-[10px] font-bold uppercase text-stone-400 hover:text-stone-600 transition-colors">Ocultar Mapa</button>
-                          </div>
-                          <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
-                            <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Empieza a escribir tu dirección..." className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-500" />
-                          </Autocomplete>
+                      <div className="space-y-4 py-3">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[14px] text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
+                          <button type="button" onClick={() => setShowMap(false)} className="text-xs text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar</button>
                         </div>
-                        <div className="border border-stone-200 rounded-xl overflow-hidden shadow-inner">
-                          <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}>
-                            <Marker position={mapCenter} />
-                          </GoogleMap>
+                        <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
+                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none shadow-sm placeholder-gray-400 dark:placeholder-zinc-500" />
+                        </Autocomplete>
+                        <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
+                          <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}><Marker position={mapCenter} /></GoogleMap>
                         </div>
                       </div>
-                    ) : (
-                      <div className="p-4 text-center text-sm text-stone-500 bg-stone-50 rounded-xl">Cargando mapa...</div>
-                    )
+                    ) : (<div className="p-4 text-sm text-gray-500 dark:text-zinc-400">Cargando mapa...</div>)
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Ciudad</label>
-                      <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} placeholder="Ej. Quito" className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-500" />
+                  <div className="flex flex-col sm:flex-row gap-6">
+                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
+                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Ciudad</label>
+                      <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Código Postal</label>
-                      <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} placeholder="Opcional" className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-500" />
+                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
+                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Código Postal</label>
+                      <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Teléfono de contacto</label>
-                    <input type="tel" required value={addressFormData.phone_number} onChange={(e) => setAddressFormData({...addressFormData, phone_number: e.target.value})} placeholder="Para el repartidor" className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-500" />
+                  <div className="flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
+                    <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Teléfono</label>
+                    <input type="tel" required value={addressFormData.phone_number} onChange={(e) => setAddressFormData({...addressFormData, phone_number: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <button type="submit" className="bg-stone-900 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors">Guardar Dirección</button>
-                    <button type="button" onClick={closeAddressForm} className="bg-stone-100 text-stone-600 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-200 transition-colors">Cancelar</button>
+                    <button type="submit" className="bg-[#2B80FF] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-md shadow-blue-500/20 transition-colors">Guardar</button>
+                    <button type="button" onClick={closeAddressForm} className="bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 px-6 py-2.5 rounded-xl text-[14px] font-medium transition-colors">Cancelar</button>
                   </div>
                 </form>
               ) : (
-                /* LISTA DE DIRECCIONES */
-                addresses.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {addresses.map((address) => (
-                      <div key={address.id} className="bg-white border border-stone-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative group">
-                        <div className="mb-4">
-                          <h3 className="font-bold text-lg">{address.title}</h3>
-                          <p className="text-sm text-stone-500 mt-1">{address.street_address}</p>
-                          <p className="text-sm text-stone-500">{address.city} {address.postal_code ? `- ${address.postal_code}` : ''}</p>
-                          <p className="text-sm text-stone-500 mt-2 font-medium">📞 {address.phone_number}</p>
-                        </div>
-                        
-                        <div className="flex gap-4 border-t border-stone-100 pt-4">
-                          <button onClick={() => openEditAddressForm(address)} className="text-xs font-bold uppercase tracking-wider text-stone-600 hover:text-stone-900 transition-colors">Editar</button>
-                          <button onClick={() => handleDeleteAddressClick(address.id)} className="text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-600 transition-colors">Eliminar</button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {addresses.length > 0 ? (
+                    addresses.map((address) => (
+                      <div key={address.id} className="border border-gray-100 dark:border-zinc-800 p-5 rounded-2xl hover:border-gray-200 dark:hover:border-zinc-700 transition-colors group">
+                        <h3 className="font-semibold text-[15px] dark:text-white mb-1">{address.title}</h3>
+                        <p className="text-[13px] text-gray-500 dark:text-zinc-400 mb-4">{address.street_address}, {address.city}</p>
+                        <div className="flex gap-4">
+                          <button onClick={() => openEditAddressForm(address)} className="text-[12px] font-medium text-gray-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Editar</button>
+                          <button onClick={() => handleDeleteAddressClick(address.id)} className="text-[12px] font-medium text-red-300 dark:text-red-400/70 hover:text-red-500 dark:hover:text-red-400 transition-colors">Eliminar</button>
                         </div>
                       </div>
-                    ))}
-                    
-                    {/* Botón rápido para agregar otra */}
-                    <div onClick={openNewAddressForm} className="border-2 border-stone-100 border-dashed p-6 rounded-3xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-stone-50 transition-colors min-h-[200px]">
-                      <div className="w-10 h-10 bg-stone-200 rounded-full flex items-center justify-center text-stone-600 mb-3">+</div>
-                      <p className="text-sm font-bold text-stone-600">Agregar nueva dirección</p>
-                    </div>
-                  </div>
-                ) : (
-                  /* ESTADO VACÍO */
-                  <div className="bg-white border border-stone-100 border-dashed p-12 rounded-3xl text-center">
-                    <p className="text-stone-500 mb-4">No tienes direcciones guardadas.</p>
-                    <button onClick={openNewAddressForm} className="text-sm font-bold border-b border-stone-900 pb-1 hover:text-stone-600 hover:border-stone-600 transition-colors">Agregar tu primera dirección</button>
-                  </div>
-                )
+                    ))
+                  ) : (
+                    <div className="col-span-full py-10 text-center text-gray-400 dark:text-zinc-500 text-sm">No tienes direcciones guardadas.</div>
+                  )}
+                </div>
               )}
             </div>
           )}
 
+          {/* VISTA: PEDIDOS */}
+          {activeTab === 'pedidos' && (
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-sm p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+              <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Mis Pedidos</h1>
+              {pedidos.length > 0 ? (
+                <div className="space-y-4">
+                  {pedidos.map((p, idx) => (
+                    <div key={idx} className="border border-gray-100 dark:border-zinc-800 p-5 rounded-2xl flex justify-between items-center hover:border-gray-200 dark:hover:border-zinc-700 transition-colors">
+                      <div>
+                        <div className="flex items-center gap-3 mb-1"><span className="font-semibold text-[14px] dark:text-white">{p.id}</span><span className="text-[11px] px-2 py-0.5 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 rounded-md font-medium">{p.estado}</span></div>
+                        <p className="text-[13px] text-gray-500 dark:text-zinc-400">{p.fecha}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-[15px] dark:text-white mb-1">${p.total.toFixed(2)}</p>
+                        <button className="text-[12px] text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">Detalles</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 text-gray-400 dark:text-zinc-500 text-sm">No has realizado pedidos todavía.</div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
-      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
+      {/* MODAL ELIMINAR */}
       {addressToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
-          <div className="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full border border-stone-100 transform transition-all text-center">
-            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-5">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-stone-900 mb-2 tracking-tight">¿Eliminar dirección?</h3>
-            <p className="text-sm text-stone-500 mb-8">Esta acción no se puede deshacer. Tendrás que volver a llenar los datos si quieres usarla después.</p>
-            
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-zinc-900 p-8 rounded-[24px] shadow-xl max-w-sm w-full text-center scale-up-center transition-colors duration-300 border border-transparent dark:border-zinc-800">
+            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">¿Eliminar dirección?</h3>
+            <p className="text-[14px] text-gray-500 dark:text-zinc-400 mb-8">Esta acción no se puede deshacer.</p>
             <div className="flex gap-3">
-              <button 
-                onClick={() => setAddressToDelete(null)} 
-                className="flex-1 py-3.5 px-4 bg-stone-100 text-stone-600 font-bold text-[11px] uppercase tracking-wider rounded-xl hover:bg-stone-200 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={confirmDeleteAddress} 
-                className="flex-1 py-3.5 px-4 bg-red-500 text-white font-bold text-[11px] uppercase tracking-wider rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30"
-              >
-                Sí, eliminar
-              </button>
+              <button onClick={() => setAddressToDelete(null)} className="flex-1 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 font-medium text-[14px] rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
+              <button onClick={confirmDeleteAddress} className="flex-1 py-3 bg-red-500 text-white font-medium text-[14px] rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20">Eliminar</button>
             </div>
           </div>
         </div>
