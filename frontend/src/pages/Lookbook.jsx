@@ -1,15 +1,18 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import MiniFooter from '../components/MiniFooter'; // Importamos tu componente oficial
 
 const Lookbook = () => {
-  // Hacemos que la página empiece desde arriba al cargar
+  // Asegura que la navegación empiece desde la parte superior
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
-    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-300">
+    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-300 flex flex-col">
+      
+      {/* Navbar con botón de volver habilitado */}
       <Navbar backButton={true} />
 
       {/* --- CABECERA EDITORIAL --- */}
@@ -46,11 +49,11 @@ const Lookbook = () => {
         </div>
       </section>
 
-      {/* --- GALERÍA LOOKBOOK (Estilo Masonry/Revista) --- */}
-      <section className="py-20 px-6 md:px-12 max-w-[1600px] mx-auto">
+      {/* --- GALERÍA LOOKBOOK (Estilo Revista) --- */}
+      <section className="py-20 px-6 md:px-12 max-w-[1600px] mx-auto flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
           
-          {/* Look 1 */}
+          {/* Look 01 */}
           <div className="group relative w-full h-[600px] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900">
             <img 
               src="https://placehold.co/800x1000/e7e5e4/a8a29e?text=LOOK+01" 
@@ -67,7 +70,7 @@ const Lookbook = () => {
             </div>
           </div>
 
-          {/* Look 2 */}
+          {/* Look 02 */}
           <div className="group relative w-full h-[600px] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 md:mt-20">
             <img 
               src="https://placehold.co/800x1000/d6d3d1/78716c?text=LOOK+02" 
@@ -84,7 +87,7 @@ const Lookbook = () => {
             </div>
           </div>
 
-          {/* Look 3 */}
+          {/* Look 03 */}
           <div className="group relative w-full h-[600px] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 md:-mt-20">
             <img 
               src="https://placehold.co/800x1000/f5f5f4/d6d3d1?text=LOOK+03" 
@@ -101,7 +104,7 @@ const Lookbook = () => {
             </div>
           </div>
 
-          {/* Call to Action Final */}
+          {/* Enlace final a tienda */}
           <div className="flex flex-col justify-center items-center text-center p-10 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-3xl h-[600px]">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Explora el Catálogo</h2>
             <p className="text-zinc-400 dark:text-zinc-500 mb-10 max-w-sm">
@@ -115,10 +118,8 @@ const Lookbook = () => {
         </div>
       </section>
 
-      {/* --- FOOTER SIMPLIFICADO --- */}
-      <footer className="border-t border-zinc-200 dark:border-zinc-800 py-10 text-center">
-        <p className="text-xs text-zinc-400 font-medium">© 2026 Intipa Churin. Sistema Integral.</p>
-      </footer>
+      {/* Renderizado de tu MiniFooter oficial al final */}
+      <MiniFooter />
     </div>
   );
 };

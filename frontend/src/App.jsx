@@ -15,6 +15,7 @@ import Privacy from './pages/Privacy';
 import Shop from './pages/Shop';
 import UserProfile from './pages/UserProfile';
 import Lookbook from './pages/Lookbook';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   return (
@@ -82,6 +83,10 @@ function App() {
                 {/* Ruta para la página de Lookbook */}
                 <Route path="/lookbook" element={<Lookbook />} />
               </Routes>
+
+              {/* Botón de WhatsApp, que se renderiza en todas las páginas excepto en las rutas especificadas */}
+              <WhatsAppButton />
+
             </div>
           </Router>
         </CartProvider>
