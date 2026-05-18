@@ -14,6 +14,7 @@ import Shipping from './pages/Shipping';
 import Privacy from './pages/Privacy';
 import Shop from './pages/Shop';
 import UserProfile from './pages/UserProfile';
+import Lookbook from './pages/Lookbook';
 
 function App() {
   return (
@@ -78,6 +79,8 @@ function App() {
                 <Route path="/shop/:category" element={<Shop />} />
                 {/* Ruta para la página de Perfil de Usuario */}
                 <Route path="/profile" element={<UserProfile />} />
+                {/* Ruta para la página de Lookbook */}
+                <Route path="/lookbook" element={<Lookbook />} />
               </Routes>
             </div>
           </Router>
