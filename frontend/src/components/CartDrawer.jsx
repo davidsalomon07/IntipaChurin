@@ -6,15 +6,17 @@ const CartDrawer = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay oscuro detrás del panel */}
+      {/* CÓDIGO CORREGIDO: z-[100] (Antes estaba en z-40) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/40 z-[100] backdrop-blur-sm transition-opacity"
           onClick={onClose}
         />
       )}
 
       {/* Panel lateral */}
-      <div className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white dark:bg-zinc-950 z-50 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out border-l border-transparent dark:border-zinc-800 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* CÓDIGO CORREGIDO: z-[110] para que pase por encima del overlay oscuro (Antes estaba en z-50) */}
+      <div className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white dark:bg-zinc-950 z-[110] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out border-l border-transparent dark:border-zinc-800 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Cabecera */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
