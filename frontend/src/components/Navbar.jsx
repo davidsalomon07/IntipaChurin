@@ -1,23 +1,114 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import CartDrawer from './CartDrawer';
 import { useCart } from '../context/CartContext';
 
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
 const CartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>;
+const CloseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
 
 const Navbar = ({ backButton = false }) => {
   const [cartOpen, setCartOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [productosDB, setProductosDB] = useState([]);
+  
   const { totalItems } = useCart();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // CONEXIÓN A POSTGRESQL
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/products'); 
+        if (response.ok) {
+          const data = await response.json();
+          setProductosDB(data.filter(p => p.is_active)); 
+        }
+      } catch (error) {
+        console.error("Error conectando con la base de datos:", error);
+      }
+    };
+    cargarProductos();
+  }, []);
+
+  const normalizarTexto = (texto) => {
+    if (!texto) return '';
+    return texto
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  // ==========================================
+  // FILTRADO MULTI-PALABRA (Como Google)
+  // ==========================================
+  const resultadosBusqueda = searchQuery.trim() === '' ? [] : productosDB.filter((producto) => {
+    const queryLimpiada = normalizarTexto(searchQuery);
+    
+    // Dividimos lo que escribe el usuario por espacios (ej: ["pantalon", "verde"])
+    const palabrasEscritas = queryLimpiada.split(' ').filter(Boolean); 
+    
+    const nombreLimpiado = normalizarTexto(producto.name);
+    const categoriaLimpiada = normalizarTexto(producto.category_name || '');
+    
+    // Unimos el nombre y la categoría para buscar coincidencias en todo el producto
+    const textoBuscable = `${nombreLimpiado} ${categoriaLimpiada}`;
+    
+    // Retorna true SOLO SI TODAS las palabras sueltas existen dentro del texto buscable
+    return palabrasEscritas.every(palabra => textoBuscable.includes(palabra));
+  });
+  // ==========================================
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') cerrarBusqueda();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  useEffect(() => {
+    if (searchOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [searchOpen]);
+
+  const cerrarBusqueda = () => {
+    setSearchOpen(false);
+    setSearchQuery('');
+  };
+
+  const handleInicioClick = (e) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim() !== '') {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      cerrarBusqueda();
+    }
+  };
+
+  const handleProductoSugeridoClick = (termino) => {
+    navigate(`/shop?search=${encodeURIComponent(termino)}`);
+    cerrarBusqueda();
+  };
 
   return (
     <>
-      {/* Añadimos las clases dark:bg-zinc-900/90 y dark:border-zinc-800 */}
       <nav className="fixed top-0 w-full z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 h-20 transition-colors duration-300">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex justify-between items-center relative">
-
-          {/* Izquierda: Volver o links de navegación */}
           <div className="flex-1 flex items-center gap-8">
             {backButton ? (
               <Link to="/" className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest">
@@ -26,7 +117,7 @@ const Navbar = ({ backButton = false }) => {
               </Link>
             ) : (
               <div className="hidden md:flex gap-8 items-center font-medium">
-                <Link to="/" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors uppercase tracking-wider text-[11px]">Inicio</Link>
+                <Link to="/" onClick={handleInicioClick} className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors uppercase tracking-wider text-[11px]">Inicio</Link>
                 <div className="relative group py-8">
                   <span className="text-zinc-900 dark:text-zinc-100 cursor-pointer uppercase tracking-wider text-[11px] flex items-center gap-1 transition-colors duration-300">
                     Colecciones
@@ -44,14 +135,14 @@ const Navbar = ({ backButton = false }) => {
             )}
           </div>
 
-          {/* Centro: Logo */}
           <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 pointer-events-none dark:text-white transition-colors duration-300">
             Intipa Churin
           </div>
 
-          {/* Derecha: Iconos */}
           <div className="flex gap-6 text-zinc-600 dark:text-zinc-300 flex-1 justify-end">
-            <button className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"><SearchIcon /></button>
+            <button onClick={() => setSearchOpen(true)} className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110">
+              <SearchIcon />
+            </button>
             <Link to="/profile" className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"><UserIcon /></Link>
             <button onClick={() => setCartOpen(true)} className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110 relative">
               <CartIcon />
@@ -60,9 +151,71 @@ const Navbar = ({ backButton = false }) => {
               </span>
             </button>
           </div>
-
         </div>
       </nav>
+
+      {/* --- OVERLAY DE BÚSQUEDA --- */}
+      <div 
+        className={`fixed inset-0 z-[100] bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl flex flex-col items-center pt-32 overflow-y-auto transition-all duration-500 ${searchOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+      >
+        <button 
+          onClick={cerrarBusqueda}
+          className="absolute top-8 right-8 md:top-12 md:right-12 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-transform hover:rotate-90 duration-300"
+        >
+          <CloseIcon />
+        </button>
+
+        <form onSubmit={handleSearchSubmit} className="w-full max-w-4xl px-6 flex flex-col items-center">
+          <div className="relative flex items-center w-full">
+            <SearchIcon className="absolute left-0 w-8 h-8 text-zinc-400" />
+            <input 
+              type="text" 
+              autoFocus={searchOpen}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Ej: Pantalón verde, hoodie..." 
+              className="w-full bg-transparent text-3xl md:text-5xl font-light text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-700 border-b-2 border-zinc-200 dark:border-zinc-800 focus:border-zinc-900 dark:focus:border-white outline-none py-6 pl-16 transition-colors duration-300"
+            />
+          </div>
+
+          <div className="w-full mt-12 mb-12">
+            {searchQuery.trim() === '' ? (
+              <p className="text-zinc-400 dark:text-zinc-600 text-center font-medium">Empieza a escribir para buscar en el inventario real.</p>
+            ) : resultadosBusqueda.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-fade-in-up">
+                {resultadosBusqueda.map((producto) => (
+                  <div 
+                    key={producto.id} 
+                    onClick={() => handleProductoSugeridoClick(producto.name)}
+                    className="group cursor-pointer flex flex-col items-start text-left"
+                  >
+                    <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-4 relative">
+                      <img 
+                        src={producto.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=PRENDA`} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                        alt={producto.name}
+                      />
+                      {producto.stock_quantity > 0 && producto.stock_quantity <= 5 && (
+                        <span className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-bold px-2 py-1 rounded-sm uppercase tracking-wider">
+                          Últimos {producto.stock_quantity}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">{producto.category_name || 'General'}</span>
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white group-hover:underline underline-offset-4 decoration-2">{producto.name}</h3>
+                    <p className="text-sm text-zinc-500 mt-1">${parseFloat(producto.price).toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-zinc-500 dark:text-zinc-400 py-12">
+                <p className="text-xl font-medium mb-2">No encontramos resultados para "{searchQuery}"</p>
+                <p className="text-sm">Intenta buscar otro artículo del inventario de Intipa Churin.</p>
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
 
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>

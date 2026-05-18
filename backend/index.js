@@ -281,6 +281,37 @@ app.delete('/api/usuarios/direcciones/:id', async (req, res) => {
   }
 });
 
+// ==========================================
+// 8. READ: Obtener todos los productos (Catálogo público)
+// ==========================================
+app.get('/api/products', async (req, res) => {
+  try {
+    // Hacemos un JOIN con la tabla categories para enviarle al Frontend 
+    // el nombre real de la categoría ('Hoodies', 'Camisetas') en lugar del ID numérico
+    const result = await pool.query(`
+      SELECT 
+        p.id, 
+        p.name, 
+        p.description, 
+        p.price, 
+        p.stock_quantity, 
+        p.image_url, 
+        p.is_active,
+        c.name AS category_name
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      ORDER BY p.id ASC
+    `);
+
+    // Devolvemos el array de productos directamente
+    res.json(result.rows);
+
+  } catch (error) {
+    console.error("❌ Error al cargar el catálogo de productos:", error.message);
+    res.status(500).json({ error: "Hubo un problema al cargar los productos." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
