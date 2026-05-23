@@ -8,30 +8,100 @@ html.dark #root {
   color: #f5f5f4 !important; 
 }
 
-/* 1. Esto activa el deslizamiento suave (Smooth Scroll) en toda la web */
+/* 1. Smooth Scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* ✅ NUEVO: Evita que cualquier elemento se salga del ancho de pantalla */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 html, body {
   overflow-x: hidden;
   width: 100%;
+  max-width: 100vw; /* ✅ NUEVO: tope máximo para móvil */
+}
+
+/* ✅ NUEVO: Ninguna imagen romperá el layout en ninguna pantalla */
+img, video, svg, picture {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ✅ NUEVO: Tablas con scroll horizontal en móvil en vez de romper el layout */
+table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
 }
 
 /* 2. Scrollbar elegante y minimalista */
 ::-webkit-scrollbar { 
   width: 6px; 
 }
-
 ::-webkit-scrollbar-track { 
   background: transparent; 
 }
-
 ::-webkit-scrollbar-thumb { 
-  background: #d6d3d1; /* Gris piedra sutil */
+  background: #d6d3d1;
   border-radius: 10px; 
 }
-
 ::-webkit-scrollbar-thumb:hover { 
-  background: #a8a29e; /* Gris más oscuro al pasar el mouse */
+  background: #a8a29e;
+}@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* === REGLA A PRUEBA DE BALAS === */
+html.dark body,
+html.dark #root {
+  background-color: #1c1917 !important; 
+  color: #f5f5f4 !important; 
+}
+
+/* 1. Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ✅ NUEVO: Evita que cualquier elemento se salga del ancho de pantalla */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw; /* ✅ NUEVO: tope máximo para móvil */
+}
+
+/* ✅ NUEVO: Ninguna imagen romperá el layout en ninguna pantalla */
+img, video, svg, picture {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ✅ NUEVO: Tablas con scroll horizontal en móvil en vez de romper el layout */
+table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+/* 2. Scrollbar elegante y minimalista */
+::-webkit-scrollbar { 
+  width: 6px; 
+}
+::-webkit-scrollbar-track { 
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb { 
+  background: #d6d3d1;
+  border-radius: 10px; 
+}
+::-webkit-scrollbar-thumb:hover { 
+  background: #a8a29e;
 }
