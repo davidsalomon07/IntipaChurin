@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const pool = require('./db'); 
+const pool = require('./db');
 const jwt = require('jsonwebtoken'); // <-- NUEVO: Para generar el token de sesión
 
 const app = express();
@@ -12,9 +12,9 @@ app.use(express.json());
 
 // Endpoint de prueba para verificar que el servidor responde
 app.get('/api/status', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Servidor de Intipa Churin funcionando',
-    db_status: 'Conectada' 
+    db_status: 'Conectada'
   });
 });
 
@@ -85,8 +85,8 @@ app.post('/api/usuarios/login', async (req, res) => {
     // 3. Creamos el Token de sesión (Firma digital)
     // En producción, la palabra 'secreto_intipa_2026' debe ir en tu archivo .env
     const token = jwt.sign(
-      { id: user.id, role_id: user.role_id }, 
-      'secreto_intipa_2026', 
+      { id: user.id, role_id: user.role_id },
+      'secreto_intipa_2026',
       { expiresIn: '24h' } // El token caduca en 1 día
     );
 
@@ -121,7 +121,7 @@ app.put('/api/usuarios/perfil', async (req, res) => {
     }
 
     const token = authHeader.split(' ')[1]; // Separamos la palabra "Bearer" del token real
-    
+
     // 2. Desencriptamos el token para saber quién es (sacamos su id)
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
@@ -161,7 +161,7 @@ app.post('/api/usuarios/direcciones', async (req, res) => {
     // 1. Verificamos la identidad del usuario (Token)
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: "No autorizado." });
-    
+
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
@@ -194,7 +194,7 @@ app.get('/api/usuarios/direcciones', async (req, res) => {
     // 1. Verificamos la identidad del usuario
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: "No autorizado." });
-    
+
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
@@ -220,7 +220,7 @@ app.put('/api/usuarios/direcciones/:id', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: "No autorizado." });
-    
+
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
@@ -256,7 +256,7 @@ app.delete('/api/usuarios/direcciones/:id', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: "No autorizado." });
-    
+
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
@@ -309,6 +309,150 @@ app.get('/api/products', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al cargar el catálogo de productos:", error.message);
     res.status(500).json({ error: "Hubo un problema al cargar los productos." });
+  }
+});
+
+// ==========================================
+// 🚨 AQUÍ ESTÁ EL MIDDLEWARE QUE FALTABA 🚨
+// ==========================================
+const verificarAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado. Falta el token." });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+
+    // Asumimos que ADMIN es el id 1 en tu tabla 'roles'
+    if (decoded.role_id !== 1) {
+      return res.status(403).json({ error: "Acceso denegado. Solo administradores." });
+    }
+
+    req.user = decoded;
+    next(); // Si es Admin, lo dejamos pasar a la ruta
+  } catch (error) {
+    return res.status(401).json({ error: "Token inválido o expirado." });
+  }
+};
+
+// ==========================================
+// 9. ADMIN - CREATE: Agregar un nuevo producto
+// ==========================================
+app.post('/api/admin/products', verificarAdmin, async (req, res) => {
+  try {
+    const { category_id, name, description, price, stock_quantity, image_url, is_active } = req.body;
+
+    const newProduct = await pool.query(
+      `INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [category_id, name, description, price, stock_quantity, image_url, is_active]
+    );
+
+    res.status(201).json({
+      message: "Producto creado exitosamente",
+      product: newProduct.rows[0]
+    });
+  } catch (error) {
+    console.error("❌ Error al crear producto:", error.message);
+    res.status(500).json({ error: "Error al guardar el producto en la base de datos." });
+  }
+});
+
+// ==========================================
+// 10. ADMIN - UPDATE: Editar un producto existente
+// ==========================================
+app.put('/api/admin/products/:id', verificarAdmin, async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { category_id, name, description, price, stock_quantity, image_url, is_active } = req.body;
+
+    const updateQuery = await pool.query(
+      `UPDATE products 
+       SET category_id = $1, name = $2, description = $3, price = $4, stock_quantity = $5, image_url = $6, is_active = $7 
+       WHERE id = $8 RETURNING *`,
+      [category_id, name, description, price, stock_quantity, image_url, is_active, productId]
+    );
+
+    if (updateQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado." });
+    }
+
+    res.json({
+      message: "Producto actualizado correctamente",
+      product: updateQuery.rows[0]
+    });
+  } catch (error) {
+    console.error("❌ Error al actualizar producto:", error.message);
+    res.status(500).json({ error: "Error al actualizar el producto." });
+  }
+});
+
+// ==========================================
+// 11. ADMIN - DELETE: Eliminar un producto
+// ==========================================
+app.delete('/api/admin/products/:id', verificarAdmin, async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // En e-commerce a veces es mejor un "Soft Delete" (is_active = false), 
+    // pero aquí hacemos el DELETE real que pediste para limpiar el inventario.
+    const deleteQuery = await pool.query(
+      'DELETE FROM products WHERE id = $1 RETURNING id',
+      [productId]
+    );
+
+    if (deleteQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado." });
+    }
+
+    res.json({ message: "Producto eliminado definitivamente del inventario." });
+  } catch (error) {
+    console.error("❌ Error al eliminar producto:", error.message);
+    res.status(500).json({ error: "Error al intentar eliminar el producto." });
+  }
+});
+
+// ==========================================
+// 12. READ: Obtener categorías (Público, necesario para el form del Admin)
+// ==========================================
+app.get('/api/categories', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM categories ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error("❌ Error al cargar categorías:", error.message);
+    res.status(500).json({ error: "Error al cargar las categorías." });
+  }
+});
+
+// ==========================================
+// 13. ADMIN - CREATE: Agregar nueva categoría
+// ==========================================
+app.post('/api/admin/categories', verificarAdmin, async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const newCat = await pool.query(
+      'INSERT INTO categories (name, description) VALUES ($1, $2) RETURNING *',
+      [name, description]
+    );
+    res.status(201).json(newCat.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Error al crear la categoría." });
+  }
+});
+
+// ==========================================
+// 14. ADMIN - READ: Obtener usuarios registrados
+// ==========================================
+app.get('/api/admin/users', verificarAdmin, async (req, res) => {
+  try {
+    // Solo traemos a los que tienen rol de CLIENTE (no a los admins)
+    const users = await pool.query(
+      "SELECT id, first_name, last_name, email, created_at FROM users WHERE role_id = (SELECT id FROM roles WHERE name = 'CLIENTE') ORDER BY created_at DESC"
+    );
+    res.json(users.rows);
+  } catch (error) {
+    res.status(500).json({ error: "Error al cargar usuarios." });
   }
 });
 

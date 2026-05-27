@@ -15,6 +15,7 @@ import Shop from './pages/Shop';
 import UserProfile from './pages/UserProfile';
 import Lookbook from './pages/Lookbook';
 import WhatsAppButton from './components/WhatsAppButton';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
                 <Route path="/shop/:category" element={<Shop />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/lookbook" element={<Lookbook />} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
               <WhatsAppButton />
             </div>

@@ -7,27 +7,28 @@ import { useLoadScript, GoogleMap, Marker, Autocomplete } from '@react-google-ma
 import MiniFooter from '../components/MiniFooter';
 import Navbar from '../components/Navbar';
 
+// Configuraciones de Google Maps
 const libraries = ['places'];
 const mapContainerStyle = { width: '100%', height: '200px', borderRadius: '0.75rem' };
-const defaultCenter = { lat: -0.2103, lng: -78.4889 };
+const defaultCenter = { lat: -0.2103, lng: -78.4889 }; // Centrado en Quito
 
 const UserProfile = () => {
-  const [activeTab, setActiveTab] = useState('datos');
-
-  // [CAMBIO] Nuevo estado para controlar la vista en móvil:
-  // 'menu' = muestra solo el sidebar, 'content' = muestra solo el contenido activo
-  const [mobileView, setMobileView] = useState('menu');
-
-  const [userData, setUserData] = useState(null);
+  const [activeTab, setActiveTab] = useState('datos'); 
+  const [userData, setUserData] = useState(null); 
+  
+  // Estados para Datos Personales
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '', phone: '' });
-  const [addresses, setAddresses] = useState([]);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [editingAddressId, setEditingAddressId] = useState(null);
+
+  // Estados para Direcciones
+  const [addresses, setAddresses] = useState([]); 
+  const [showAddressForm, setShowAddressForm] = useState(false); 
+  const [editingAddressId, setEditingAddressId] = useState(null); 
   const [addressFormData, setAddressFormData] = useState({
     title: '', street_address: '', city: '', postal_code: '', phone_number: ''
   });
 
+  // Estados y Hooks de Google Maps
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries: libraries,
@@ -35,8 +36,11 @@ const UserProfile = () => {
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [autocompleteRef, setAutocompleteRef] = useState(null);
   const [showMap, setShowMap] = useState(false);
+
+  // Estado para el Modal de confirmación de eliminación
   const [addressToDelete, setAddressToDelete] = useState(null);
 
+  // Estados para Configuración y Custom Dropdowns
   const { theme, setTheme } = useContext(ThemeContext);
   const { language, setLanguage } = useContext(LanguageContext);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
@@ -48,6 +52,7 @@ const UserProfile = () => {
     window.scrollTo(0, 0);
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
+
     if (!storedToken || !storedUser) {
       navigate('/login');
     } else {
@@ -69,20 +74,9 @@ const UserProfile = () => {
     navigate('/login');
   };
 
-  // [CAMBIO] Helper: al seleccionar una opción del menú en móvil,
-  // cambia el tab activo Y pasa la vista a 'content'
-  const handleTabSelect = (tab) => {
-    setActiveTab(tab);
-    setIsEditing(false);
-    setMobileView('content');
-  };
-
-  // [CAMBIO] Helper: el botón "Volver" regresa al menú en móvil
-  const handleBackToMenu = () => {
-    setMobileView('menu');
-    setShowAddressForm(false);
-  };
-
+  // ==========================================
+  // FUNCIONES DE DATOS PERSONALES
+  // ==========================================
   const handleCancelEdit = () => {
     setFormData({
       first_name: userData.first_name || '',
@@ -103,15 +97,19 @@ const UserProfile = () => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+
       setUserData(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setIsEditing(false);
+      localStorage.setItem('user', JSON.stringify(data.user)); 
+      setIsEditing(false); 
       toast.success("¡Datos actualizados correctamente!");
     } catch (err) {
       toast.error(err.message);
     }
   };
 
+  // ==========================================
+  // FUNCIONES DE DIRECCIONES (CRUD)
+  // ==========================================
   const fetchAddresses = async (token) => {
     try {
       const res = await fetch('http://localhost:3000/api/usuarios/direcciones', {
@@ -130,20 +128,23 @@ const UserProfile = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const url = editingAddressId
-        ? `http://localhost:3000/api/usuarios/direcciones/${editingAddressId}`
+      const url = editingAddressId 
+        ? `http://localhost:3000/api/usuarios/direcciones/${editingAddressId}` 
         : 'http://localhost:3000/api/usuarios/direcciones';
+      
       const method = editingAddressId ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(addressFormData)
       });
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+
       toast.success(data.message);
-      fetchAddresses(token);
-      closeAddressForm();
+      fetchAddresses(token); 
+      closeAddressForm(); 
     } catch (err) {
       toast.error(err.message);
     }
@@ -161,29 +162,33 @@ const UserProfile = () => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+
       toast.success(data.message);
-      fetchAddresses(token);
-      setAddressToDelete(null);
+      fetchAddresses(token); 
+      setAddressToDelete(null); 
     } catch (err) {
       toast.error(err.message);
       setAddressToDelete(null);
     }
   };
 
+  // ==========================================
+  // FUNCIONES DE GOOGLE MAPS
+  // ==========================================
   const handlePlaceChanged = () => {
     if (autocompleteRef !== null) {
       const place = autocompleteRef.getPlace();
       if (place.geometry && place.geometry.location) {
         let city = '';
-        const cityComponent = place.address_components?.find(
-          c => c.types.includes('locality') || c.types.includes('administrative_area_level_2')
-        );
+        const cityComponent = place.address_components?.find(c => c.types.includes('locality') || c.types.includes('administrative_area_level_2'));
         if (cityComponent) city = cityComponent.long_name;
+
         setAddressFormData({
           ...addressFormData,
           street_address: place.formatted_address || place.name,
-          city: city || addressFormData.city
+          city: city || addressFormData.city 
         });
+        
         setMapCenter({
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng()
@@ -224,38 +229,18 @@ const UserProfile = () => {
     { id: "ORD-0854", fecha: "02 Mar 2026", total: 75.00, estado: "Entregado", items: "Cargo Pant Parachute" }
   ];
 
-  // [CAMBIO] Clase reutilizable para inputs visibles en modo claro y oscuro.
-  // Antes: bg-transparent sin borde → difícil ver en light mode.
-  // Ahora: fondo gris suave + borde definido en ambos modos.
-  const inputClass = `
-    w-full rounded-lg px-3 py-2 text-[14px]
-    bg-gray-50 border border-gray-200
-    text-gray-900 placeholder-gray-400
-    dark:bg-zinc-800/50 dark:border-zinc-700
-    dark:text-white dark:placeholder-zinc-500
-    focus:outline-none focus:border-blue-400 dark:focus:border-blue-500
-    transition-colors duration-200
-  `;
-
   if (!userData) return null;
 
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-[#333] dark:text-zinc-50 font-sans selection:bg-blue-100 dark:selection:bg-blue-900/50 flex flex-col transition-colors duration-300">
-
+      
+      {/* NAVBAR */}
       <Navbar backButton={true} />
 
-      <main className="max-w-[1100px] mx-auto px-6 pt-28 pb-24 flex-grow w-full flex flex-col md:flex-row gap-8">
-
-        {/* =============================================
-            SIDEBAR
-            [CAMBIO] En móvil: visible solo cuando mobileView === 'menu'
-                     En desktop: siempre visible (md:flex)
-        ============================================= */}
-        <aside className={`
-          w-full md:w-80 flex-col gap-6
-          ${mobileView === 'menu' ? 'flex' : 'hidden'}
-          md:flex
-        `}>
+      <main className="max-w-275 mx-auto px-6 pt-28 pb-24 grow w-full flex flex-col md:flex-row gap-8">
+        
+        {/* SIDEBAR */}
+        <aside className="w-full md:w-80 flex flex-col gap-6">
           <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase transition-colors duration-300">
@@ -268,35 +253,19 @@ const UserProfile = () => {
             </div>
 
             <nav className="flex flex-col gap-1">
-              {/* [CAMBIO] onClick usa handleTabSelect en lugar de setActiveTab directo */}
-              <button
-                onClick={() => handleTabSelect('datos')}
-                className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'datos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}
-              >
+              <button onClick={() => { setActiveTab('datos'); setIsEditing(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'datos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 Datos Personales
               </button>
-
-              <button
-                onClick={() => handleTabSelect('direcciones')}
-                className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'direcciones' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}
-              >
+              <button onClick={() => setActiveTab('direcciones')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'direcciones' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 Direcciones
               </button>
-
-              <button
-                onClick={() => handleTabSelect('pedidos')}
-                className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'pedidos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}
-              >
+              <button onClick={() => setActiveTab('pedidos')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'pedidos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 Mis Pedidos
               </button>
-
-              <button
-                onClick={() => handleTabSelect('configuracion')}
-                className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'configuracion' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}
-              >
+              <button onClick={() => setActiveTab('configuracion')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'configuracion' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 Configuración
               </button>
@@ -311,100 +280,54 @@ const UserProfile = () => {
           </div>
         </aside>
 
-        {/* =============================================
-            CONTENIDO PRINCIPAL
-            [CAMBIO] En móvil: visible solo cuando mobileView === 'content'
-                     En desktop: siempre visible (md:block)
-        ============================================= */}
-        <div className={`
-          flex-1
-          ${mobileView === 'content' ? 'block' : 'hidden'}
-          md:block
-        `}>
-
-          {/* [CAMBIO] Botón "Volver al menú" — solo visible en móvil (md:hidden) */}
-          <button
-            onClick={handleBackToMenu}
-            className="md:hidden flex items-center gap-2 mb-4 text-[13px] font-medium text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Volver al menú
-          </button>
-
+        {/* CONTENIDO PRINCIPAL */}
+        <div className="flex-1">
+          
           {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 md:p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
-
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
+              
               {!isEditing ? (
-                <button onClick={() => setIsEditing(true)} className="absolute top-6 right-6 md:top-8 md:right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
+                <button onClick={() => setIsEditing(true)} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
               ) : (
-                <button onClick={handleCancelEdit} className="absolute top-6 right-6 md:top-8 md:right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
+                <button onClick={handleCancelEdit} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
               )}
 
-              <div className="flex flex-col items-center mb-10">
-                <div className="w-20 h-20 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-3xl font-bold text-gray-500 dark:text-zinc-400 uppercase transition-colors duration-300">
+              <div className="flex flex-col items-center mb-12">
+                <div className="w-20 h-20 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-3xl font-bold text-gray-500 dark:text-zinc-400 relative uppercase transition-colors duration-300">
                   {userData.first_name ? userData.first_name.charAt(0) : 'U'}
                 </div>
                 <h2 className="text-xl font-medium mt-4 dark:text-white">{formData.first_name} {formData.last_name}</h2>
                 <p className="text-gray-500 dark:text-zinc-400 text-sm">{formData.email}</p>
               </div>
 
-              {/* [CAMBIO] Campos con inputClass: fondo + borde visibles en light mode */}
-              <div className="space-y-5 max-w-2xl mx-auto">
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Nombre</label>
-                  <input
-                    type="text"
-                    value={formData.first_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    disabled={!isEditing}
-                    className={`${inputClass} ${!isEditing ? 'opacity-70 cursor-default' : 'focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-600'}`}
-                  />
+              <div className="space-y-6 max-w-2xl mx-auto">
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Nombre</label>
+                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Apellido</label>
+                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Apellido</label>
-                  <input
-                    type="text"
-                    value={formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    disabled={!isEditing}
-                    className={`${inputClass} ${!isEditing ? 'opacity-70 cursor-default' : 'focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-600'}`}
-                  />
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Cuenta de Correo</label>
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Cuenta de Correo</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    disabled={!isEditing}
-                    className={`${inputClass} ${!isEditing ? 'opacity-70 cursor-default' : 'focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-600'}`}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Número Móvil</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    disabled={!isEditing}
-                    placeholder={isEditing ? "Ej. +593 99 000 0000" : "Sin número registrado"}
-                    className={`${inputClass} ${!isEditing ? 'opacity-70 cursor-default' : 'focus:ring-1 focus:ring-blue-300 dark:focus:ring-blue-600'}`}
-                  />
+                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
+                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Número Móvil</label>
+                  <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} disabled={!isEditing} placeholder={isEditing ? "" : "Añadir número"} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400 dark:placeholder-zinc-600'}`} />
                 </div>
 
                 {isEditing && (
-                  <div className="pt-4">
+                  <div className="pt-8">
                     <button onClick={handleSaveChanges} className="bg-[#2B80FF] hover:bg-blue-600 text-white px-8 py-3 rounded-xl text-[14px] font-medium transition-colors shadow-lg shadow-blue-500/20">
                       Guardar Cambios
                     </button>
@@ -416,34 +339,37 @@ const UserProfile = () => {
 
           {/* VISTA: CONFIGURACIÓN */}
           {activeTab === 'configuracion' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 md:p-10 max-w-xl dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 max-w-xl dark:border dark:border-zinc-800 transition-colors duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
                 <h2 className="text-xl font-medium dark:text-white">Configuración</h2>
               </div>
+
               <div className="space-y-2">
+                {/* Custom Dropdown Tema */}
                 <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
                   <span className="text-[15px] text-gray-700 dark:text-zinc-300">Tema</span>
                   <div className="relative">
-                    <button onClick={() => setIsThemeOpen(!isThemeOpen)} onBlur={() => setTimeout(() => setIsThemeOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-[130px]">
+                    <button onClick={() => setIsThemeOpen(!isThemeOpen)} onBlur={() => setTimeout(() => setIsThemeOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-32.5">
                       <span>{theme}</span>
                       <svg className={`w-4 h-4 text-gray-400 dark:text-zinc-500 transition-transform duration-300 ${isThemeOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div className={`absolute top-full right-0 mt-2 w-full min-w-[130px] bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isThemeOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                    <div className={`absolute top-full right-0 mt-2 w-full min-w-32.5 bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isThemeOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                       {['Light', 'Dark'].map((opt) => (
                         <button key={opt} onClick={() => { setTheme(opt); setIsThemeOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${theme === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
                       ))}
                     </div>
                   </div>
                 </div>
-
+                
+                {/* Custom Dropdown Idioma */}
                 <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
                   <span className="text-[15px] text-gray-700 dark:text-zinc-300">Idioma</span>
                   <div className="relative">
-                    <button onClick={() => setIsLanguageOpen(!isLanguageOpen)} onBlur={() => setTimeout(() => setIsLanguageOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-[130px]">
+                    <button onClick={() => setIsLanguageOpen(!isLanguageOpen)} onBlur={() => setTimeout(() => setIsLanguageOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-32.5">
                       <span>{language}</span>
                       <svg className={`w-4 h-4 text-gray-400 dark:text-zinc-500 transition-transform duration-300 ${isLanguageOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div className={`absolute top-full right-0 mt-2 w-full min-w-[130px] bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isLanguageOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                    <div className={`absolute top-full right-0 mt-2 w-full min-w-32.5 bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isLanguageOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                       {['Español', 'Inglés'].map((opt) => (
                         <button key={opt} onClick={() => { setLanguage(opt); setIsLanguageOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${language === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
                       ))}
@@ -456,7 +382,7 @@ const UserProfile = () => {
 
           {/* VISTA: DIRECCIONES */}
           {activeTab === 'direcciones' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 md:p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
                 <h1 className="text-xl font-medium dark:text-white">Direcciones</h1>
                 {!showAddressForm && (
@@ -465,58 +391,29 @@ const UserProfile = () => {
               </div>
 
               {showAddressForm ? (
-                // [CAMBIO] Formulario con inputClass aplicado a todos los campos
-                <form onSubmit={handleSaveAddress} className="space-y-5 max-w-2xl">
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Título</label>
-                    <input
-                      type="text"
-                      required
-                      value={addressFormData.title}
-                      onChange={(e) => setAddressFormData({ ...addressFormData, title: e.target.value })}
-                      placeholder="Ej. Casa, Oficina"
-                      className={inputClass}
-                    />
+                <form onSubmit={handleSaveAddress} className="space-y-6 max-w-2xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center py-3 border-b border-gray-100 dark:border-zinc-800">
+                    <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mb-1 sm:mb-0">Título</label>
+                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
                   </div>
-
+                  
                   {!showMap ? (
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Dirección</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          required
-                          value={addressFormData.street_address}
-                          onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })}
-                          placeholder="Calle Principal y Secundaria"
-                          className={`${inputClass} flex-1`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowMap(true)}
-                          className="px-3 py-2 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-xs rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap border border-gray-200 dark:border-zinc-700"
-                        >
-                          📍 Mapa
-                        </button>
+                    <div className="flex flex-col sm:flex-row sm:items-start py-3 border-b border-gray-100 dark:border-zinc-800">
+                      <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mt-2">Dirección</label>
+                      <div className="flex-1 flex gap-3">
+                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
+                        <button type="button" onClick={() => setShowMap(true)} className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-xs rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">📍 Mapa</button>
                       </div>
                     </div>
                   ) : (
                     isLoaded ? (
-                      <div className="space-y-3">
+                      <div className="space-y-4 py-3">
                         <div className="flex justify-between items-center">
-                          <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Buscar en mapa</label>
+                          <label className="text-[14px] text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
                           <button type="button" onClick={() => setShowMap(false)} className="text-xs text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar</button>
                         </div>
                         <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
-                          <input
-                            type="text"
-                            required
-                            value={addressFormData.street_address}
-                            onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })}
-                            placeholder="Busca tu dirección..."
-                            className={inputClass}
-                          />
+                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none shadow-sm placeholder-gray-400 dark:placeholder-zinc-500" />
                         </Autocomplete>
                         <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
                           <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}><Marker position={mapCenter} /></GoogleMap>
@@ -525,43 +422,23 @@ const UserProfile = () => {
                     ) : (<div className="p-4 text-sm text-gray-500 dark:text-zinc-400">Cargando mapa...</div>)
                   )}
 
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 flex flex-col gap-1">
-                      <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Ciudad</label>
-                      <input
-                        type="text"
-                        required
-                        value={addressFormData.city}
-                        onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value })}
-                        placeholder="Quito"
-                        className={inputClass}
-                      />
+                  <div className="flex flex-col sm:flex-row gap-6">
+                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
+                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Ciudad</label>
+                      <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
                     </div>
-                    <div className="flex-1 flex flex-col gap-1">
-                      <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Código Postal</label>
-                      <input
-                        type="text"
-                        value={addressFormData.postal_code}
-                        onChange={(e) => setAddressFormData({ ...addressFormData, postal_code: e.target.value })}
-                        placeholder="170150"
-                        className={inputClass}
-                      />
+                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
+                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Código Postal</label>
+                      <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[13px] text-gray-500 dark:text-zinc-400 font-medium">Teléfono</label>
-                    <input
-                      type="tel"
-                      required
-                      value={addressFormData.phone_number}
-                      onChange={(e) => setAddressFormData({ ...addressFormData, phone_number: e.target.value })}
-                      placeholder="Ej. +593 99 000 0000"
-                      className={inputClass}
-                    />
+                  <div className="flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
+                    <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Teléfono</label>
+                    <input type="tel" required value={addressFormData.phone_number} onChange={(e) => setAddressFormData({...addressFormData, phone_number: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
                   </div>
 
-                  <div className="flex gap-4 pt-2">
+                  <div className="flex gap-4 pt-4">
                     <button type="submit" className="bg-[#2B80FF] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-md shadow-blue-500/20 transition-colors">Guardar</button>
                     <button type="button" onClick={closeAddressForm} className="bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 px-6 py-2.5 rounded-xl text-[14px] font-medium transition-colors">Cancelar</button>
                   </div>
@@ -589,7 +466,7 @@ const UserProfile = () => {
 
           {/* VISTA: PEDIDOS */}
           {activeTab === 'pedidos' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 md:p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
               <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Mis Pedidos</h1>
               {pedidos.length > 0 ? (
                 <div className="space-y-4">
@@ -616,8 +493,8 @@ const UserProfile = () => {
 
       {/* MODAL ELIMINAR */}
       {addressToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-zinc-900 p-8 rounded-[24px] shadow-xl max-w-sm w-full text-center transition-colors duration-300 border border-transparent dark:border-zinc-800">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl max-w-sm w-full text-center scale-up-center transition-colors duration-300 border border-transparent dark:border-zinc-800">
             <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">¿Eliminar dirección?</h3>
             <p className="text-[14px] text-gray-500 dark:text-zinc-400 mb-8">Esta acción no se puede deshacer.</p>
             <div className="flex gap-3">

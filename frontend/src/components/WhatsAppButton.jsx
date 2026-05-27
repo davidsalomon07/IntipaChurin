@@ -7,8 +7,8 @@ const WhatsAppButton = () => {
   // 1. Definimos las rutas donde el botón estorba y NO debe aparecer
   const rutasOcultas = ['/profile', '/checkout', '/login', '/register'];
 
-  // 2. Si la ruta actual coincide con alguna de la lista, devolvemos 'null' (no se renderiza)
-  if (rutasOcultas.includes(location.pathname)) {
+  // 2. Si la ruta actual coincide con la lista, o si empieza con '/admin', devolvemos 'null'
+  if (rutasOcultas.includes(location.pathname) || location.pathname.startsWith('/admin')) {
     return null;
   }
 
