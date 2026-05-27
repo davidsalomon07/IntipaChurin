@@ -255,17 +255,34 @@ const AdminDashboard = () => {
                         {filteredCategorias.length === 0 ? (
                           <tr><td colSpan="4" className="py-16 text-center text-zinc-500 text-sm">No hay categorías registradas.</td></tr>
                         ) : (
-                          filteredCategorias.map((c, index) => (
-                            <tr key={c.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                              <td className="py-4 px-6 text-sm text-zinc-500 dark:text-zinc-400">{index + 1}</td>
-                              <td className="py-4 px-6 font-semibold text-zinc-900 dark:text-white truncate">{c.name}</td>
-                              <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400 truncate">{c.description || <span className="text-zinc-300 dark:text-zinc-600 italic">Sin descripción</span>}</td>
-                              <td className="py-4 px-6 flex justify-center gap-3">
-                                <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" />
-                                <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" />
-                              </td>
-                            </tr>
-                          ))
+                          filteredCategorias.map((c, index) => {
+                            // Validamos si la categoría es una de las intocables
+                            const isProtected = ['hoodies', 'camisetas', 'pantalones'].includes(c.name.toLowerCase());
+
+                            return (
+                              <tr key={c.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                                <td className="py-4 px-6 text-sm text-zinc-500 dark:text-zinc-400">{index + 1}</td>
+                                <td className="py-4 px-6 font-semibold text-zinc-900 dark:text-white truncate flex items-center gap-2">
+                                  {c.name}
+                                  {isProtected && (
+                                    <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Por defecto</span>
+                                  )}
+                                </td>
+                                <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400 truncate">{c.description || <span className="text-zinc-300 dark:text-zinc-600 italic">Sin descripción</span>}</td>
+                                <td className="py-4 px-6 flex justify-center items-center gap-3">
+                                  <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="Editar" />
+                                  
+                                  {isProtected ? (
+                                    <div className="w-[18px] flex justify-center text-zinc-300 dark:text-zinc-700 cursor-not-allowed" title="Categoría protegida (No se puede eliminar)">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    </div>
+                                  ) : (
+                                    <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" title="Eliminar" />
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </>

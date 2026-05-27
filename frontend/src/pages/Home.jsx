@@ -55,8 +55,31 @@ const CartIcon = () => (
 );
 
 const Home = () => {
-  // 2. Extraemos la función para añadir al carrito
   const { agregarAlCarrito } = useCart();
+  
+  // --- NUEVOS ESTADOS PARA PRODUCTOS REALES ---
+  const [productosDestacados, setProductosDestacados] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/products');
+        if (res.ok) {
+          const data = await res.json();
+          // Tomamos solo los 4 primeros productos para el Home
+          setProductosDestacados(data.slice(0, 4));
+        }
+      } catch (error) {
+        console.error("Error al cargar productos destacados:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+  // ---------------------------------------------
 
   const scrollToTop = (e) => {
     e.preventDefault();
@@ -145,60 +168,57 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {[1, 2, 3, 4].map((item) => {
-            // 3. Creamos un producto simulado válido para que no falle al añadirlo al carrito
-            const productoDestacado = {
-              id: `destacado-${item}`,
-              nombre: "Oversize Basic Tee",
-              precio: 45.0,
-              categoria: "camisetas",
-            };
-
-            return (
-              <div key={item} className="group cursor-pointer">
-                <div className="w-full aspect-3/4 rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-5 relative transition-colors duration-300">
+          {isLoading ? (
+            <div className="col-span-full py-12 flex justify-center text-zinc-400">
+              <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+          ) : productosDestacados.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-zinc-500 dark:text-zinc-400">
+              <p>Próximamente nuevos ingresos. ¡Mantente atento!</p>
+            </div>
+          ) : (
+            productosDestacados.map((producto) => (
+              <div key={producto.id} className="group cursor-pointer">
+                <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-5 relative transition-colors duration-300">
                   <img
-                    src={`https://placehold.co/600x800/f5f5f4/d6d3d1?text=PRENDA+${item}`}
+                    // Si no tiene imagen en la base de datos, ponemos una por defecto
+                    src={producto.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 dark:opacity-80"
-                    alt={`Producto ${item}`}
+                    alt={producto.name}
                   />
 
-                  {/* --- EL NUEVO BOTÓN CIRCULAR PREMIUM --- */}
                   <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-y-0 translate-y-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        agregarAlCarrito(productoDestacado); // <-- Conectado al carrito real
+                        // Adaptamos los nombres de la BD al contexto de tu carrito
+                        agregarAlCarrito({
+                          id: producto.id,
+                          nombre: producto.name,
+                          precio: parseFloat(producto.price),
+                          categoria: producto.category_name,
+                          imagen: producto.image_url
+                        }); 
                       }}
                       title="Añadir al carrito"
                       className="w-11 h-11 rounded-full flex items-center justify-center shadow-2xl border transform transition-all duration-150 active:scale-90 active:shadow-md bg-zinc-950 text-white hover:bg-zinc-800 border-transparent dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                       </svg>
                     </button>
                   </div>
                 </div>
-                <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1 transition-colors duration-300">
-                  Oversize Basic Tee
+                <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1 transition-colors duration-300 truncate">
+                  {producto.name}
                 </h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 font-semibold transition-colors duration-300">
-                  $ 45.00
+                  $ {parseFloat(producto.price).toFixed(2)}
                 </p>
               </div>
-            );
-          })}
+            ))
+          )}
         </div>
       </section>
 
