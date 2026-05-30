@@ -3,12 +3,30 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const pool = require('./db');
 const jwt = require('jsonwebtoken'); // <-- NUEVO: Para generar el token de sesión
+const multer = require('multer'); // <-- NUEVO: Para manejar subida de imágenes
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Permitimos que el frontend pueda acceder a la carpeta "uploads" para ver las fotos
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Configuración de Multer: Dónde y cómo guardar las fotos
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Asegúrate de crear una carpeta llamada "uploads" en la raíz de tu backend
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    // Genera un nombre único: producto-171830200.jpg
+    cb(null, 'producto-' + Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
 
 // Endpoint de prueba para verificar que el servidor responde
 app.get('/api/status', (req, res) => {
@@ -291,6 +309,7 @@ app.get('/api/products', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         p.id, 
+        p.category_id,   -- <--- ¡AQUÍ ESTÁ LA SOLUCIÓN! Ahora pedimos el ID de la categoría
         p.name, 
         p.description, 
         p.price, 
@@ -336,16 +355,21 @@ const verificarAdmin = async (req, res, next) => {
 };
 
 // ==========================================
-// 9. ADMIN - CREATE: Agregar un nuevo producto
+// 9. ADMIN - CREATE: Agregar un nuevo producto (Con foto)
 // ==========================================
-app.post('/api/admin/products', verificarAdmin, async (req, res) => {
+// Agregamos upload.single('image') para que multer atrape la foto enviada por FormData
+app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { category_id, name, description, price, stock_quantity, image_url, is_active } = req.body;
+    const { category_id, name, description, price, stock_quantity } = req.body;
+
+    // Asumimos activo por defecto. Si subieron una imagen, armamos la ruta final
+    const is_active = true;
+    const finalImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
 
     const newProduct = await pool.query(
       `INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [category_id, name, description, price, stock_quantity, image_url, is_active]
+      [category_id, name, description, price, stock_quantity, finalImageUrl, is_active]
     );
 
     res.status(201).json({
@@ -359,19 +383,36 @@ app.post('/api/admin/products', verificarAdmin, async (req, res) => {
 });
 
 // ==========================================
-// 10. ADMIN - UPDATE: Editar un producto existente
+// 10. ADMIN - UPDATE: Editar un producto existente (Con o sin foto nueva)
 // ==========================================
-app.put('/api/admin/products/:id', verificarAdmin, async (req, res) => {
+app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async (req, res) => {
   try {
     const productId = req.params.id;
-    const { category_id, name, description, price, stock_quantity, image_url, is_active } = req.body;
+    // La categoría no debería venir en req.body porque la deshabilitamos, 
+    // pero Node no fallará si no la usamos en el query.
+    const { name, description, price, stock_quantity } = req.body;
 
-    const updateQuery = await pool.query(
-      `UPDATE products 
-       SET category_id = $1, name = $2, description = $3, price = $4, stock_quantity = $5, image_url = $6, is_active = $7 
-       WHERE id = $8 RETURNING *`,
-      [category_id, name, description, price, stock_quantity, image_url, is_active, productId]
-    );
+    // Verificamos si mandó una imagen nueva
+    const newImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
+
+    let updateQuery;
+    if (newImageUrl) {
+      // Si subió foto nueva, actualizamos todo (sin tocar category_id ni is_active)
+      updateQuery = await pool.query(
+        `UPDATE products 
+         SET name = $1, description = $2, price = $3, stock_quantity = $4, image_url = $5 
+         WHERE id = $6 RETURNING *`,
+        [name, description, price, stock_quantity, newImageUrl, productId]
+      );
+    } else {
+      // Si NO subió foto, mantenemos la anterior (sin tocar category_id ni is_active)
+      updateQuery = await pool.query(
+        `UPDATE products 
+         SET name = $1, description = $2, price = $3, stock_quantity = $4 
+         WHERE id = $5 RETURNING *`,
+        [name, description, price, stock_quantity, productId]
+      );
+    }
 
     if (updateQuery.rows.length === 0) {
       return res.status(404).json({ error: "Producto no encontrado." });

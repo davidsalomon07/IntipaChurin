@@ -27,8 +27,8 @@ const AdminDashboard = () => {
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   
-  // Formularios completos
-  const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_url: '', is_active: true };
+  // Formularios completos (Agregamos image_file)
+  const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
@@ -68,20 +68,26 @@ const AdminDashboard = () => {
 
   // --- LÓGICA CRUD PRODUCTOS ---
 
-  // 1. Crear
+  // 1. Crear (Ahora enviamos FormData en lugar de JSON)
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
+      const formData = new FormData();
+      formData.append('name', productForm.name);
+      formData.append('description', productForm.description);
+      formData.append('price', parseFloat(productForm.price));
+      formData.append('stock_quantity', parseInt(productForm.stock_quantity));
+      formData.append('category_id', parseInt(productForm.category_id));
+      if (productForm.image_file) {
+        formData.append('image', productForm.image_file);
+      }
+
       const response = await fetch('http://localhost:3000/api/admin/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          ...productForm,
-          price: parseFloat(productForm.price),
-          stock_quantity: parseInt(productForm.stock_quantity),
-          category_id: parseInt(productForm.category_id)
-        })
+        headers: { 'Authorization': `Bearer ${token}` }, // Quitamos Content-Type
+        body: formData
       });
+      
       if (response.ok) {
         setIsProductModalOpen(false);
         setProductForm(estadoInicialProducto);
@@ -99,26 +105,32 @@ const AdminDashboard = () => {
       price: p.price,
       stock_quantity: p.stock_quantity,
       category_id: p.category_id || '',
-      image_url: p.image_url || '',
+      image_file: null, // Reseteamos por si quiere subir una foto nueva
       is_active: p.is_active
     });
     setIsEditProductModalOpen(true);
   };
 
-  // 3. Enviar Edición
+  // 3. Enviar Edición (FormData)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
+      const formData = new FormData();
+      formData.append('name', productForm.name);
+      formData.append('description', productForm.description);
+      formData.append('price', parseFloat(productForm.price));
+      formData.append('stock_quantity', parseInt(productForm.stock_quantity));
+      formData.append('category_id', parseInt(productForm.category_id));
+      if (productForm.image_file) {
+        formData.append('image', productForm.image_file); 
+      }
+
       const response = await fetch(`http://localhost:3000/api/admin/products/${editingProductId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          ...productForm,
-          price: parseFloat(productForm.price),
-          stock_quantity: parseInt(productForm.stock_quantity),
-          category_id: parseInt(productForm.category_id)
-        })
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
       });
+      
       if (response.ok) {
         setIsEditProductModalOpen(false);
         setProductForm(estadoInicialProducto);
@@ -449,8 +461,13 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">URL de la Imagen</label>
-                  <input placeholder="https://..." value={productForm.image_url} onChange={e => setProductForm({...productForm, image_url: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen del Producto</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => setProductForm({...productForm, image_file: e.target.files[0]})} 
+                    className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" 
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
@@ -482,11 +499,15 @@ const AdminDashboard = () => {
                     <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Categoría</label>
-                    <select required value={productForm.category_id} onChange={e => setProductForm({...productForm, category_id: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
-                      <option value="">Selecciona una categoría...</option>
-                      {categorias.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">
+                      Categoría
+                    </label>
+                    {/* Input de solo lectura que muestra el nombre de la categoría actual */}
+                    <input 
+                      readOnly 
+                      value={categorias.find(c => c.id === productForm.category_id)?.name || 'Sin Categoría'} 
+                      className="w-full p-3 bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-zinc-400 transition-all text-sm cursor-not-allowed font-medium" 
+                    />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
@@ -498,8 +519,13 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">URL de la Imagen</label>
-                  <input placeholder="https://..." value={productForm.image_url} onChange={e => setProductForm({...productForm, image_url: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Actualizar Imagen (Opcional)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => setProductForm({...productForm, image_file: e.target.files[0]})} 
+                    className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" 
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
