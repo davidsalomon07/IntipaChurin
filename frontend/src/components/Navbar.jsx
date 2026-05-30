@@ -54,7 +54,13 @@ const Navbar = ({ backButton = false }) => {
     const nombreLimpiado = normalizarTexto(producto.name);
     const categoriaLimpiada = normalizarTexto(producto.category_name || '');
     const textoBuscable = `${nombreLimpiado} ${categoriaLimpiada}`;
-    return palabrasEscritas.every(palabra => textoBuscable.includes(palabra));
+    
+    // Usamos RegExp con \b (word boundary) para que busque solo al inicio de las palabras.
+    // Así, si escribes "a", no coincidirá con la "a" que está dentro de "cargo" o "pantalón".
+    return palabrasEscritas.every(palabra => {
+      const regex = new RegExp(`\\b${palabra}`);
+      return regex.test(textoBuscable);
+    });
   });
 
   useEffect(() => {
