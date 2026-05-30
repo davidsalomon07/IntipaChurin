@@ -40,14 +40,28 @@ const Shop = () => {
     fetchProductos();
   }, []);
 
-  // Filtramos por categoría si la URL lo pide
-  const productosFiltrados = category 
-    ? productosDB.filter(p => p.category_name && p.category_name.toLowerCase() === category.toLowerCase())
-    : productosDB;
+  // Filtramos por categoría o aplicamos lógica de "Nuevos" si la URL lo pide
+  let productosFiltrados = [];
+  
+  if (category && category.toLowerCase() === 'nuevos') {
+    // Si estamos en la pestaña Nuevos: ordenamos del último ID creado al primero y tomamos los 10 primeros
+    productosFiltrados = [...productosDB]
+      .sort((a, b) => b.id - a.id)
+      .slice(0, 10);
+  } else if (category) {
+    // Si estamos en una categoría normal (ej. hoodies): filtramos por nombre exacto
+    productosFiltrados = productosDB.filter(p => p.category_name && p.category_name.toLowerCase() === category.toLowerCase());
+  } else {
+    // Si no hay categoría (ej. /shop a secas): mostramos todo
+    productosFiltrados = productosDB;
+  }
 
-  const tituloPagina = category 
-    ? category.charAt(0).toUpperCase() + category.slice(1) 
-    : "Catálogo Completo";
+  // Título dinámico para la cabecera
+  const tituloPagina = category && category.toLowerCase() === 'nuevos'
+    ? "Nuevos Ingresos"
+    : category 
+      ? category.charAt(0).toUpperCase() + category.slice(1) 
+      : "Catálogo Completo";
 
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 flex flex-col transition-colors duration-300">

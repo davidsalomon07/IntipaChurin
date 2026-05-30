@@ -57,27 +57,40 @@ const CartIcon = () => (
 const Home = () => {
   const { agregarAlCarrito } = useCart();
   
-  // --- NUEVOS ESTADOS PARA PRODUCTOS REALES ---
+  // --- NUEVOS ESTADOS PARA PRODUCTOS Y CATEGORÍAS REALES ---
   const [productosDestacados, setProductosDestacados] = React.useState([]);
+  const [categoriasDB, setCategoriasDB] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [catIndex, setCatIndex] = React.useState(0); // <-- Controla qué categorías se ven
 
   React.useEffect(() => {
-    const fetchProductos = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/products');
-        if (res.ok) {
-          const data = await res.json();
+        // Hacemos ambas peticiones al mismo tiempo para que cargue más rápido
+        const [resProductos, resCategorias] = await Promise.all([
+          fetch('http://localhost:3000/api/products'),
+          fetch('http://localhost:3000/api/categories')
+        ]);
+
+        if (resProductos.ok) {
+          const dataProductos = await resProductos.json();
           // Tomamos solo los 4 primeros productos para el Home
-          setProductosDestacados(data.slice(0, 4));
+          setProductosDestacados(dataProductos.slice(0, 4));
+        }
+
+        if (resCategorias.ok) {
+          const dataCategorias = await resCategorias.json();
+          // Ahora guardamos TODAS las categorías para poder navegar entre ellas
+          setCategoriasDB(dataCategorias);
         }
       } catch (error) {
-        console.error("Error al cargar productos destacados:", error);
+        console.error("Error al cargar datos del Home:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProductos();
+    fetchData();
   }, []);
   // ---------------------------------------------
 
@@ -125,16 +138,90 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- CATEGORÍAS --- */}
+      {/* --- CATEGORÍAS (CON ANIMACIÓN DE CARRUSEL) --- */}
       <section className="py-20 px-6 md:px-12 max-w-400 mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-16 tracking-tight dark:text-white">
-          Comprar por Categoría
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-          {/* Aquí se cargarán tus categorías reales desde la base de datos más adelante */}
-          <div className="col-span-full text-center text-zinc-500 py-10">
-            <p>Estamos preparando las colecciones para ti. ¡Vuelve pronto!</p>
-          </div>
+        
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight dark:text-white text-center md:text-left">
+            Comprar por Categoría
+          </h2>
+          
+          {/* Controles tipo Carrusel */}
+          {categoriasDB.length > 3 && (
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setCatIndex(prev => Math.max(0, prev - 1))}
+                disabled={catIndex === 0}
+                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 ${catIndex === 0 ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-700 cursor-not-allowed' : 'border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:scale-105 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-800 shadow-sm'}`}
+                aria-label="Categoría anterior"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button 
+                onClick={() => {
+                  // Calculamos el límite dinámicamente: en móvil mostramos 1 a la vez, en PC 3 a la vez.
+                  const limite = typeof window !== 'undefined' && window.innerWidth >= 768 ? categoriasDB.length - 3 : categoriasDB.length - 1;
+                  setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1));
+                }}
+                disabled={catIndex >= Math.max(0, (typeof window !== 'undefined' && window.innerWidth >= 768 ? categoriasDB.length - 3 : categoriasDB.length - 1))}
+                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 ${catIndex >= Math.max(0, (typeof window !== 'undefined' && window.innerWidth >= 768 ? categoriasDB.length - 3 : categoriasDB.length - 1)) ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-700 cursor-not-allowed' : 'border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:scale-105 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-800 shadow-sm'}`}
+                aria-label="Siguiente categoría"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* CONTENEDOR DEL SLIDER - REPARADO */}
+        <div className="overflow-hidden w-full">
+          {categoriasDB.length === 0 ? (
+            <div className="text-center text-zinc-500 py-10 w-full">
+              <p>Estamos preparando las colecciones para ti. ¡Vuelve pronto!</p>
+            </div>
+          ) : (
+            <div 
+              className="flex transition-transform duration-500 ease-in-out"
+              // Mantenemos la fila larga: su ancho es N * 100% de la pantalla
+              style={{ transform: `translateX(-${catIndex * (100 / categoriasDB.length)}%)`, width: `${categoriasDB.length > 0 ? categoriasDB.length * 100 : 100}%` }}
+            >
+              {categoriasDB.map((cat) => {
+                // --- CORRECCIÓN MATEMÁTICA AQUÍ ---
+                // Calculamos el ancho exacto de cada categoría RELATIVO a la fila larga.
+                // Si la fila mide 400% (4 items) y queremos que en PC se vean 3, 
+                // cada item debe medir 1/12 parte de esa fila (8.333%).
+                const n = categoriasDB.length;
+                const widthMobile = `${100 / n}%`; // 1 por vista en móvil
+                const widthPC = `${100 / (n * 3)}%`; // 3 por vista en PC (1/N * 1/3)
+
+                return (
+                  <div 
+                    key={cat.id} 
+                    className="flex-shrink-0 pr-6 md:pr-10"
+                    // Aplicamos el ancho calculado dinámicamente con JS
+                    style={{ width: window.innerWidth >= 768 ? widthPC : widthMobile }}
+                  >
+                    <Link
+                      to={`/shop/${cat.name.toLowerCase()}`}
+                      className="group cursor-pointer flex flex-col items-center"
+                    >
+                      <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-6 relative shadow-sm transition-colors duration-300">
+                        <img
+                          src={`https://placehold.co/600x800/f5f5f4/d6d3d1?text=${cat.name.toUpperCase()}`}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-95 dark:opacity-80"
+                          alt={cat.name}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-black/30 transition-colors duration-500"></div>
+                      </div>
+                      <h3 className="text-sm font-semibold uppercase tracking-wider dark:text-zinc-200">
+                        {cat.name}
+                      </h3>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
