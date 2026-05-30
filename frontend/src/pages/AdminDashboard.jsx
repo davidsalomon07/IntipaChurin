@@ -266,12 +266,12 @@ const AdminDashboard = () => {
                   {activeTab === 'productos' && (
                     <>
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                        <tr>
-                          <th className="w-16 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-1/3 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
-                          <th className="w-1/4 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
-                          <th className="w-1/6 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Stock / Precio</th>
-                          <th className="w-40 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
+                        <tr className="w-full">
+                          <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
+                          <th className="w-[35%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Stock / Precio</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
@@ -319,11 +319,11 @@ const AdminDashboard = () => {
                   {activeTab === 'categorias' && (
                     <>
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                        <tr>
-                          <th className="w-16 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-1/3 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
-                          <th className="w-2/3 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Descripción</th>
-                          <th className="w-24 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
+                        <tr className="w-full">
+                          <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
+                          <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
+                          <th className="w-[45%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Descripción</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
@@ -364,12 +364,12 @@ const AdminDashboard = () => {
                   {activeTab === 'usuarios' && (
                     <>
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                        <tr>
-                          <th className="w-16 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-1/3 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
-                          <th className="w-1/3 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Correo Electrónico</th>
-                          <th className="w-1/3 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha de Registro</th>
-                          <th className="w-24 py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Estado</th>
+                        <tr className="w-full">
+                          <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
+                          <th className="w-[25%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
+                          <th className="w-[35%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Correo Electrónico</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha de Registro</th>
+                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Estado</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
