@@ -4,36 +4,46 @@ import Navbar from '../components/Navbar'; // <-- Usamos el Navbar de tu amigo
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
 
-// Base de datos de prueba
-const productosSimulados = [
-  { id: 1, nombre: "Essential Hoodie", precio: 65.00, categoria: "hoodies" },
-  { id: 2, nombre: "Oversize Basic Tee", precio: 35.00, categoria: "camisetas" },
-  { id: 3, nombre: "Cargo Pant Parachute", precio: 75.00, categoria: "pantalones" },
-  { id: 4, certificacion: true, nombre: "Heavyweight Hoodie", precio: 70.00, categoria: "hoodies" },
-  { id: 5, nombre: "Classic Boxy Tee", precio: 30.00, categoria: "camisetas" },
-  { id: 6, nombre: "Straight Leg Denim", precio: 80.00, categoria: "pantalones" },
-  { id: 7, nombre: "Washed Vintage Tee", precio: 40.00, categoria: "camisetas" },
-  { id: 8, nombre: "Zip-Up Minimal Hoodie", precio: 68.00, categoria: "hoodies" },
-];
-
 const Shop = () => {
   const { category } = useParams();
   const [isSortOpen, setIsSortOpen] = useState(false);
-  
-  // Extraemos la función para añadir productos. 
-  // (La apertura del carrito y el totalItems ahora los maneja el componente Navbar directamente)
   const { agregarAlCarrito } = useCart();
   
   const [sortOption, setSortOption] = useState('Ordenar por: Destacados');
   const sortOptions = ['Ordenar por: Destacados', 'Precio: Menor a Mayor', 'Precio: Mayor a Menor', 'Nuevos'];
 
+  // --- ESTADOS PARA DATOS REALES ---
+  const [productosDB, setProductosDB] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [category]);
 
+  useEffect(() => {
+    const fetchProductos = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch('http://localhost:3000/api/products');
+        if (res.ok) {
+          const data = await res.json();
+          // Traemos todos los productos activos
+          setProductosDB(data.filter(p => p.is_active));
+        }
+      } catch (error) {
+        console.error("Error al cargar catálogo:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
+  // Filtramos por categoría si la URL lo pide
   const productosFiltrados = category 
-    ? productosSimulados.filter(p => p.categoria.toLowerCase() === category.toLowerCase())
-    : productosSimulados;
+    ? productosDB.filter(p => p.category_name && p.category_name.toLowerCase() === category.toLowerCase())
+    : productosDB;
 
   const tituloPagina = category 
     ? category.charAt(0).toUpperCase() + category.slice(1) 
@@ -82,22 +92,33 @@ const Shop = () => {
         </div>
 
         {/* Grid de Productos */}
-        {productosFiltrados.length > 0 ? (
+        {isLoading ? (
+          <div className="py-24 flex justify-center text-zinc-400 w-full">
+            <svg className="animate-spin h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          </div>
+        ) : productosFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {productosFiltrados.map((item) => (
               <div key={item.id} className="group cursor-pointer">
                 <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-5 relative transition-colors duration-300">
                   <img 
-                    src={`https://placehold.co/600x800/f5f5f4/d6d3d1?text=${item.categoria.toUpperCase()}`} 
+                    src={item.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    alt={item.nombre}
+                    alt={item.name}
                   />
                   
                   <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-y-0 translate-y-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        agregarAlCarrito(item);
+                        // Ajustamos las variables de tu backend para que encajen con tu carrito
+                        agregarAlCarrito({
+                          id: item.id,
+                          nombre: item.name,
+                          precio: parseFloat(item.price),
+                          categoria: item.category_name,
+                          imagen: item.image_url
+                        });
                       }}
                       title="Añadir al carrito"
                       className="w-11 h-11 rounded-full flex items-center justify-center shadow-2xl border transform transition-all duration-150 active:scale-90 active:shadow-md bg-zinc-950 text-white hover:bg-zinc-800 border-transparent dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
@@ -109,14 +130,15 @@ const Shop = () => {
                     </button>
                   </div>
                 </div>
-                <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1">{item.nombre}</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 font-semibold">$ {item.precio.toFixed(2)}</p>
+                <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1 truncate">{item.name}</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 font-semibold">$ {parseFloat(item.price).toFixed(2)}</p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="py-20 text-center text-zinc-500 dark:text-zinc-400">
-            No hay productos disponibles en esta categoría.
+          <div className="py-20 text-center text-zinc-500 dark:text-zinc-400 flex flex-col items-center justify-center w-full">
+            <p>Tu catálogo está vacío por el momento.</p>
+            <p className="text-xs mt-2">¡Comienza a crear productos desde tu panel de administrador!</p>
           </div>
         )}
       </main>

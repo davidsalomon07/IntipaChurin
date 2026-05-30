@@ -131,25 +131,10 @@ const Home = () => {
           Comprar por Categoría
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-          {["Hoodies", "Camisetas", "Pantalones"].map((cat, i) => (
-            <Link
-              to={`/shop/${cat.toLowerCase()}`}
-              key={i}
-              className="group cursor-pointer flex flex-col items-center"
-            >
-              <div className="w-full aspect-4/5 rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-6 relative shadow-sm transition-colors duration-300">
-                <img
-                  src={`https://placehold.co/600x800/f5f5f4/d6d3d1?text=${cat.toUpperCase()}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-95 dark:opacity-80"
-                  alt={cat}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-black/30 transition-colors duration-500"></div>
-              </div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider dark:text-zinc-200">
-                {cat}
-              </h3>
-            </Link>
-          ))}
+          {/* Aquí se cargarán tus categorías reales desde la base de datos más adelante */}
+          <div className="col-span-full text-center text-zinc-500 py-10">
+            <p>Estamos preparando las colecciones para ti. ¡Vuelve pronto!</p>
+          </div>
         </div>
       </section>
 

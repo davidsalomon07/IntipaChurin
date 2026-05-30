@@ -130,9 +130,22 @@ const Navbar = ({ backButton = false }) => {
                     </span>
                     <div className="absolute top-[60px] left-0 w-48 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 shadow-xl rounded-2xl py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                       <Link to="/shop" className="block px-6 py-2 text-[12px] font-bold text-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-b border-zinc-100 dark:border-zinc-700 mb-1 pb-3">Catálogo Completo</Link>
-                      <Link to="/shop/hoodies" className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">Hoodies</Link>
-                      <Link to="/shop/camisetas" className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">Camisetas</Link>
-                      <Link to="/shop/pantalones" className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">Pantalones</Link>
+                      
+                      {/* Generamos las categorías dinámicamente desde la BD */}
+                      {Array.from(new Set(productosDB.map(p => p.category_name).filter(Boolean))).map((categoriaNombre, idx) => (
+                        <Link 
+                          key={idx} 
+                          to={`/shop/${categoriaNombre.toLowerCase()}`} 
+                          className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors capitalize"
+                        >
+                          {categoriaNombre}
+                        </Link>
+                      ))}
+                      
+                      {/* Mensaje por si aún no hay productos creados en la BD */}
+                      {productosDB.length === 0 && (
+                        <span className="block px-6 py-2 text-[11px] text-zinc-400 italic">Próximamente...</span>
+                      )}
                     </div>
                   </div>
                   <Link to="/shop/nuevos" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors uppercase tracking-wider text-[11px]">Nuevos</Link>
