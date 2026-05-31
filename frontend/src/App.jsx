@@ -16,6 +16,7 @@ import UserProfile from './pages/UserProfile';
 import Lookbook from './pages/Lookbook';
 import WhatsAppButton from './components/WhatsAppButton';
 import AdminDashboard from './pages/AdminDashboard';
+import ProductDetail from './pages/ProductDetail';
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/lookbook" element={<Lookbook />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
               </Routes>
               <WhatsAppButton />
             </div>

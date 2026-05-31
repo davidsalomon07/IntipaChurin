@@ -294,8 +294,15 @@ const AdminDashboard = () => {
                             <tr key={p.id} className={`hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors ${!p.is_active ? 'opacity-60 grayscale-[50%]' : ''}`}>
                               <td className="py-4 px-6 text-sm text-zinc-500 dark:text-zinc-400">{index + 1}</td>
                               <td className="py-4 px-6 font-semibold text-zinc-900 dark:text-white truncate">
-                                {p.name}
-                                {!p.is_active && <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full uppercase tracking-wider">Agotado</span>}
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                                    <img src={p.image_url || `https://placehold.co/100x100/f5f5f4/d6d3d1?text=FOTO`} alt={p.name} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="truncate">{p.name}</span>
+                                    {!p.is_active && <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full uppercase tracking-wider w-fit mt-1">Agotado</span>}
+                                  </div>
+                                </div>
                               </td>
                               <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400 truncate">
                                 <span className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg font-medium">{p.category_name || 'Sin Categoría'}</span>
@@ -519,13 +526,26 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Actualizar Imagen (Opcional)</label>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={e => setProductForm({...productForm, image_file: e.target.files[0]})} 
-                    className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" 
-                  />
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen Actual y Actualización (Opcional)</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                      <img src={productForm.image_url || `https://placehold.co/100x100/f5f5f4/d6d3d1?text=FOTO`} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1">
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            // Guardamos el archivo para subirlo, y generamos una URL temporal para que veas la nueva foto antes de guardar
+                            setProductForm({...productForm, image_file: file, image_url: URL.createObjectURL(file)}); 
+                          }
+                        }} 
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" 
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
