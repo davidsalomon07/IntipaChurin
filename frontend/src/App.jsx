@@ -72,7 +72,7 @@ function App() {
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/lookbook" element={<Lookbook />} />
                 <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/shop/producto/:id" element={<ProductDetail />} />
               </Routes>
               <WhatsAppButton />
             </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext"; // <-- 1. Importamos el carrito
 
@@ -55,7 +55,10 @@ const CartIcon = () => (
 );
 
 const Home = () => {
+  const navigate = useNavigate(); // <-- Iniciamos el navegador
   const { agregarAlCarrito } = useCart();
+  
+  // Estado extra para forzar renderizado si cambia el tamaño de pantalla
   
   // --- NUEVOS ESTADOS PARA PRODUCTOS Y CATEGORÍAS REALES ---
   const [productosDestacados, setProductosDestacados] = React.useState([]);
@@ -250,7 +253,11 @@ const Home = () => {
             </div>
           ) : (
             productosDestacados.map((producto) => (
-              <div key={producto.id} className="group cursor-pointer">
+              <div 
+                key={producto.id} 
+                className="group cursor-pointer"
+                onClick={() => navigate(`/shop/producto/${producto.id}`)}
+              >
                 <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-5 relative transition-colors duration-300">
                   <img
                     // Si no tiene imagen en la base de datos, ponemos una por defecto

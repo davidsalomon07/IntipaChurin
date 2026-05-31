@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Navbar from '../components/Navbar'; // <-- Usamos el Navbar de tu amigo
+import { useParams, useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
 
 const Shop = () => {
   const { category } = useParams();
+  const navigate = useNavigate(); // <-- Iniciamos el navegador
   const [isSortOpen, setIsSortOpen] = useState(false);
   const { agregarAlCarrito } = useCart();
   
@@ -113,7 +114,11 @@ const Shop = () => {
         ) : productosFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {productosFiltrados.map((item) => (
-              <div key={item.id} className="group cursor-pointer">
+              <div 
+                key={item.id} 
+                className="group cursor-pointer"
+                onClick={() => navigate(`/shop/producto/${item.id}`)}
+              >
                 <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-5 relative transition-colors duration-300">
                   <img 
                     src={item.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`} 
