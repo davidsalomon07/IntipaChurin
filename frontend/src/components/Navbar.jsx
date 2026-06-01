@@ -161,9 +161,12 @@ const Navbar = ({ backButton = false }) => {
           </div>
 
           {/* ── LOGO CENTRADO ── */}
-          <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 pointer-events-none dark:text-white transition-colors duration-300">
-            Intipa Churin
-          </div>
+          <Link 
+          to="/" 
+          className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 dark:text-white transition-colors duration-300 hover:opacity-80"
+          >
+          Intipa Churin
+          </Link>
 
           {/* ── LADO DERECHO ── */}
           <div className="flex gap-4 md:gap-6 text-zinc-600 dark:text-zinc-300 flex-1 justify-end items-center">
