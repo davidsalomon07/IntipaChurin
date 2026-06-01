@@ -272,7 +272,7 @@ const AdminDashboard = () => {
               </div>
             ) : (
               <div className="overflow-x-auto w-full">
-                <table className="w-full text-left table-fixed">
+                <table className="w-full text-left">
                   
                   {/* === PRODUCTOS === */}
                   {activeTab === 'productos' && (
@@ -280,10 +280,12 @@ const AdminDashboard = () => {
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                         <tr className="w-full">
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-[35%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
+                          <th className="w-[45%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Stock / Precio</th>
-                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
+                          <th className="min-w-[180px] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">
+  Acciones
+</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
@@ -313,19 +315,21 @@ const AdminDashboard = () => {
                                   <span className="font-bold text-zinc-900 dark:text-white">${parseFloat(p.price).toFixed(2)}</span>
                                 </div>
                               </td>
-                              <td className="py-4 px-6 flex justify-center items-center gap-3">
-                                <button onClick={() => window.open(`/shop/producto/${p.id}`, '_blank')} title="Previsualizar en Tienda">
-                                  <Eye size={18} className="cursor-pointer text-zinc-400 hover:text-blue-500 transition-colors" />
-                                </button>
-                                <button onClick={() => handleEditClick(p)} title="Editar Producto">
-                                  <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" />
-                                </button>
-                                <button onClick={() => handleToggleActive(p.id, p.is_active)} title={p.is_active ? "Marcar Agotado / Desactivar" : "Activar Publicación"}>
-                                  <Power size={18} className={`cursor-pointer transition-colors ${p.is_active ? 'text-green-500 hover:text-green-600' : 'text-zinc-400 hover:text-zinc-300'}`} />
-                                </button>
-                                <button onClick={() => handleDeleteProduct(p.id)} title="Eliminar Definitivamente">
-                                  <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" />
-                                </button>
+                              <td className="py-4 px-6">
+                                <div className="flex justify-center items-center gap-3">
+                                  <button onClick={() => window.open(`/shop/producto/${p.id}`, '_blank')} title="Previsualizar en Tienda">
+                                    <Eye size={18} className="cursor-pointer text-zinc-400 hover:text-blue-500 transition-colors" />
+                                  </button>
+                                  <button onClick={() => handleEditClick(p)} title="Editar Producto">
+                                    <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" />
+                                  </button>
+                                  <button onClick={() => handleToggleActive(p.id, p.is_active)} title={p.is_active ? "Marcar Agotado / Desactivar" : "Activar Publicación"}>
+                                    <Power size={18} className={`cursor-pointer transition-colors ${p.is_active ? 'text-green-500 hover:text-green-600' : 'text-zinc-400 hover:text-zinc-300'}`} />
+                                  </button>
+                                  <button onClick={() => handleDeleteProduct(p.id)} title="Eliminar Definitivamente">
+                                    <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))
