@@ -1,16 +1,53 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Search,
-  Package,
-  Grid,
-  Users,
-  LogOut,
-  Edit,
-  Trash2,
-  Eye,
-  Power
+  Search,
+  Package,
+  Grid,
+  Users,
+  LogOut,
+  Edit,
+  Trash2,
+  Eye,
+  Power
 } from "lucide-react";
+import Cropper from 'react-easy-crop';
+
+const createImage = (url) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.src = url;
+  });
+
+async function getCroppedImg(imageSrc, pixelCrop) {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) return reject(new Error("Canvas vacío"));
+      const file = new File([blob], "imagen_recortada.jpg", { type: "image/jpeg" });
+      resolve({ file, url: URL.createObjectURL(blob) });
+    }, "image/jpeg", 0.95);
+  });
+}
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('productos');
@@ -32,7 +69,35 @@ const AdminDashboard = () => {
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
-  const navigate = useNavigate();
+  // --- CONTROL DEL RECORTADOR DE IMÁGENES ---
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => setImageToCrop(reader.result));
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const procesarRecorte = async () => {
+    try {
+      const { file, url } = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      setProductForm({...productForm, image_file: file, image_url: url});
+      setImageToCrop(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -472,13 +537,28 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen del Producto</label>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={e => setProductForm({...productForm, image_file: e.target.files[0]})} 
-                    className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" 
-                  />
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen del Producto (Recorte Interactivo)</label>
+                  {imageToCrop ? (
+                    <div className="space-y-3">
+                      <div className="relative w-full h-64 bg-zinc-900 rounded-xl overflow-hidden">
+                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3/4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
+                      </div>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
+                        <button type="button" onClick={procesarRecorte} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">Aplicar Recorte</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      {productForm.image_url && (
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                          <img src={productForm.image_url} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      {/* ESTA ES LA LÍNEA MÁGICA CON EL handleFileSelect */}
+                      <input type="file" accept="image/*" onChange={handleFileSelect} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
@@ -510,15 +590,8 @@ const AdminDashboard = () => {
                     <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">
-                      Categoría
-                    </label>
-                    {/* Input de solo lectura que muestra el nombre de la categoría actual */}
-                    <input 
-                      readOnly 
-                      value={categorias.find(c => c.id === productForm.category_id)?.name || 'Sin Categoría'} 
-                      className="w-full p-3 bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-zinc-400 transition-all text-sm cursor-not-allowed font-medium" 
-                    />
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Categoría</label>
+                    <input readOnly value={categorias.find(c => c.id === productForm.category_id)?.name || 'Sin Categoría'} className="w-full p-3 bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-zinc-400 transition-all text-sm cursor-not-allowed font-medium" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
@@ -531,25 +604,26 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen Actual y Actualización (Opcional)</label>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
-                      <img src={productForm.image_url || `https://placehold.co/100x100/f5f5f4/d6d3d1?text=FOTO`} alt="Preview" className="w-full h-full object-cover" />
+                  {imageToCrop ? (
+                    <div className="space-y-3">
+                      <div className="relative w-full h-64 bg-zinc-900 rounded-xl overflow-hidden">
+                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3/4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
+                      </div>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
+                        <button type="button" onClick={procesarRecorte} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">Aplicar Recorte</button>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={e => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            // Guardamos el archivo para subirlo, y generamos una URL temporal para que veas la nueva foto antes de guardar
-                            setProductForm({...productForm, image_file: file, image_url: URL.createObjectURL(file)}); 
-                          }
-                        }} 
-                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" 
-                      />
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                        <img src={productForm.image_url || `https://placehold.co/100x100/f5f5f4/d6d3d1?text=FOTO`} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1">
+                        <input type="file" accept="image/*" onChange={handleFileSelect} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>

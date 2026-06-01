@@ -177,7 +177,7 @@ const Home = () => {
         </div>
 
         {/* CONTENEDOR DEL SLIDER - REPARADO */}
-        <div className="overflow-hidden w-full">
+        <div className="overflow-hidden -mr-6 md:-mr-10">
           {categoriasDB.length === 0 ? (
             <div className="text-center text-zinc-500 py-10 w-full">
               <p>Estamos preparando las colecciones para ti. ¡Vuelve pronto!</p>
