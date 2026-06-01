@@ -226,7 +226,7 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
         <header className="h-20 bg-zinc-50 dark:bg-zinc-950 flex items-center justify-between px-8 shrink-0">
           <h1 className="text-2xl font-bold dark:text-white">
             {activeTab === 'productos' && 'Gestión de Productos'}
@@ -271,7 +271,7 @@ const AdminDashboard = () => {
                  Cargando información...
               </div>
             ) : (
-              <div className="overflow-x-auto w-full">
+              <div className="overflow-x-auto w-full min-w-0">
                 <table className="w-full text-left">
                   
                   {/* === PRODUCTOS === */}
@@ -283,9 +283,7 @@ const AdminDashboard = () => {
                           <th className="w-[45%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Stock / Precio</th>
-                          <th className="min-w-[180px] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">
-  Acciones
-</th>
+                          <th className="min-w-[180px] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
@@ -365,15 +363,17 @@ const AdminDashboard = () => {
                                   )}
                                 </td>
                                 <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400 truncate">{c.description || <span className="text-zinc-300 dark:text-zinc-600 italic">Sin descripción</span>}</td>
-                                <td className="py-4 px-6 flex justify-center items-center gap-3">
-                                  <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="Editar" />
-                                  {isProtected ? (
-                                    <div className="w-[18px] flex justify-center text-zinc-300 dark:text-zinc-700 cursor-not-allowed" title="Categoría protegida">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                    </div>
-                                  ) : (
-                                    <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" title="Eliminar" />
-                                  )}
+                                <td className="py-4 px-6">
+                                  <div className="flex justify-center items-center gap-3">
+                                    <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" title="Editar" />
+                                    {isProtected ? (
+                                      <div className="w-[18px] flex justify-center text-zinc-300 dark:text-zinc-700 cursor-not-allowed" title="Categoría protegida">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                      </div>
+                                    ) : (
+                                      <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" title="Eliminar" />
+                                    )}
+                                  </div>
                                 </td>
                               </tr>
                             );
