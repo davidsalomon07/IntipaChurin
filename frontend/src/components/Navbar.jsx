@@ -18,8 +18,9 @@ const MenuIcon = () => (
 );
 
 const Navbar = ({ backButton = false }) => {
-  const [cartOpen, setCartOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const [cartOpen, setCartOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productosDB, setProductosDB] = useState([]);
@@ -179,9 +180,12 @@ const Navbar = ({ backButton = false }) => {
             </button>
 
             {/* Perfil oculto en móvil */}
-            <Link to="/profile" className="hidden md:block hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110">
-              <UserIcon />
-            </Link>
+            <Link 
+              to={user ? (user.role_id === 1 ? "/admin" : "/profile") : "/login"} 
+              className="hidden md:block hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
+            >
+              <UserIcon />
+            </Link>
 
             <button
               onClick={() => setCartOpen(true)}

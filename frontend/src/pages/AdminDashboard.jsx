@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   
-  // Formularios completos (Agregamos image_file)
+  // Formularios completos
   const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
@@ -67,8 +67,6 @@ const AdminDashboard = () => {
   };
 
   // --- LÓGICA CRUD PRODUCTOS ---
-
-  // 1. Crear (Ahora enviamos FormData en lugar de JSON)
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -84,7 +82,7 @@ const AdminDashboard = () => {
 
       const response = await fetch('http://localhost:3000/api/admin/products', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }, // Quitamos Content-Type
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
       
@@ -96,7 +94,6 @@ const AdminDashboard = () => {
     } catch (error) { console.error(error); }
   };
 
-  // 2. Preparar Edición
   const handleEditClick = (p) => {
     setEditingProductId(p.id);
     setProductForm({
@@ -105,13 +102,12 @@ const AdminDashboard = () => {
       price: p.price,
       stock_quantity: p.stock_quantity,
       category_id: p.category_id || '',
-      image_file: null, // Reseteamos por si quiere subir una foto nueva
+      image_file: null,
       is_active: p.is_active
     });
     setIsEditProductModalOpen(true);
   };
 
-  // 3. Enviar Edición (FormData)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -140,7 +136,6 @@ const AdminDashboard = () => {
     } catch (error) { console.error(error); }
   };
 
-  // 4. Activar/Desactivar (Stock)
   const handleToggleActive = async (id, currentStatus) => {
     try {
       const response = await fetch(`http://localhost:3000/api/admin/products/${id}/toggle`, {
@@ -152,7 +147,6 @@ const AdminDashboard = () => {
     } catch (error) { console.error(error); }
   };
 
-  // 5. Eliminar
   const handleDeleteProduct = async (id) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este producto permanentemente?")) return;
     try {
@@ -272,17 +266,17 @@ const AdminDashboard = () => {
               </div>
             ) : (
               <div className="overflow-x-auto w-full">
-                <table className="w-full text-left table-fixed">
+                <table className="w-full text-left border-collapse min-w-[800px]">
                   
                   {/* === PRODUCTOS === */}
                   {activeTab === 'productos' && (
                     <>
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                        <tr className="w-full">
+                        <tr>
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-[35%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
+                          <th className="w-[40%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
-                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Stock / Precio</th>
+                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Stock / Precio</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Acciones</th>
                         </tr>
                       </thead>
@@ -338,7 +332,7 @@ const AdminDashboard = () => {
                   {activeTab === 'categorias' && (
                     <>
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                        <tr className="w-full">
+                        <tr>
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
                           <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
                           <th className="w-[45%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Descripción</th>
@@ -383,10 +377,10 @@ const AdminDashboard = () => {
                   {activeTab === 'usuarios' && (
                     <>
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                        <tr className="w-full">
+                        <tr>
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-[25%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
-                          <th className="w-[35%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Correo Electrónico</th>
+                          <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
+                          <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Correo Electrónico</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha de Registro</th>
                           <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Estado</th>
                         </tr>
@@ -509,7 +503,6 @@ const AdminDashboard = () => {
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">
                       Categoría
                     </label>
-                    {/* Input de solo lectura que muestra el nombre de la categoría actual */}
                     <input 
                       readOnly 
                       value={categorias.find(c => c.id === productForm.category_id)?.name || 'Sin Categoría'} 
@@ -538,7 +531,6 @@ const AdminDashboard = () => {
                         onChange={e => {
                           const file = e.target.files[0];
                           if (file) {
-                            // Guardamos el archivo para subirlo, y generamos una URL temporal para que veas la nueva foto antes de guardar
                             setProductForm({...productForm, image_file: file, image_url: URL.createObjectURL(file)}); 
                           }
                         }} 
