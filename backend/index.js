@@ -392,6 +392,10 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
     const productId = req.params.id;
     const { name, description, price, stock_quantity } = req.body;
 
+    // 1. Buscamos la URL de la imagen actual en la BD antes de hacer cualquier cambio
+    const productActualQuery = await pool.query('SELECT image_url FROM products WHERE id = $1', [productId]);
+    const oldImageUrl = productActualQuery.rows[0]?.image_url;
+
     const newImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
 
     let updateQuery;
@@ -402,6 +406,16 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
          WHERE id = $6 RETURNING *`,
         [name, description, price, stock_quantity, newImageUrl, productId]
       );
+
+      // 2. Si se subió una foto nueva y ya existía una vieja, la borramos del disco local
+      if (oldImageUrl) {
+        const fs = require('fs'); // Importamos fs aquí localmente por seguridad
+        const filename = oldImageUrl.split('/').pop();
+        const filePath = path.join(__dirname, 'uploads', filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
     } else {
       updateQuery = await pool.query(
         `UPDATE products 
@@ -432,6 +446,11 @@ app.delete('/api/admin/products/:id', verificarAdmin, async (req, res) => {
   try {
     const productId = req.params.id;
 
+    // 1. Buscamos la URL de la imagen antes de eliminar el registro
+    const productActualQuery = await pool.query('SELECT image_url FROM products WHERE id = $1', [productId]);
+    const imageUrlToDelete = productActualQuery.rows[0]?.image_url;
+
+    // 2. Eliminamos el registro de la base de datos
     const deleteQuery = await pool.query(
       'DELETE FROM products WHERE id = $1 RETURNING id',
       [productId]
@@ -439,6 +458,16 @@ app.delete('/api/admin/products/:id', verificarAdmin, async (req, res) => {
 
     if (deleteQuery.rows.length === 0) {
       return res.status(404).json({ error: "Producto no encontrado." });
+    }
+
+    // 3. Borramos la foto asociada del disco duro local
+    if (imageUrlToDelete) {
+      const fs = require('fs');
+      const filename = imageUrlToDelete.split('/').pop();
+      const filePath = path.join(__dirname, 'uploads', filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
 
     res.json({ message: "Producto eliminado definitivamente del inventario." });
