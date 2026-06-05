@@ -440,6 +440,34 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
 });
 
 // ==========================================
+// 10.5. ADMIN - PATCH: Activar/Desactivar Producto (Stock)
+// ==========================================
+app.patch('/api/admin/products/:id/toggle', verificarAdmin, async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { is_active } = req.body;
+
+    // Actualizamos únicamente la columna is_active en la base de datos
+    const updateQuery = await pool.query(
+      'UPDATE products SET is_active = $1 WHERE id = $2 RETURNING *',
+      [is_active, productId]
+    );
+
+    if (updateQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado." });
+    }
+
+    res.json({
+      message: `Producto ${is_active ? 'activado' : 'desactivado'} correctamente.`,
+      product: updateQuery.rows[0]
+    });
+  } catch (error) {
+    console.error("❌ Error al cambiar el estado del producto:", error.message);
+    res.status(500).json({ error: "Error al actualizar el estado del producto." });
+  }
+});
+
+// ==========================================
 // 11. ADMIN - DELETE: Eliminar un producto
 // ==========================================
 app.delete('/api/admin/products/:id', verificarAdmin, async (req, res) => {
