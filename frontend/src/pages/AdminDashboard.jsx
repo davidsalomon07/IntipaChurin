@@ -63,6 +63,7 @@ const AdminDashboard = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
+  const [previewProduct, setPreviewProduct] = useState(null);
   
   // Formularios completos (Agregamos image_file)
   const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
@@ -380,7 +381,7 @@ const AdminDashboard = () => {
                               </td>
                               <td className="py-4 px-6">
                                 <div className="flex justify-center items-center gap-3">
-                                  <button onClick={() => window.open(`/shop/producto/${p.id}`, '_blank')} title="Previsualizar en Tienda">
+                                  <button onClick={() => setPreviewProduct(p)} title="Previsualizar en Tienda">
                                     <Eye size={18} className="cursor-pointer text-zinc-400 hover:text-blue-500 transition-colors" />
                                   </button>
                                   <button onClick={() => handleEditClick(p)} title="Editar Producto">
@@ -658,6 +659,83 @@ const AdminDashboard = () => {
               </div>
               <button type="submit" className="w-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 p-4 rounded-xl font-bold mt-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm text-sm">Crear Categoría</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================== */}
+      {/* MODAL DE PREVISUALIZACIÓN DE PRODUCTO */}
+      {/* ========================================== */}
+      {previewProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-white dark:bg-zinc-950 rounded-3xl w-full max-w-4xl relative overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto">
+            
+            {/* Botón de cerrar (X) */}
+            <button
+              onClick={() => setPreviewProduct(null)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors shadow-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            {/* Lado izquierdo: Imagen del producto (Respetando el formato 3:4) */}
+            <div className="w-full md:w-1/2 p-6 md:p-8 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900/50">
+              <div 
+                className="w-full max-w-sm rounded-2xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shadow-md relative"
+                style={{ aspectRatio: '3/4' }}
+              >
+                <img
+                  src={previewProduct.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`}
+                  alt={previewProduct.name}
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Etiqueta flotante de Categoría sobre la imagen */}
+                <div className="absolute top-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase text-zinc-800 dark:text-zinc-200 shadow-sm">
+                  {previewProduct.category_name || "Sin Categoría"}
+                </div>
+              </div>
+            </div>
+
+            {/* Lado derecho: Detalles del producto */}
+            <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center">
+              <span className="text-xs font-bold tracking-widest uppercase text-green-600 dark:text-green-400 mb-3">
+                Vista Previa Web
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-zinc-900 dark:text-white">
+                {previewProduct.name}
+              </h2>
+              <p className="text-2xl font-light text-zinc-800 dark:text-zinc-200 mb-6">
+                $ {parseFloat(previewProduct.price).toFixed(2)}
+              </p>
+              
+              <div className="w-12 h-1 bg-zinc-200 dark:bg-zinc-800 mb-6"></div>
+
+              <div className="mb-8">
+                <h4 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-2">Descripción</h4>
+                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm whitespace-pre-wrap">
+                  {previewProduct.description || "Este producto no tiene una descripción asignada."}
+                </p>
+              </div>
+
+              {/* Métricas técnicas para el Admin */}
+              <div className="flex flex-wrap gap-4 mt-auto">
+                <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 flex-1 min-w-[120px]">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Stock Actual</p>
+                  <p className="font-bold text-zinc-900 dark:text-white">{previewProduct.stock_quantity} unidades</p>
+                </div>
+                <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 flex-1 min-w-[120px]">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Estado</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`w-2.5 h-2.5 rounded-full shadow-sm ${previewProduct.is_active ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <p className="font-bold text-zinc-900 dark:text-white">
+                      {previewProduct.is_active ? 'Activo' : 'Agotado/Oculto'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       )}
