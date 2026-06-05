@@ -664,11 +664,33 @@ const AdminDashboard = () => {
       )}
 
       {/* ========================================== */}
-      {/* MODAL DE PREVISUALIZACIÓN DE PRODUCTO */}
+      {/* MODAL DE PREVISUALIZACIÓN DE PRODUCTO (OJO) */}
       {/* ========================================== */}
       {previewProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
-          <div className="bg-white dark:bg-zinc-950 rounded-3xl w-full max-w-4xl relative overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          
+          {/* Animaciones CSS incrustadas solo para este modal */}
+          <style>{`
+            @keyframes overlayFade {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes modalPop {
+              from { opacity: 0; transform: scale(0.95) translateY(15px); }
+              to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            .animate-overlay { animation: overlayFade 0.25s ease-out forwards; }
+            .animate-modal { animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+          `}</style>
+
+          {/* Fondo oscuro con desenfoque (Backdrop) interactivo */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-overlay"
+            onClick={() => setPreviewProduct(null)}
+          ></div>
+
+          {/* Contenedor principal del Modal con animación de entrada */}
+          <div className="bg-white dark:bg-zinc-950 rounded-3xl w-full max-w-4xl relative overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto z-10 animate-modal">
             
             {/* Botón de cerrar (X) */}
             <button
