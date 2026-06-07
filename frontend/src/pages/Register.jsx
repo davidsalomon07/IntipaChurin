@@ -70,25 +70,25 @@ const Register = () => {
   };
 
   return (
-    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen flex flex-col justify-center items-center px-6 selection:bg-stone-200 dark:selection:bg-zinc-800 text-stone-900 dark:text-zinc-100 font-sans py-8 transition-colors duration-300">
+    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 py-12 sm:py-16 selection:bg-stone-200 dark:selection:bg-zinc-800 text-stone-900 dark:text-zinc-100 font-sans transition-colors duration-300">
       
-      <div className="absolute top-8 left-8 md:top-12 md:left-12">
+      <div className="absolute top-4 left-4 sm:top-8 sm:left-8 md:top-12 md:left-12">
         <Link to="/" className="text-stone-400 dark:text-zinc-500 hover:text-stone-900 dark:hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           Volver
         </Link>
       </div>
 
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2rem] shadow-sm border border-stone-100 dark:border-zinc-800 transition-colors duration-300">
+      <div className="w-full max-w-md bg-white dark:bg-zinc-900 p-6 sm:p-8 md:p-10 rounded-[2rem] shadow-sm border border-stone-100 dark:border-zinc-800 transition-colors duration-300">
         
-        <div className="mb-8">
-          <h1 className="text-xl font-bold tracking-widest uppercase mb-8 text-center dark:text-white">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-lg sm:text-xl font-bold tracking-widest uppercase mb-6 sm:mb-8 text-center dark:text-white">
             Intipa Churin
           </h1>
           
           <div className="text-left">
-            <h2 className="text-2xl font-bold tracking-tight mb-1 dark:text-white">Crear cuenta</h2>
-            <p className="text-sm text-stone-500 dark:text-zinc-400">Únete para acceder a colecciones exclusivas.</p>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1 dark:text-white">Crear cuenta</h2>
+            <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400">Únete para acceder a colecciones exclusivas.</p>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ const Register = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           
           {/* Grid de 2 columnas para Nombres y Apellidos */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
                 Nombre
@@ -149,7 +149,7 @@ const Register = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
                 Contraseña
@@ -202,7 +202,7 @@ const Register = () => {
           <button 
             type="submit" 
             disabled={isLoading}
-            className={`w-full bg-stone-900 dark:bg-zinc-100 text-white dark:text-zinc-900 py-3.5 rounded-xl text-sm font-semibold hover:bg-stone-850 dark:hover:bg-zinc-200 transition-all shadow-sm mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            className={`w-full bg-stone-900 dark:bg-zinc-100 text-white dark:text-zinc-900 py-3 sm:py-3.5 rounded-xl text-sm font-semibold hover:bg-stone-850 dark:hover:bg-zinc-200 transition-all shadow-sm mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
             {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>

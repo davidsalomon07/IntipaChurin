@@ -58,16 +58,8 @@ const Home = () => {
   const navigate = useNavigate(); // <-- Iniciamos el navegador
   const { agregarAlCarrito } = useCart();
   
-  // Estado extra para forzar renderizado si cambia el tamaño de pantalla
-  const [itemsPerView, setItemsPerView] = React.useState(typeof window !== 'undefined' && window.innerWidth >= 768 ? 4 : 3);
+  const itemsPerView = 3;
 
-  React.useEffect(() => {
-    const handleResize = () => {
-      setItemsPerView(window.innerWidth >= 768 ? 4 : 3);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   
   // --- NUEVOS ESTADOS PARA PRODUCTOS Y CATEGORÍAS REALES ---
   const [productosDestacados, setProductosDestacados] = React.useState([]);
