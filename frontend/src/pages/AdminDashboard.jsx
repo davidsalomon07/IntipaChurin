@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Search,
-  Package,
-  Grid,
-  Users,
-  LogOut,
-  Edit,
-  Trash2,
-  Eye,
-  Power
+  Search,
+  Package,
+  Grid,
+  Users,
+  LogOut,
+  Edit,
+  Trash2,
+  Eye,
+  Power,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sun,
+  Moon
 } from "lucide-react";
+import { ThemeContext } from "../context/ThemeContext";
 import Cropper from 'react-easy-crop';
 
 const createImage = (url) =>
@@ -52,53 +57,55 @@ async function getCroppedImg(imageSrc, pixelCrop) {
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('productos');
   const [search, setSearch] = useState("");
-  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { theme, setTheme } = useContext(ThemeContext);
+
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Control de Modales
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   const [previewProduct, setPreviewProduct] = useState(null);
-  
+
   // Formularios completos (Agregamos image_file)
   const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
-  // --- CONTROL DEL RECORTADOR DE IMÁGENES ---
-  const [imageToCrop, setImageToCrop] = useState(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  // --- CONTROL DEL RECORTADOR DE IMÁGENES ---
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const reader = new FileReader();
-      reader.addEventListener('load', () => setImageToCrop(reader.result));
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => setImageToCrop(reader.result));
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
 
-  const onCropComplete = (croppedArea, croppedAreaPixels) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  };
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
 
-  const procesarRecorte = async () => {
-    try {
-      const { file, url } = await getCroppedImg(imageToCrop, croppedAreaPixels);
-      setProductForm({...productForm, image_file: file, image_url: url});
-      setImageToCrop(null);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const procesarRecorte = async () => {
+    try {
+      const { file, url } = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      setProductForm({ ...productForm, image_file: file, image_url: url });
+      setImageToCrop(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-  const navigate = useNavigate();
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -153,7 +160,7 @@ const AdminDashboard = () => {
         headers: { 'Authorization': `Bearer ${token}` }, // Quitamos Content-Type
         body: formData
       });
-      
+
       if (response.ok) {
         setIsProductModalOpen(false);
         setProductForm(estadoInicialProducto);
@@ -188,7 +195,7 @@ const AdminDashboard = () => {
       formData.append('stock_quantity', parseInt(productForm.stock_quantity));
       formData.append('category_id', parseInt(productForm.category_id));
       if (productForm.image_file) {
-        formData.append('image', productForm.image_file); 
+        formData.append('image', productForm.image_file);
       }
 
       const response = await fetch(`http://localhost:3000/api/admin/products/${editingProductId}`, {
@@ -196,7 +203,7 @@ const AdminDashboard = () => {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
-      
+
       if (response.ok) {
         setIsEditProductModalOpen(false);
         setProductForm(estadoInicialProducto);
@@ -253,27 +260,30 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
-      
+
       {/* Sidebar Minimalista */}
-      <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col z-10 shrink-0">
-        <div className="h-20 flex items-center px-8 border-b border-zinc-200 dark:border-zinc-800">
+      <aside className={`${isSidebarOpen ? 'w-64' : 'w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col z-20 shrink-0 transition-all duration-300 overflow-hidden`}>
+        <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-200 dark:border-zinc-800 shrink-0 w-64">
           <span className="text-lg font-bold tracking-widest uppercase dark:text-white">Intipa Churin</span>
+          <button onClick={() => setIsSidebarOpen(false)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
+            <PanelLeftClose size={20} />
+          </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <div 
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto w-64 shrink-0">
+          <div
             onClick={() => setActiveTab('productos')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'productos' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
           >
             <Package size={18} /> Gestión de Productos
           </div>
-          <div 
+          <div
             onClick={() => setActiveTab('categorias')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'categorias' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
           >
             <Grid size={18} /> Gestión de Categorías
           </div>
-          <div 
+          <div
             onClick={() => setActiveTab('usuarios')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'usuarios' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
           >
@@ -281,8 +291,8 @@ const AdminDashboard = () => {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
-          <div 
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 w-64 shrink-0">
+          <div
             onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}
             className="flex items-center justify-center gap-3 px-4 py-3 text-red-500 font-semibold text-sm cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors"
           >
@@ -293,13 +303,27 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
-        <header className="h-20 bg-zinc-50 dark:bg-zinc-950 flex items-center justify-between px-8 shrink-0">
-          <h1 className="text-2xl font-bold dark:text-white">
-            {activeTab === 'productos' && 'Gestión de Productos'}
-            {activeTab === 'categorias' && 'Gestión de Categorías'}
-            {activeTab === 'usuarios' && 'Cuentas Registradas'}
-          </h1>
+        <header className="h-20 bg-zinc-50 dark:bg-zinc-950 flex items-center justify-between px-8 shrink-0 transition-all duration-300">
           <div className="flex items-center gap-4">
+            {!isSidebarOpen && (
+              <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Abrir barra lateral">
+                <PanelLeftOpen size={24} />
+              </button>
+            )}
+            <h1 className="text-2xl font-bold dark:text-white">
+              {activeTab === 'productos' && 'Gestión de Productos'}
+              {activeTab === 'categorias' && 'Gestión de Categorías'}
+              {activeTab === 'usuarios' && 'Cuentas Registradas'}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setTheme(theme === 'Dark' ? 'Light' : 'Dark')}
+              className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all shadow-sm hover:scale-105"
+              title="Cambiar tema"
+            >
+              {theme === 'Dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <div className="flex items-center bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-4 py-2.5 rounded-full shadow-sm w-full md:w-64">
               <Search size={16} className="text-zinc-400" />
               <input
@@ -333,13 +357,13 @@ const AdminDashboard = () => {
           <div className="bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden flex flex-col">
             {isLoading ? (
               <div className="p-20 text-center text-zinc-500 font-medium flex flex-col items-center">
-                 <svg className="animate-spin h-8 w-8 mb-4 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                 Cargando información...
+                <svg className="animate-spin h-8 w-8 mb-4 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Cargando información...
               </div>
             ) : (
               <div className="overflow-x-auto w-full min-w-0">
                 <table className="w-full text-left">
-                  
+
                   {/* === PRODUCTOS === */}
                   {activeTab === 'productos' && (
                     <>
@@ -490,7 +514,7 @@ const AdminDashboard = () => {
                 </table>
               </div>
             )}
-            
+
             {/* Paginador */}
             {!isLoading && (
               <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50">
@@ -519,22 +543,22 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Nombre del Producto</label>
-                    <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Categoría</label>
-                    <select required value={productForm.category_id} onChange={e => setProductForm({...productForm, category_id: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
+                    <select required value={productForm.category_id} onChange={e => setProductForm({ ...productForm, category_id: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
                       <option value="">Selecciona una categoría...</option>
                       {categorias.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({...productForm, stock_quantity: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                 </div>
                 <div>
@@ -542,7 +566,7 @@ const AdminDashboard = () => {
                   {imageToCrop ? (
                     <div className="space-y-3">
                       <div className="relative w-full h-64 bg-zinc-900 rounded-xl overflow-hidden">
-                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3/4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
+                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3 / 4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
                       </div>
                       <div className="flex gap-2">
                         <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
@@ -563,7 +587,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
-                  <textarea rows="3" value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none"></textarea>
+                  <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none"></textarea>
                 </div>
               </form>
             </div>
@@ -588,7 +612,7 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Nombre del Producto</label>
-                    <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Categoría</label>
@@ -596,11 +620,11 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({...productForm, stock_quantity: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                 </div>
                 <div>
@@ -608,7 +632,7 @@ const AdminDashboard = () => {
                   {imageToCrop ? (
                     <div className="space-y-3">
                       <div className="relative w-full h-64 bg-zinc-900 rounded-xl overflow-hidden">
-                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3/4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
+                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3 / 4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
                       </div>
                       <div className="flex gap-2">
                         <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
@@ -628,7 +652,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
-                  <textarea rows="3" value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none"></textarea>
+                  <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none"></textarea>
                 </div>
               </form>
             </div>
@@ -651,11 +675,11 @@ const AdminDashboard = () => {
             <form onSubmit={handleCategorySubmit} className="p-8 space-y-5">
               <div>
                 <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Nombre de la Categoría</label>
-                <input required placeholder="Ej. Shorts" value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                <input required placeholder="Ej. Shorts" value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
               </div>
               <div>
                 <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
-                <input placeholder="Opcional" value={categoryForm.description} onChange={e => setCategoryForm({...categoryForm, description: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                <input placeholder="Opcional" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
               </div>
               <button type="submit" className="w-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 p-4 rounded-xl font-bold mt-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm text-sm">Crear Categoría</button>
             </form>
@@ -668,7 +692,7 @@ const AdminDashboard = () => {
       {/* ========================================== */}
       {previewProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          
+
           {/* Animaciones CSS incrustadas solo para este modal */}
           <style>{`
             @keyframes overlayFade {
@@ -684,14 +708,14 @@ const AdminDashboard = () => {
           `}</style>
 
           {/* Fondo oscuro con desenfoque (Backdrop) interactivo */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-overlay"
             onClick={() => setPreviewProduct(null)}
           ></div>
 
           {/* Contenedor principal del Modal con animación de entrada */}
           <div className="bg-white dark:bg-zinc-950 rounded-3xl w-full max-w-4xl relative overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto z-10 animate-modal">
-            
+
             {/* Botón de cerrar (X) */}
             <button
               onClick={() => setPreviewProduct(null)}
@@ -702,7 +726,7 @@ const AdminDashboard = () => {
 
             {/* Lado izquierdo: Imagen del producto (Respetando el formato 3:4) */}
             <div className="w-full md:w-1/2 p-6 md:p-8 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900/50">
-              <div 
+              <div
                 className="w-full max-w-sm rounded-2xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shadow-md relative"
                 style={{ aspectRatio: '3/4' }}
               >
@@ -711,7 +735,7 @@ const AdminDashboard = () => {
                   alt={previewProduct.name}
                   className="w-full h-full object-cover"
                 />
-                
+
                 {/* Etiqueta flotante de Categoría sobre la imagen */}
                 <div className="absolute top-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase text-zinc-800 dark:text-zinc-200 shadow-sm">
                   {previewProduct.category_name || "Sin Categoría"}
@@ -730,7 +754,7 @@ const AdminDashboard = () => {
               <p className="text-2xl font-light text-zinc-800 dark:text-zinc-200 mb-6">
                 $ {parseFloat(previewProduct.price).toFixed(2)}
               </p>
-              
+
               <div className="w-12 h-1 bg-zinc-200 dark:bg-zinc-800 mb-6"></div>
 
               <div className="mb-8">
