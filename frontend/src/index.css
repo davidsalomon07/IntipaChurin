@@ -2,11 +2,52 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Modo oscuro global */
-html.dark body,
-html.dark #root {
-  background-color: #1c1917 !important;
+html.dark body {
+  background-color: #09090b !important;
   color: #f5f5f4 !important;
 }
+
+/* --- SISTEMA DE FONDOS CON MARCA DE AGUA (MODO CLARO / OSCURO) --- */
+
+/* Aseguramos que el body controle el fondo del sitio */
+body {
+  background-color: #FCFCFC;
+  position: relative;
+}
+
+/* Pseudo-elemento para la imagen de fondo con opacidad */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background-image: url("/modo claro.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.02;
+  /* Apenas visible para que se reconozca el diseño sin molestar */
+  pointer-events: none;
+  transition: background-image 0.5s ease, opacity 0.5s ease;
+}
+
+html.dark body::before {
+  background-image: url("/modo oscuro.png");
+  opacity: 0.03;
+  /* Opacidad para el modo oscuro */
+}
+
+/* Hacemos transparentes los contenedores principales de las páginas para que se aprecie el fondo */
+#root,
+html.dark #root,
+#root>div,
+#root>div>div.min-h-screen {
+  background-color: transparent !important;
+}
+
 
 /* Desplazamiento suave entre secciones */
 html {
