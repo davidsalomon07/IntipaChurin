@@ -280,7 +280,7 @@ const AdminDashboard = () => {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <aside className={`fixed md:relative z-50 h-full ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 overflow-hidden shadow-2xl md:shadow-none`}>
+      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 overflow-hidden shadow-2xl md:shadow-none`}>
         <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-200 dark:border-zinc-800 shrink-0 w-64">
           <span className="text-lg font-bold tracking-widest uppercase dark:text-white">Intipa Churin</span>
           <button onClick={() => setIsSidebarOpen(false)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
