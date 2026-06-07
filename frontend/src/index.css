@@ -40,6 +40,17 @@ html.dark body::before {
   /* Opacidad para el modo oscuro */
 }
 
+/* Fondos exclusivos para la versión móvil (pantallas menores a 768px) */
+@media (max-width: 767px) {
+  body::before {
+    background-image: url("/modo claro movil.png");
+  }
+  
+  html.dark body::before {
+    background-image: url("/modo oscuro movil.png");
+  }
+}
+
 /* Hacemos transparentes los contenedores principales de las páginas para que se aprecie el fondo */
 #root,
 html.dark #root,
