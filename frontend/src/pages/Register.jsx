@@ -70,25 +70,25 @@ const Register = () => {
   };
 
   return (
-    <div className="bg-[#FCFCFC] min-h-screen flex flex-col justify-center items-center px-6 selection:bg-stone-200 text-stone-900 font-sans py-8">
+    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen flex flex-col justify-center items-center px-6 selection:bg-stone-200 dark:selection:bg-zinc-800 text-stone-900 dark:text-zinc-100 font-sans py-8 transition-colors duration-300">
       
       <div className="absolute top-8 left-8 md:top-12 md:left-12">
-        <Link to="/" className="text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+        <Link to="/" className="text-stone-400 dark:text-zinc-500 hover:text-stone-900 dark:hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           Volver
         </Link>
       </div>
 
-      <div className="w-full max-w-md bg-white p-8 md:p-10 rounded-[2rem] shadow-sm border border-stone-100">
+      <div className="w-full max-w-md bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-[2rem] shadow-sm border border-stone-100 dark:border-zinc-800 transition-colors duration-300">
         
         <div className="mb-8">
-          <h1 className="text-xl font-bold tracking-widest uppercase mb-8 text-center">
+          <h1 className="text-xl font-bold tracking-widest uppercase mb-8 text-center dark:text-white">
             Intipa Churin
           </h1>
           
           <div className="text-left">
-            <h2 className="text-2xl font-bold tracking-tight mb-1">Crear cuenta</h2>
-            <p className="text-sm text-stone-500">Únete para acceder a colecciones exclusivas.</p>
+            <h2 className="text-2xl font-bold tracking-tight mb-1 dark:text-white">Crear cuenta</h2>
+            <p className="text-sm text-stone-500 dark:text-zinc-400">Únete para acceder a colecciones exclusivas.</p>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ const Register = () => {
           {/* Grid de 2 columnas para Nombres y Apellidos */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
                 Nombre
               </label>
               <input 
@@ -117,11 +117,11 @@ const Register = () => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Ej. David" 
-                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 transition-all placeholder:text-stone-300"
+                className="w-full px-4 py-2.5 bg-stone-50 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-stone-400 dark:focus:ring-zinc-500 transition-all placeholder:text-stone-300 dark:placeholder:text-zinc-550"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
                 Apellido
               </label>
               <input 
@@ -130,13 +130,13 @@ const Register = () => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Ej. Salomón" 
-                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 transition-all placeholder:text-stone-300"
+                className="w-full px-4 py-2.5 bg-stone-50 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-stone-400 dark:focus:ring-zinc-500 transition-all placeholder:text-stone-300 dark:placeholder:text-zinc-550"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
               Correo Electrónico
             </label>
             <input 
@@ -145,13 +145,13 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nombre@ejemplo.com" 
-              className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 transition-all placeholder:text-stone-300"
+              className="w-full px-4 py-2.5 bg-stone-50 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-stone-400 dark:focus:ring-zinc-500 transition-all placeholder:text-stone-300 dark:placeholder:text-zinc-550"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
                 Contraseña
               </label>
               <div className="relative">
@@ -161,12 +161,12 @@ const Register = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
-                  className="w-full pl-4 pr-10 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 transition-all placeholder:text-stone-300"
+                  className="w-full pl-4 pr-10 py-2.5 bg-stone-50 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-stone-400 dark:focus:ring-zinc-500 transition-all placeholder:text-stone-300 dark:placeholder:text-zinc-550"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-zinc-500 hover:text-stone-600 focus:outline-none"
                   tabIndex="-1"
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -175,7 +175,7 @@ const Register = () => {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-zinc-400 mb-1.5">
                 Confirmar
               </label>
               <div className="relative">
@@ -185,12 +185,12 @@ const Register = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••" 
-                  className="w-full pl-4 pr-10 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 transition-all placeholder:text-stone-300"
+                  className="w-full pl-4 pr-10 py-2.5 bg-stone-50 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-stone-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-stone-400 dark:focus:ring-zinc-500 transition-all placeholder:text-stone-300 dark:placeholder:text-zinc-550"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-zinc-500 hover:text-stone-600 focus:outline-none"
                   tabIndex="-1"
                 >
                   {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -202,16 +202,16 @@ const Register = () => {
           <button 
             type="submit" 
             disabled={isLoading}
-            className={`w-full bg-stone-900 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-stone-800 transition-all shadow-sm mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            className={`w-full bg-stone-900 dark:bg-zinc-100 text-white dark:text-zinc-900 py-3.5 rounded-xl text-sm font-semibold hover:bg-stone-850 dark:hover:bg-zinc-200 transition-all shadow-sm mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
             {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-stone-500 dark:text-zinc-400">
             ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="font-bold text-stone-900 hover:text-stone-600 border-b border-stone-900 hover:border-stone-600 pb-px transition-all">
+            <Link to="/login" className="font-bold text-stone-900 dark:text-white hover:text-stone-600 dark:hover:text-zinc-300 border-b border-stone-900 dark:border-white hover:border-stone-600 dark:hover:border-zinc-300 pb-px transition-all">
               Iniciar sesión
             </Link>
           </p>

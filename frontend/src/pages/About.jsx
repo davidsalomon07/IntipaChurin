@@ -8,20 +8,20 @@ const About = () => {
   }, []);
 
   return (
-    <div className="bg-[#FCFCFC] min-h-screen text-stone-900 font-sans selection:bg-stone-200 pb-20">
+    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-stone-900 dark:text-zinc-100 font-sans selection:bg-stone-200 dark:selection:bg-zinc-800 pb-20 transition-colors duration-300">
       
       {/* --- NAVBAR (Fijo y perfectamente centrado) --- */}
-      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-stone-100 h-20">
+      <nav className="fixed top-0 w-full z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-stone-100 dark:border-zinc-800 h-20 transition-colors duration-300">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex items-center relative">
           
           {/* Botón Izquierda */}
-          <Link to="/" className="text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest z-10">
+          <Link to="/" className="text-stone-400 dark:text-zinc-500 hover:text-stone-900 dark:hover:text-white transition-colors flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest z-10">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             Volver
           </Link>
 
           {/* Logo Centro Absoluto */}
-          <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 pointer-events-none">
+          <div className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 pointer-events-none dark:text-white">
             Intipa Churin
           </div>
         </div>
@@ -30,7 +30,7 @@ const About = () => {
       {/* --- CONTENIDO EDITORIAL --- */}
       {/* Añadido pt-36 para que el texto no se esconda detrás del navbar fijo */}
       <main className="max-w-3xl mx-auto px-6 pt-36">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-12 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-12 text-center dark:text-white">
           Nuestra Esencia
         </h1>
         
@@ -43,7 +43,7 @@ const About = () => {
         </div>
 
         {/* Textos centrados y con mayor interlineado */}
-        <div className="space-y-8 text-stone-600 leading-relaxed text-lg text-center">
+        <div className="space-y-8 text-stone-600 dark:text-zinc-400 leading-relaxed text-lg text-center">
           <p>
             Intipa Churin nace de la necesidad de fusionar la estética de alta costura con una estructura comercial inquebrantable. No solo vestimos; ofrecemos una experiencia fluida donde la elegancia del diseño se refleja en la trazabilidad y el control absoluto de cada prenda.
           </p>
@@ -52,8 +52,8 @@ const About = () => {
           </p>
           
           <div className="pt-12 pb-8">
-            <div className="w-12 h-[1px] bg-stone-300 mx-auto mb-8"></div>
-            <p className="font-semibold text-stone-900 text-xl italic px-4">
+            <div className="w-12 h-[1px] bg-stone-300 dark:bg-zinc-800 mx-auto mb-8"></div>
+            <p className="font-semibold text-stone-900 dark:text-white text-xl italic px-4">
               "La intersección entre la herencia y el futuro. Logística impecable para un diseño sin concesiones."
             </p>
           </div>
