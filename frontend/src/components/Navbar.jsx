@@ -118,12 +118,21 @@ const Navbar = ({ backButton = false }) => {
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex justify-between items-center relative">
 
           {/* ── LADO IZQUIERDO ── */}
-          <div className="flex-1 flex items-center gap-8">
+          <div className="flex-1 flex items-center gap-4 md:gap-8">
             {backButton ? (
-              <Link to="/" className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                
-              </Link>
+              <>
+                <Link to="/" className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </Link>
+                {/* Botón de tema — solo en móvil */}
+                <button
+                  onClick={() => setTheme(theme === 'Dark' ? 'Light' : 'Dark')}
+                  className="md:hidden text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
+                  aria-label="Cambiar tema"
+                >
+                  {theme === 'Dark' ? <SunIcon /> : <MoonIcon />}
+                </button>
+              </>
             ) : (
               <>
                 {/* Hamburguesa — solo en móvil */}
@@ -133,6 +142,15 @@ const Navbar = ({ backButton = false }) => {
                   aria-label="Abrir menú"
                 >
                   <MenuIcon />
+                </button>
+
+                {/* Botón de tema — solo en móvil */}
+                <button
+                  onClick={() => setTheme(theme === 'Dark' ? 'Light' : 'Dark')}
+                  className="md:hidden text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
+                  aria-label="Cambiar tema"
+                >
+                  {theme === 'Dark' ? <SunIcon /> : <MoonIcon />}
                 </button>
 
                 {/* Links desktop */}
@@ -172,7 +190,7 @@ const Navbar = ({ backButton = false }) => {
           {/* ── LOGO CENTRADO ── */}
           <Link 
           to="/" 
-          className="text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 dark:text-white transition-colors duration-300 hover:opacity-80"
+          className="text-lg md:text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 dark:text-white transition-colors duration-300 hover:opacity-80"
           >
           Intipa Churin
           </Link>
@@ -189,19 +207,19 @@ const Navbar = ({ backButton = false }) => {
 
             <button
               onClick={() => setTheme(theme === 'Dark' ? 'Light' : 'Dark')}
-              className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
+              className="hidden md:block hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
               aria-label="Cambiar tema"
             >
               {theme === 'Dark' ? <SunIcon /> : <MoonIcon />}
             </button>
 
             {/* Perfil oculto en móvil */}
-            <Link 
+            <Link 
               to={user ? (user.role_id === 1 ? "/admin" : "/profile") : "/login"} 
               className="hidden md:block hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
             >
-              <UserIcon />
-            </Link>
+              <UserIcon />
+            </Link>
 
             <button
               onClick={() => setCartOpen(true)}

@@ -58,7 +58,8 @@ const Home = () => {
   const navigate = useNavigate(); // <-- Iniciamos el navegador
   const { agregarAlCarrito } = useCart();
   
-  // Estado extra para forzar renderizado si cambia el tamaño de pantalla
+  const itemsPerView = 3;
+
   
   // --- NUEVOS ESTADOS PARA PRODUCTOS Y CATEGORÍAS REALES ---
   const [productosDestacados, setProductosDestacados] = React.useState([]);
@@ -150,7 +151,7 @@ const Home = () => {
           </h2>
           
           {/* Controles tipo Carrusel */}
-          {categoriasDB.length > 3 && (
+          {categoriasDB.length > itemsPerView && (
             <div className="flex gap-3">
               <button 
                 onClick={() => setCatIndex(prev => Math.max(0, prev - 1))}
@@ -162,12 +163,11 @@ const Home = () => {
               </button>
               <button 
                 onClick={() => {
-                  // Calculamos el límite dinámicamente: en móvil mostramos 1 a la vez, en PC 3 a la vez.
-                  const limite = typeof window !== 'undefined' && window.innerWidth >= 768 ? categoriasDB.length - 3 : categoriasDB.length - 1;
+                  const limite = categoriasDB.length - itemsPerView;
                   setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1));
                 }}
-                disabled={catIndex >= Math.max(0, (typeof window !== 'undefined' && window.innerWidth >= 768 ? categoriasDB.length - 3 : categoriasDB.length - 1))}
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 ${catIndex >= Math.max(0, (typeof window !== 'undefined' && window.innerWidth >= 768 ? categoriasDB.length - 3 : categoriasDB.length - 1)) ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-700 cursor-not-allowed' : 'border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:scale-105 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-800 shadow-sm'}`}
+                disabled={catIndex >= Math.max(0, categoriasDB.length - itemsPerView)}
+                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 ${catIndex >= Math.max(0, categoriasDB.length - itemsPerView) ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-700 cursor-not-allowed' : 'border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:scale-105 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-800 shadow-sm'}`}
                 aria-label="Siguiente categoría"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -177,7 +177,7 @@ const Home = () => {
         </div>
 
         {/* CONTENEDOR DEL SLIDER - REPARADO */}
-        <div className="overflow-hidden -mr-6 md:-mr-10">
+        <div className="overflow-hidden -mx-2 md:-mx-5">
           {categoriasDB.length === 0 ? (
             <div className="text-center text-zinc-500 py-10 w-full">
               <p>Estamos preparando las colecciones para ti. ¡Vuelve pronto!</p>
@@ -185,30 +185,19 @@ const Home = () => {
           ) : (
             <div 
               className="flex transition-transform duration-500 ease-in-out"
-              // Mantenemos la fila larga: su ancho es N * 100% de la pantalla
-              style={{ transform: `translateX(-${catIndex * (100 / categoriasDB.length)}%)`, width: `${categoriasDB.length > 0 ? categoriasDB.length * 100 : 100}%` }}
+              style={{ transform: `translateX(-${catIndex * (100 / itemsPerView)}%)` }}
             >
-              {categoriasDB.map((cat) => {
-                // --- CORRECCIÓN MATEMÁTICA AQUÍ ---
-                // Calculamos el ancho exacto de cada categoría RELATIVO a la fila larga.
-                // Si la fila mide 400% (4 items) y queremos que en PC se vean 3, 
-                // cada item debe medir 1/12 parte de esa fila (8.333%).
-                const n = categoriasDB.length;
-                const widthMobile = `${100 / n}%`; // 1 por vista en móvil
-                const widthPC = `${100 / (n * 3)}%`; // 3 por vista en PC (1/N * 1/3)
-
-                return (
+              {categoriasDB.map((cat) => (
                   <div 
                     key={cat.id} 
-                    className="flex-shrink-0 pr-6 md:pr-10"
-                    // Aplicamos el ancho calculado dinámicamente con JS
-                    style={{ width: window.innerWidth >= 768 ? widthPC : widthMobile }}
+                    className="flex-shrink-0 px-2 md:px-5"
+                    style={{ width: `${100 / itemsPerView}%` }}
                   >
                     <Link
                       to={`/shop/${cat.name.toLowerCase()}`}
                       className="group cursor-pointer flex flex-col items-center"
                     >
-                      <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-6 relative shadow-sm transition-colors duration-300">
+                      <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-2 md:mb-6 relative shadow-sm transition-colors duration-300">
                         <img
                           src={`https://placehold.co/600x800/f5f5f4/d6d3d1?text=${cat.name.toUpperCase()}`}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-95 dark:opacity-80"
@@ -216,13 +205,12 @@ const Home = () => {
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-black/30 transition-colors duration-500"></div>
                       </div>
-                      <h3 className="text-sm font-semibold uppercase tracking-wider dark:text-zinc-200">
+                      <h3 className="text-[11px] md:text-sm font-semibold uppercase tracking-wider dark:text-zinc-200 text-center leading-tight">
                         {cat.name}
                       </h3>
                     </Link>
                   </div>
-                );
-              })}
+              ))}
             </div>
           )}
         </div>
@@ -242,7 +230,7 @@ const Home = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-8">
           {isLoading ? (
             <div className="col-span-full py-12 flex justify-center text-zinc-400">
               <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -258,7 +246,7 @@ const Home = () => {
                 className="group cursor-pointer"
                 onClick={() => navigate(`/shop/producto/${producto.id}`)}
               >
-                <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-5 relative transition-colors duration-300">
+                <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-2 md:mb-5 relative transition-colors duration-300">
                   <img
                     // Si no tiene imagen en la base de datos, ponemos una por defecto
                     src={producto.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`}
@@ -266,7 +254,7 @@ const Home = () => {
                     alt={producto.name}
                   />
 
-                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-y-0 translate-y-2">
+                  <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:translate-y-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -280,19 +268,19 @@ const Home = () => {
                         }); 
                       }}
                       title="Añadir al carrito"
-                      className="w-11 h-11 rounded-full flex items-center justify-center shadow-2xl border transform transition-all duration-150 active:scale-90 active:shadow-md bg-zinc-950 text-white hover:bg-zinc-800 border-transparent dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                      className="w-7 h-7 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-2xl border transform transition-all duration-150 active:scale-90 active:shadow-md bg-zinc-950 text-white hover:bg-zinc-800 border-transparent dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                       </svg>
                     </button>
                   </div>
                 </div>
-                <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1 transition-colors duration-300 truncate">
+                <h3 className="text-[11px] md:text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-0.5 md:mb-1 transition-colors duration-300 truncate leading-tight">
                   {producto.name}
                 </h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 font-semibold transition-colors duration-300">
+                <p className="text-[11px] md:text-sm text-zinc-500 dark:text-zinc-400 font-semibold transition-colors duration-300">
                   $ {parseFloat(producto.price).toFixed(2)}
                 </p>
               </div>

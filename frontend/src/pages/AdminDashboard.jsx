@@ -57,7 +57,19 @@ async function getCroppedImg(imageSrc, pixelCrop) {
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('productos');
   const [search, setSearch] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const { theme, setTheme } = useContext(ThemeContext);
 
   const [productos, setProductos] = useState([]);
@@ -261,8 +273,14 @@ const AdminDashboard = () => {
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
 
-      {/* Sidebar Minimalista */}
-      <aside className={`${isSidebarOpen ? 'w-64' : 'w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col z-20 shrink-0 transition-all duration-300 overflow-hidden`}>
+      {/* Sidebar Minimalista y Overlay para Móvil */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      <aside className={`fixed md:relative z-50 h-full ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 overflow-hidden shadow-2xl md:shadow-none`}>
         <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-200 dark:border-zinc-800 shrink-0 w-64">
           <span className="text-lg font-bold tracking-widest uppercase dark:text-white">Intipa Churin</span>
           <button onClick={() => setIsSidebarOpen(false)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
@@ -303,20 +321,22 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
-        <header className="h-20 bg-zinc-50 dark:bg-zinc-950 flex items-center justify-between px-8 shrink-0 transition-all duration-300">
-          <div className="flex items-center gap-4">
-            {!isSidebarOpen && (
-              <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Abrir barra lateral">
-                <PanelLeftOpen size={24} />
-              </button>
-            )}
-            <h1 className="text-2xl font-bold dark:text-white">
-              {activeTab === 'productos' && 'Gestión de Productos'}
-              {activeTab === 'categorias' && 'Gestión de Categorías'}
-              {activeTab === 'usuarios' && 'Cuentas Registradas'}
-            </h1>
+        <header className="py-4 md:h-20 bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row md:items-center justify-between px-4 md:px-8 gap-4 shrink-0 transition-all duration-300">
+          <div className="flex items-center justify-between w-full md:w-auto">
+            <div className="flex items-center gap-2 md:gap-4">
+              {!isSidebarOpen && (
+                <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Abrir barra lateral">
+                  <PanelLeftOpen size={24} />
+                </button>
+              )}
+              <h1 className="text-xl md:text-2xl font-bold dark:text-white truncate">
+                {activeTab === 'productos' && 'Productos'}
+                {activeTab === 'categorias' && 'Categorías'}
+                {activeTab === 'usuarios' && 'Usuarios'}
+              </h1>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto justify-between md:justify-end">
             <button
               onClick={() => setTheme(theme === 'Dark' ? 'Light' : 'Dark')}
               className="p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all shadow-sm hover:scale-105"
@@ -337,8 +357,8 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 pt-0">
-          <div className="flex justify-end gap-3 mb-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-4 md:pt-0">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
             <button className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
               Descargar Reporte
             </button>
