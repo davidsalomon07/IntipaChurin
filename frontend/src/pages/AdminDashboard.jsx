@@ -83,6 +83,7 @@ const AdminDashboard = () => {
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   const [previewProduct, setPreviewProduct] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   // Formularios completos (Agregamos image_file)
   const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
@@ -226,11 +227,15 @@ const AdminDashboard = () => {
   };
 
   // 4. Activar/Desactivar (Stock)
-  const handleToggleActive = async (id, currentStatus) => {
-    if (currentStatus) {
-      const confirmar = window.confirm("¿Estás seguro de que deseas desactivar este producto?");
-      if (!confirmar) return;
+  const handleToggleActive = (p) => {
+    if (p.is_active) {
+      setConfirmAction({ type: 'deactivate', product: p });
+    } else {
+      executeToggleActive(p.id, p.is_active);
     }
+  };
+
+  const executeToggleActive = async (id, currentStatus) => {
     try {
       const response = await fetch(`http://localhost:3000/api/admin/products/${id}/toggle`, {
         method: 'PATCH',
@@ -238,18 +243,23 @@ const AdminDashboard = () => {
         body: JSON.stringify({ is_active: !currentStatus })
       });
       if (response.ok) cargarProductos();
+      setConfirmAction(null);
     } catch (error) { console.error(error); }
   };
 
   // 5. Eliminar
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este producto permanentemente?")) return;
+  const handleDeleteProduct = (p) => {
+    setConfirmAction({ type: 'delete', product: p });
+  };
+
+  const executeDeleteProduct = async (id) => {
     try {
       const response = await fetch(`http://localhost:3000/api/admin/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) cargarProductos();
+      setConfirmAction(null);
     } catch (error) { console.error(error); }
   };
 
@@ -435,10 +445,10 @@ const AdminDashboard = () => {
                                   <button onClick={() => handleEditClick(p)} title="Editar Producto">
                                     <Edit size={18} className="cursor-pointer text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" />
                                   </button>
-                                  <button onClick={() => handleToggleActive(p.id, p.is_active)} title={p.is_active ? "Marcar Agotado / Desactivar" : "Activar Publicación"}>
+                                  <button onClick={() => handleToggleActive(p)} title={p.is_active ? "Marcar Agotado / Desactivar" : "Activar Publicación"}>
                                     <Power size={18} className={`cursor-pointer transition-colors ${p.is_active ? 'text-green-500 hover:text-green-600' : 'text-zinc-400 hover:text-zinc-300'}`} />
                                   </button>
-                                  <button onClick={() => handleDeleteProduct(p.id)} title="Eliminar Definitivamente">
+                                  <button onClick={() => handleDeleteProduct(p)} title="Eliminar Definitivamente">
                                     <Trash2 size={18} className="cursor-pointer text-zinc-400 hover:text-red-500 transition-colors" />
                                   </button>
                                 </div>
@@ -806,6 +816,53 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: CONFIRMACIÓN --- */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)}></div>
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md z-10 overflow-hidden shadow-2xl animate-fade-in-up">
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-6">
+                {confirmAction.type === 'delete' ? (
+                  <Trash2 size={32} className="text-red-600 dark:text-red-500" />
+                ) : (
+                  <Power size={32} className="text-red-600 dark:text-red-500" />
+                )}
+              </div>
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+                {confirmAction.type === 'delete' ? 'Eliminar Producto' : 'Desactivar Producto'}
+              </h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8">
+                {confirmAction.type === 'delete' 
+                  ? `¿Estás seguro de que deseas eliminar permanentemente el producto "${confirmAction.product.name}"? Esta acción no se puede deshacer.`
+                  : `¿Estás seguro de que deseas desactivar el producto "${confirmAction.product.name}"? No será visible para los clientes.`}
+              </p>
+              
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setConfirmAction(null)}
+                  className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={() => {
+                    if (confirmAction.type === 'delete') {
+                      executeDeleteProduct(confirmAction.product.id);
+                    } else {
+                      executeToggleActive(confirmAction.product.id, confirmAction.product.is_active);
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
