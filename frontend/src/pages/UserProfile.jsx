@@ -25,7 +25,7 @@ const UserProfile = () => {
   const [showAddressForm, setShowAddressForm] = useState(false); 
   const [editingAddressId, setEditingAddressId] = useState(null); 
   const [addressFormData, setAddressFormData] = useState({
-    title: '', street_address: '', city: '', postal_code: '', phone_number: ''
+    title: '', street_address: '', city: '', postal_code: ''
   });
 
   // Estados y Hooks de Google Maps
@@ -198,7 +198,7 @@ const UserProfile = () => {
   };
 
   const openNewAddressForm = () => {
-    setAddressFormData({ title: '', street_address: '', city: '', postal_code: '', phone_number: '' });
+    setAddressFormData({ title: '', street_address: '', city: '', postal_code: '' });
     setMapCenter(defaultCenter);
     setEditingAddressId(null);
     setShowMap(false);
@@ -210,8 +210,7 @@ const UserProfile = () => {
       title: address.title || '',
       street_address: address.street_address || '',
       city: address.city || '',
-      postal_code: address.postal_code || '',
-      phone_number: address.phone_number || ''
+      postal_code: address.postal_code || ''
     });
     setEditingAddressId(address.id);
     setShowMap(false);
@@ -391,29 +390,29 @@ const UserProfile = () => {
               </div>
 
               {showAddressForm ? (
-                <form onSubmit={handleSaveAddress} className="space-y-6 max-w-2xl">
-                  <div className="flex flex-col sm:flex-row sm:items-center py-3 border-b border-gray-100 dark:border-zinc-800">
-                    <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mb-1 sm:mb-0">Título</label>
-                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
+                <form onSubmit={handleSaveAddress} className="space-y-5 max-w-2xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Título</label>
+                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
                   
                   {!showMap ? (
-                    <div className="flex flex-col sm:flex-row sm:items-start py-3 border-b border-gray-100 dark:border-zinc-800">
-                      <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mt-2">Dirección</label>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                      <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Dirección</label>
                       <div className="flex-1 flex gap-3">
-                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
-                        <button type="button" onClick={() => setShowMap(true)} className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-xs rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">📍 Mapa</button>
+                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                        <button type="button" onClick={() => setShowMap(true)} className="px-4 py-2 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors shrink-0">📍 Mapa</button>
                       </div>
                     </div>
                   ) : (
                     isLoaded ? (
-                      <div className="space-y-4 py-3">
+                      <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <label className="text-[14px] text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
-                          <button type="button" onClick={() => setShowMap(false)} className="text-xs text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar</button>
+                          <label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
+                          <button type="button" onClick={() => setShowMap(false)} className="text-xs font-bold text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar mapa</button>
                         </div>
                         <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
-                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none shadow-sm placeholder-gray-400 dark:placeholder-zinc-500" />
+                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                         </Autocomplete>
                         <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
                           <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}><Marker position={mapCenter} /></GoogleMap>
@@ -422,20 +421,14 @@ const UserProfile = () => {
                     ) : (<div className="p-4 text-sm text-gray-500 dark:text-zinc-400">Cargando mapa...</div>)
                   )}
 
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
-                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Ciudad</label>
-                      <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
-                    </div>
-                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
-                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Código Postal</label>
-                      <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
-                    </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Ciudad</label>
+                    <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} placeholder="Ej. Quito" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
 
-                  <div className="flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
-                    <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Teléfono</label>
-                    <input type="tel" required value={addressFormData.phone_number} onChange={(e) => setAddressFormData({...addressFormData, phone_number: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Código Postal</label>
+                    <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} placeholder="Opcional" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
 
                   <div className="flex gap-4 pt-4">
