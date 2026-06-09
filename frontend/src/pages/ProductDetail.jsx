@@ -81,10 +81,11 @@ const ProductDetail = () => {
               {imagenes.map((img, idx) => (
                 <button 
                   key={idx}
+                  type="button"
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative block p-0 w-16 md:w-full aspect-[3/4] shrink-0 rounded-2xl overflow-hidden transition-all duration-300 ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                  className={`relative block p-0 w-16 md:w-full aspect-[3/4] shrink-0 rounded-2xl overflow-hidden transition-all duration-300 outline-none ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                 >
-                  <img src={img} className="absolute inset-0 w-full h-full object-cover" alt={`${producto.name} vista ${idx + 1}`} />
+                  <img src={img} className="absolute inset-0 w-full h-full object-cover rounded-2xl" alt={`${producto.name} vista ${idx + 1}`} />
                   <div className={`absolute inset-0 rounded-2xl border-2 pointer-events-none transition-colors duration-300 z-10 ${selectedImage === idx ? 'border-zinc-900 dark:border-white' : 'border-transparent'}`}></div>
                 </button>
               ))}
