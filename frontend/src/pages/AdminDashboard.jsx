@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Search,
   Package,
@@ -13,7 +13,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Sun,
-  Moon
+  Moon,
+  Store
 } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
 import Cropper from 'react-easy-crop';
@@ -296,8 +297,8 @@ const AdminDashboard = () => {
       )}
       <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 overflow-hidden shadow-2xl md:shadow-none`}>
         <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-200 dark:border-zinc-800 shrink-0 w-64">
-          <span className="text-lg font-bold tracking-widest uppercase dark:text-white">Intipa Churin</span>
-          <button onClick={() => setIsSidebarOpen(false)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
+          <span className="text-lg font-bold tracking-widest uppercase dark:text-white leading-none">Intipa Churin</span>
+          <button onClick={() => setIsSidebarOpen(false)} className="flex items-center justify-center h-10 w-10 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
             <PanelLeftClose size={20} />
           </button>
         </div>
@@ -323,7 +324,13 @@ const AdminDashboard = () => {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 w-64 shrink-0">
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 w-64 shrink-0 space-y-1">
+          <Link
+            to="/"
+            className="flex items-center justify-center gap-3 px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white font-semibold text-sm cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
+          >
+            <Store size={18} /> Ir a la Tienda
+          </Link>
           <div
             onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}
             className="flex items-center justify-center gap-3 px-4 py-3 text-red-500 font-semibold text-sm cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors"
