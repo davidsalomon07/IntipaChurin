@@ -449,9 +449,9 @@ const UserProfile = () => {
                   {!showMap ? (
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                       <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Dirección</label>
-                      <div className="flex-1 flex gap-3">
+                      <div className="flex-1 flex flex-col sm:flex-row gap-3">
                         <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
-                        <button type="button" onClick={() => setShowMap(true)} className="px-4 py-2 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors shrink-0">📍 Mapa</button>
+                        <button type="button" onClick={() => setShowMap(true)} className="w-full sm:w-auto px-4 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors shrink-0 text-center">📍 Mapa</button>
                       </div>
                     </div>
                   ) : (
