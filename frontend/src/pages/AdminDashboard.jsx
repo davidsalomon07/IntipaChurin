@@ -227,6 +227,10 @@ const AdminDashboard = () => {
 
   // 4. Activar/Desactivar (Stock)
   const handleToggleActive = async (id, currentStatus) => {
+    if (currentStatus) {
+      const confirmar = window.confirm("¿Estás seguro de que deseas desactivar este producto?");
+      if (!confirmar) return;
+    }
     try {
       const response = await fetch(`http://localhost:3000/api/admin/products/${id}/toggle`, {
         method: 'PATCH',
