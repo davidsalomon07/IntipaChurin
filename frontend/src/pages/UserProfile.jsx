@@ -15,6 +15,7 @@ const defaultCenter = { lat: -0.2103, lng: -78.4889 }; // Centrado en Quito
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('datos'); 
   const [userData, setUserData] = useState(null); 
+  const [isMobileMenuVisible, setIsMobileMenuVisible] = useState(true);
   
   // Estados para Datos Personales
   const [isEditing, setIsEditing] = useState(false);
@@ -25,7 +26,7 @@ const UserProfile = () => {
   const [showAddressForm, setShowAddressForm] = useState(false); 
   const [editingAddressId, setEditingAddressId] = useState(null); 
   const [addressFormData, setAddressFormData] = useState({
-    title: '', street_address: '', city: '', postal_code: '', phone_number: ''
+    title: '', street_address: '', city: '', postal_code: ''
   });
 
   // Estados y Hooks de Google Maps
@@ -198,7 +199,7 @@ const UserProfile = () => {
   };
 
   const openNewAddressForm = () => {
-    setAddressFormData({ title: '', street_address: '', city: '', postal_code: '', phone_number: '' });
+    setAddressFormData({ title: '', street_address: '', city: '', postal_code: '' });
     setMapCenter(defaultCenter);
     setEditingAddressId(null);
     setShowMap(false);
@@ -210,8 +211,7 @@ const UserProfile = () => {
       title: address.title || '',
       street_address: address.street_address || '',
       city: address.city || '',
-      postal_code: address.postal_code || '',
-      phone_number: address.phone_number || ''
+      postal_code: address.postal_code || ''
     });
     setEditingAddressId(address.id);
     setShowMap(false);
@@ -240,7 +240,7 @@ const UserProfile = () => {
       <main className="max-w-275 mx-auto px-6 pt-28 pb-24 grow w-full flex flex-col md:flex-row gap-8">
         
         {/* SIDEBAR */}
-        <aside className="w-full md:w-80 flex flex-col gap-6">
+        <aside className={`w-full md:w-80 flex-col gap-6 ${isMobileMenuVisible ? 'flex' : 'hidden md:flex'}`}>
           <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase transition-colors duration-300">
@@ -253,19 +253,19 @@ const UserProfile = () => {
             </div>
 
             <nav className="flex flex-col gap-1">
-              <button onClick={() => { setActiveTab('datos'); setIsEditing(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'datos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+              <button onClick={() => { setActiveTab('datos'); setIsEditing(false); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'datos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 Datos Personales
               </button>
-              <button onClick={() => setActiveTab('direcciones')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'direcciones' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+              <button onClick={() => { setActiveTab('direcciones'); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'direcciones' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 Direcciones
               </button>
-              <button onClick={() => setActiveTab('pedidos')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'pedidos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+              <button onClick={() => { setActiveTab('pedidos'); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'pedidos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 Mis Pedidos
               </button>
-              <button onClick={() => setActiveTab('configuracion')} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'configuracion' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
+              <button onClick={() => { setActiveTab('configuracion'); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'configuracion' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 Configuración
               </button>
@@ -281,7 +281,15 @@ const UserProfile = () => {
         </aside>
 
         {/* CONTENIDO PRINCIPAL */}
-        <div className="flex-1">
+        <div className={`flex-1 ${!isMobileMenuVisible ? 'block' : 'hidden md:block'}`}>
+          {/* BOTÓN VOLVER (SÓLO MÓVIL) */}
+          <button 
+            onClick={() => setIsMobileMenuVisible(true)} 
+            className="md:hidden flex items-center gap-2 text-[14px] font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white mb-6 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+            Volver
+          </button>
           
           {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
@@ -306,24 +314,65 @@ const UserProfile = () => {
               </div>
 
               <div className="space-y-6 max-w-2xl mx-auto">
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Nombre</label>
-                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Nombre</label>
+                  <input
+                    type="text"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                    disabled={!isEditing}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Apellido</label>
-                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Apellido</label>
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                    disabled={!isEditing}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Cuenta de Correo</label>
-                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Cuenta de Correo</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    disabled={!isEditing}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Número Móvil</label>
-                  <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} disabled={!isEditing} placeholder={isEditing ? "" : "Añadir número"} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400 dark:placeholder-zinc-600'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Número Móvil</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    disabled={!isEditing}
+                    placeholder={isEditing ? "Ingrese su número" : "Añadir número"}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
 
                 {isEditing && (
@@ -391,29 +440,29 @@ const UserProfile = () => {
               </div>
 
               {showAddressForm ? (
-                <form onSubmit={handleSaveAddress} className="space-y-6 max-w-2xl">
-                  <div className="flex flex-col sm:flex-row sm:items-center py-3 border-b border-gray-100 dark:border-zinc-800">
-                    <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mb-1 sm:mb-0">Título</label>
-                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
+                <form onSubmit={handleSaveAddress} className="space-y-5 max-w-2xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Título</label>
+                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
                   
                   {!showMap ? (
-                    <div className="flex flex-col sm:flex-row sm:items-start py-3 border-b border-gray-100 dark:border-zinc-800">
-                      <label className="w-48 text-[14px] text-gray-700 dark:text-zinc-300 mt-2">Dirección</label>
-                      <div className="flex-1 flex gap-3">
-                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 bg-transparent text-[14px] dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none" />
-                        <button type="button" onClick={() => setShowMap(true)} className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-xs rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">📍 Mapa</button>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                      <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Dirección</label>
+                      <div className="flex-1 flex flex-col sm:flex-row gap-3">
+                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                        <button type="button" onClick={() => setShowMap(true)} className="w-full sm:w-auto px-4 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors shrink-0 text-center">📍 Mapa</button>
                       </div>
                     </div>
                   ) : (
                     isLoaded ? (
-                      <div className="space-y-4 py-3">
+                      <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <label className="text-[14px] text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
-                          <button type="button" onClick={() => setShowMap(false)} className="text-xs text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar</button>
+                          <label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
+                          <button type="button" onClick={() => setShowMap(false)} className="text-xs font-bold text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar mapa</button>
                         </div>
                         <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
-                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none shadow-sm placeholder-gray-400 dark:placeholder-zinc-500" />
+                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                         </Autocomplete>
                         <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
                           <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}><Marker position={mapCenter} /></GoogleMap>
@@ -422,20 +471,14 @@ const UserProfile = () => {
                     ) : (<div className="p-4 text-sm text-gray-500 dark:text-zinc-400">Cargando mapa...</div>)
                   )}
 
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
-                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Ciudad</label>
-                      <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
-                    </div>
-                    <div className="flex-1 flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
-                      <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Código Postal</label>
-                      <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
-                    </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Ciudad</label>
+                    <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} placeholder="Ej. Quito" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
 
-                  <div className="flex flex-col py-3 border-b border-gray-100 dark:border-zinc-800">
-                    <label className="text-[14px] text-gray-700 dark:text-zinc-300 mb-1">Teléfono</label>
-                    <input type="tel" required value={addressFormData.phone_number} onChange={(e) => setAddressFormData({...addressFormData, phone_number: e.target.value})} className="bg-transparent text-[14px] dark:text-white focus:outline-none" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Código Postal</label>
+                    <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} placeholder="Opcional" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
 
                   <div className="flex gap-4 pt-4">
