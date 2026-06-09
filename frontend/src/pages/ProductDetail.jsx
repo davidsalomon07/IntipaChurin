@@ -11,6 +11,7 @@ const ProductDetail = () => {
   const [producto, setProducto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tallaSeleccionada, setTallaSeleccionada] = useState('M'); // Talla por defecto
+  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -57,6 +58,15 @@ const ProductDetail = () => {
     );
   }
 
+  // Mock de imágenes secundarias para la galería
+  const imagenes = producto ? [
+    producto.image_url || `https://placehold.co/800x1060/f5f5f4/d6d3d1?text=VISTA+1`,
+    `https://placehold.co/800x1060/e5e5e5/a3a3a3?text=VISTA+2`,
+    `https://placehold.co/800x1060/d4d4d4/737373?text=VISTA+3`,
+    `https://placehold.co/800x1060/c4c4c4/525252?text=VISTA+4`,
+    `https://placehold.co/800x1060/a3a3a3/404040?text=VISTA+5`,
+  ] : [];
+
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 flex flex-col transition-colors duration-300">
       <Navbar />
@@ -64,18 +74,36 @@ const ProductDetail = () => {
       <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           
-          {/* Lado Izquierdo: Imagen */}
-          <div className="w-full aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 shadow-sm relative">
-            <img 
-              src={producto.image_url || `https://placehold.co/800 generosity1060/f5f5f4/d6d3d1?text=SIN+FOTO`} 
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
-              alt={producto.name}
-            />
-            {!producto.is_active && (
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
-                <span className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-md">Agotado Temporalmente</span>
-              </div>
-            )}
+          {/* Lado Izquierdo: Galería de Imágenes */}
+          <div className="flex flex-col-reverse md:flex-row gap-4 lg:gap-6 items-start">
+            {/* Thumbnails */}
+            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto pb-2 md:pb-0 md:pr-2 md:w-20 lg:w-24 shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {imagenes.map((img, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setSelectedImage(idx)}
+                  className={`relative p-0 w-16 h-24 md:w-full md:h-28 lg:h-32 shrink-0 rounded-2xl overflow-hidden transition-all duration-300 ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                >
+                  <img src={img} className="absolute inset-0 w-full h-full object-cover" alt={`${producto.name} vista ${idx + 1}`} />
+                  <div className={`absolute inset-0 rounded-2xl border-2 pointer-events-none transition-colors duration-300 z-10 ${selectedImage === idx ? 'border-zinc-900 dark:border-white' : 'border-transparent'}`}></div>
+                </button>
+              ))}
+            </div>
+
+            {/* Imagen Principal */}
+            <div className="w-full aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm relative flex-grow">
+              <img 
+                src={imagenes[selectedImage]} 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
+                alt={producto.name}
+              />
+              <div className="absolute inset-0 rounded-3xl border border-zinc-200/50 dark:border-zinc-800 pointer-events-none z-10"></div>
+              {!producto.is_active && (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-20">
+                  <span className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-md">Agotado Temporalmente</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Lado Derecho: Detalles */}
