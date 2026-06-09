@@ -10,8 +10,8 @@ const MiniFooter = () => {
           © 2026 Intipa Churin. Todos los derechos reservados.
         </p>
         
-        {/* Enlaces de Redes Sociales, conservando el espaciado para WhatsApp */}
-        <div className="flex gap-6 pr-20 md:pr-24">
+        {/* Enlaces de Redes Sociales, conservando el espaciado para WhatsApp en desktop */}
+        <div className="flex gap-6 pr-0 md:pr-24">
           <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-300 text-xs font-bold uppercase tracking-wider">
             Instagram
           </a>
