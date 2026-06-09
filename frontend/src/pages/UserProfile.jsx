@@ -305,24 +305,65 @@ const UserProfile = () => {
               </div>
 
               <div className="space-y-6 max-w-2xl mx-auto">
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Nombre</label>
-                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Nombre</label>
+                  <input
+                    type="text"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                    disabled={!isEditing}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Apellido</label>
-                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Apellido</label>
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                    disabled={!isEditing}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Cuenta de Correo</label>
-                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} disabled={!isEditing} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Cuenta de Correo</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    disabled={!isEditing}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-gray-100 dark:border-zinc-800 transition-colors duration-300">
-                  <label className="w-48 text-[15px] text-gray-700 dark:text-zinc-300 font-medium mb-2 sm:mb-0">Número Móvil</label>
-                  <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} disabled={!isEditing} placeholder={isEditing ? "" : "Añadir número"} className={`flex-1 text-right text-[15px] bg-transparent focus:outline-none transition-colors duration-300 ${isEditing ? 'text-gray-900 dark:text-white border-b border-blue-500 pb-1' : 'text-gray-500 dark:text-zinc-400 dark:placeholder-zinc-600'}`} />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                  <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Número Móvil</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    disabled={!isEditing}
+                    placeholder={isEditing ? "Ingrese su número" : "Añadir número"}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
+                      isEditing
+                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                    }`}
+                  />
                 </div>
 
                 {isEditing && (
