@@ -23,11 +23,26 @@ export const CartProvider = ({ children }) => {
     setCarrito((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const restarCantidadDelCarrito = (id, cantidadARestar) => {
+    setCarrito((prev) => {
+      const existe = prev.find((item) => item.id === id);
+      if (!existe) return prev;
+      if (existe.cantidad > cantidadARestar) {
+        return prev.map((item) =>
+          item.id === id
+            ? { ...item, cantidad: item.cantidad - cantidadARestar }
+            : item
+        );
+      }
+      return prev.filter((item) => item.id !== id);
+    });
+  };
+
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
 
   return (
-    <CartContext.Provider value={{ carrito, agregarAlCarrito, eliminarDelCarrito, totalItems, totalPrecio }}>
+    <CartContext.Provider value={{ carrito, agregarAlCarrito, eliminarDelCarrito, restarCantidadDelCarrito, totalItems, totalPrecio }}>
       {children}
     </CartContext.Provider>
   );

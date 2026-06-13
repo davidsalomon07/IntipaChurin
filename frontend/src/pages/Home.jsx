@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from '../context/WishlistContext';
 
 // Íconos SVG (sin cambios)
 const SearchIcon = () => (
@@ -52,6 +53,8 @@ const heroImages = [
 const Home = () => {
   const navigate = useNavigate();
   const { agregarAlCarrito } = useCart();
+
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const itemsPerView = 3;
 
@@ -321,6 +324,33 @@ const Home = () => {
               <div key={producto.id} className="group cursor-pointer" onClick={() => navigate(`/shop/producto/${producto.id}`)}>
                 <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-2 md:mb-5 relative transition-colors duration-300">
                   <img src={producto.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 dark:opacity-80" alt={producto.name} />
+
+                  {/* 👇 NUEVO BOTÓN DE WISHLIST (Esquina Superior Derecha) 👇 */}
+                  <div className="absolute top-2 right-2 md:top-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:-translate-y-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Evita que se abra la página del producto al dar clic al corazón
+                        toggleWishlist(producto);
+                      }}
+                      title={isInWishlist(producto.id) ? "Quitar de favoritos" : "Añadir a favoritos"}
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-md bg-white/90 backdrop-blur-sm hover:bg-white text-zinc-900 transition-all duration-300 hover:scale-110 dark:bg-zinc-900/90 dark:text-white dark:hover:bg-zinc-900"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18" height="18"
+                        viewBox="0 0 24 24"
+                        fill={isInWishlist(producto.id) ? "#ef4444" : "none"} // Relleno rojo si está en la lista
+                        stroke={isInWishlist(producto.id) ? "#ef4444" : "currentColor"} // Borde rojo o normal
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        className="transition-colors duration-300"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  {/*  FIN DEL BOTÓN DE WISHLIST  */}
+
+                  {/* Botón de Carrito (Este ya lo tenías, se queda igual, esquina Inferior Derecha) */}
                   <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:translate-y-2">
                     <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url }); }} title="Añadir al carrito" className="w-7 h-7 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-2xl border transform transition-all duration-150 active:scale-90 active:shadow-md bg-zinc-950 text-white hover:bg-zinc-800 border-transparent dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -383,7 +413,7 @@ const Home = () => {
             ].map((testimonial, i) => (
               <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow text-left dark:border dark:border-zinc-800 duration-300">
                 <div className="flex text-zinc-800 dark:text-zinc-200 mb-4 transition-colors duration-300">
-                  {[1,2,3,4,5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>))}
+                  {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>))}
                 </div>
                 <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-6 transition-colors duration-300">"{testimonial.text}"</p>
                 <p className="text-sm font-bold text-zinc-900 dark:text-white transition-colors duration-300">{testimonial.author}</p>
