@@ -13,6 +13,31 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+
+// ==========================================
+// EXCEPCIÓN DE SEGURIDAD: WEBHOOK DE STRIPE
+// ==========================================
+app.post('/api/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
+  const sig = request.headers['stripe-signature'];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('❌ Error de firma en el Webhook:', err.message);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    console.log(`✅ ¡Pago verificado exitosamente! Sesión segura: ${session.id}`);
+  }
+
+  response.send();
+});
+
 app.use(express.json());
 
 // Permitimos que el frontend pueda acceder a la carpeta "uploads" para ver las fotos
@@ -672,8 +697,8 @@ app.post('/api/checkout', async (req, res) => {
       mode: 'payment', // 'payment' es para pago único (no suscripción)
       line_items: line_items,
       // Hacia dónde devolver al usuario cuando termine:
-      success_url: `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${FRONTEND_URL}/checkout/cancel`,
+      success_url: `${FRONTEND_URL}/success`,
+      cancel_url: `${FRONTEND_URL}/cancel`,
     });
 
     // 3. Devolver la URL generada al frontend
