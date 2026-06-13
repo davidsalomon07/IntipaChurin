@@ -9,6 +9,9 @@ export const useWishlist = () => useContext(WishlistContext);
 // 3. El Proveedor que envolverá nuestra App
 export const WishlistProvider = ({ children }) => {
     const [wishlist, setWishlist] = useState([]);
+    const [hasNewNotifications, setHasNewNotifications] = useState(() => {
+        return localStorage.getItem('wishlist_has_new') === 'true';
+    });
 
     // Cargar la wishlist desde el backend
     const loadWishlist = async () => {
@@ -54,6 +57,12 @@ export const WishlistProvider = ({ children }) => {
         return wishlist.some(item => item.id === productId);
     };
 
+    // Limpiar notificaciones (marcar como leídas)
+    const clearNotifications = () => {
+        setHasNewNotifications(false);
+        localStorage.setItem('wishlist_has_new', 'false');
+    };
+
     // Agregar o quitar producto dinámicamente
     const toggleWishlist = async (product) => {
         const token = localStorage.getItem('token');
@@ -80,6 +89,8 @@ export const WishlistProvider = ({ children }) => {
             }
         } else {
             setWishlist(prev => [...prev, product]);
+            setHasNewNotifications(true);
+            localStorage.setItem('wishlist_has_new', 'true');
             // Petición real al backend para agregar
             try {
                 await fetch('http://localhost:3000/api/wishlist', {
@@ -99,7 +110,7 @@ export const WishlistProvider = ({ children }) => {
     };
 
     return (
-        <WishlistContext.Provider value={{ wishlist, toggleWishlist, isInWishlist, loadWishlist }}>
+        <WishlistContext.Provider value={{ wishlist, toggleWishlist, isInWishlist, loadWishlist, hasNewNotifications, clearNotifications }}>
             {children}
         </WishlistContext.Provider>
     );

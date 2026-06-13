@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import toast from 'react-hot-toast'; // Importado
 
 const Wishlist = () => {
-    const { wishlist, toggleWishlist } = useWishlist();
+    const { wishlist, toggleWishlist, clearNotifications } = useWishlist();
     const { agregarAlCarrito } = useCart();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (clearNotifications) {
+            clearNotifications();
+        }
+    }, [clearNotifications]);
 
     return (
         <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-300">
@@ -78,9 +85,10 @@ const Wishlist = () => {
                                             id: producto.id,
                                             nombre: producto.name,
                                             precio: parseFloat(producto.price),
-                                            categoria: producto.category_name,
+                                            categoria: producto.category_name || 'General',
                                             imagen: producto.image_url
                                         });
+                                        toast.success(`¡${producto.name} añadido al carrito!`);
                                     }}
                                     className="mt-auto w-full py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border-2 border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white transition-colors dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-zinc-900"
                                 >
