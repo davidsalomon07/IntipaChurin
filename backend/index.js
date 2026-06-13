@@ -548,6 +548,96 @@ app.get('/api/admin/users', verificarAdmin, async (req, res) => {
   }
 });
 
+// ==========================================
+// 15. MÓDULO DE WISHLIST (LISTA DE DESEOS)
+// ==========================================
+
+// 15.1. POST: Agregar un producto a la Wishlist
+app.post('/api/wishlist', async (req, res) => {
+  try {
+    // Verificamos el token igual que en tus otras rutas
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado. Falta el token." });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const user_id = decoded.id;
+
+    const { product_id } = req.body;
+    if (!product_id) {
+      return res.status(400).json({ error: "El ID del producto es requerido." });
+    }
+
+    const nuevoFavorito = await pool.query(
+      'INSERT INTO wishlists (user_id, product_id) VALUES ($1, $2) RETURNING *',
+      [user_id, product_id]
+    );
+
+    res.status(201).json({
+      message: "Producto añadido a tu lista de deseos.",
+      wishlist: nuevoFavorito.rows[0]
+    });
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(400).json({ error: "Este producto ya está en tu lista de deseos." });
+    }
+    console.error("❌ Error al añadir a la wishlist:", error.message);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+});
+
+// 15.2. GET: Obtener todos los productos de la Wishlist del usuario
+app.get('/api/wishlist', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const user_id = decoded.id;
+
+    const miLista = await pool.query(
+      `SELECT p.* FROM products p
+       JOIN wishlists w ON p.id = w.product_id
+       WHERE w.user_id = $1
+       ORDER BY w.created_at DESC`,
+      [user_id]
+    );
+
+    res.json(miLista.rows);
+  } catch (error) {
+    console.error("❌ Error al obtener la wishlist:", error.message);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+});
+
+// 15.3. DELETE: Eliminar un producto de la Wishlist
+app.delete('/api/wishlist/:productId', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const user_id = decoded.id;
+    const product_id = req.params.productId;
+
+    const eliminarFavorito = await pool.query(
+      'DELETE FROM wishlists WHERE user_id = $1 AND product_id = $2 RETURNING *',
+      [user_id, product_id]
+    );
+
+    if (eliminarFavorito.rowCount === 0) {
+      return res.status(404).json({ error: "El producto no estaba en tu lista de deseos." });
+    }
+
+    res.json({ message: "Producto eliminado de tu lista de deseos correctamente." });
+  } catch (error) {
+    console.error("❌ Error al eliminar de la wishlist:", error.message);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });

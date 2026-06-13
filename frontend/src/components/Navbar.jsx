@@ -4,6 +4,7 @@ import CartDrawer from './CartDrawer';
 import MobileMenu from './MobileMenu';
 import { useCart } from '../context/CartContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
@@ -26,14 +27,15 @@ const MoonIcon = () => (
 
 const Navbar = ({ backButton = false }) => {
   const user = JSON.parse(localStorage.getItem('user'));
-  const [cartOpen, setCartOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productosDB, setProductosDB] = useState([]);
 
   const { totalItems } = useCart();
   const { theme, setTheme } = useContext(ThemeContext);
+  const { wishlist } = useWishlist();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -63,7 +65,7 @@ const Navbar = ({ backButton = false }) => {
     const nombreLimpiado = normalizarTexto(producto.name);
     const categoriaLimpiada = normalizarTexto(producto.category_name || '');
     const textoBuscable = `${nombreLimpiado} ${categoriaLimpiada}`;
-    
+
     // Usamos RegExp con \b (word boundary) para que busque solo al inicio de las palabras.
     // Así, si escribes "a", no coincidirá con la "a" que está dentro de "cargo" o "pantalón".
     return palabrasEscritas.every(palabra => {
@@ -163,18 +165,18 @@ const Navbar = ({ backButton = false }) => {
                     </span>
                     <div className="absolute top-[60px] left-0 w-48 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 shadow-xl rounded-2xl py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                       <Link to="/shop" className="block px-6 py-2 text-[12px] font-bold text-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-b border-zinc-100 dark:border-zinc-700 mb-1 pb-3">Catálogo Completo</Link>
-                      
+
                       {/* Generamos las categorías dinámicamente desde la BD */}
                       {Array.from(new Set(productosDB.map(p => p.category_name).filter(Boolean))).map((categoriaNombre, idx) => (
-                        <Link 
-                          key={idx} 
-                          to={`/shop/${categoriaNombre.toLowerCase()}`} 
+                        <Link
+                          key={idx}
+                          to={`/shop/${categoriaNombre.toLowerCase()}`}
                           className="block px-6 py-2 text-[12px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors capitalize"
                         >
                           {categoriaNombre}
                         </Link>
                       ))}
-                      
+
                       {/* Mensaje por si aún no hay productos creados en la BD */}
                       {productosDB.length === 0 && (
                         <span className="block px-6 py-2 text-[11px] text-zinc-400 italic">Próximamente...</span>
@@ -188,11 +190,11 @@ const Navbar = ({ backButton = false }) => {
           </div>
 
           {/* ── LOGO CENTRADO ── */}
-          <Link 
-          to="/" 
-          className="text-lg md:text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 dark:text-white transition-colors duration-300 hover:opacity-80"
+          <Link
+            to="/"
+            className="text-lg md:text-xl font-bold tracking-widest uppercase absolute left-1/2 -translate-x-1/2 dark:text-white transition-colors duration-300 hover:opacity-80"
           >
-          Intipa Churin
+            Intipa Churin
           </Link>
 
           {/* ── LADO DERECHO ── */}
@@ -214,12 +216,28 @@ const Navbar = ({ backButton = false }) => {
             </button>
 
             {/* Perfil oculto en móvil */}
-            <Link 
-              to={user ? (user.role_id === 1 ? "/admin" : "/profile") : "/login"} 
+            <Link
+              to={user ? (user.role_id === 1 ? "/admin" : "/profile") : "/login"}
               className="hidden md:block hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
             >
               <UserIcon />
             </Link>
+
+            {/* BOTÓN DE WISHLIST */}
+            <Link
+              to="/wishlist"
+              className="hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110 relative"
+              aria-label="Lista de Deseos"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              {/* Notificador rojo si hay items */}
+              {wishlist && wishlist.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900"></span>
+              )}
+            </Link>
+            {/* FIN DEL BOTÓN DE WISHLIST */}
 
             <button
               onClick={() => setCartOpen(true)}

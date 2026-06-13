@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const Shop = () => {
   const { category } = useParams();
   const navigate = useNavigate(); // <-- Iniciamos el navegador
   const [isSortOpen, setIsSortOpen] = useState(false);
   const { agregarAlCarrito } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   
   const [sortOption, setSortOption] = useState('Ordenar por: Destacados');
   const sortOptions = ['Ordenar por: Destacados', 'Precio: Menor a Mayor', 'Precio: Mayor a Menor', 'Nuevos'];
@@ -125,6 +127,31 @@ const Shop = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                     alt={item.name}
                   />
+
+                  {/* 👇 NUEVO BOTÓN DE WISHLIST (Esquina Superior Derecha) 👇 */}
+                  <div className="absolute top-2 right-2 md:top-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:-translate-y-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Evita que se abra la página del producto al dar clic al corazón
+                        toggleWishlist(item);
+                      }}
+                      title={isInWishlist(item.id) ? "Quitar de favoritos" : "Añadir a favoritos"}
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-md bg-white/90 backdrop-blur-sm hover:bg-white text-zinc-900 transition-all duration-300 hover:scale-110 dark:bg-zinc-900/90 dark:text-white dark:hover:bg-zinc-900"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18" height="18"
+                        viewBox="0 0 24 24"
+                        fill={isInWishlist(item.id) ? "#ef4444" : "none"} // Relleno rojo si está en la lista
+                        stroke={isInWishlist(item.id) ? "#ef4444" : "currentColor"} // Borde rojo o normal
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        className="transition-colors duration-300"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  {/*  FIN DEL BOTÓN DE WISHLIST  */}
                   
                   <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:translate-y-2">
                     <button
