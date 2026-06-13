@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 
 const CartDrawer = ({ isOpen, onClose }) => {
-  const { carrito, eliminarDelCarrito, totalPrecio } = useCart();
+  const { carrito, eliminarDelCarrito, restarCantidadDelCarrito, totalPrecio } = useCart();
+  const [deletingItemId, setDeletingItemId] = useState(null);
+  const [cantidadAEliminar, setCantidadAEliminar] = useState(1);
 
   return (
     <>
@@ -38,22 +41,68 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <div key={item.id} className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl transition-colors duration-300">
                 <div className="w-14 h-14 bg-zinc-200 dark:bg-zinc-800 rounded-xl overflow-hidden shrink-0 transition-colors duration-300">
                   <img
-                    src={`https://placehold.co/200x200/f5f5f4/d6d3d1?text=${item.categoria.toUpperCase()}`}
+                    src={item.imagen || `https://placehold.co/200x200/f5f5f4/d6d3d1?text=${(item.categoria || 'PRENDA').toUpperCase()}`}
                     className="w-full h-full object-cover opacity-90 dark:opacity-75"
                     alt={item.nombre}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate transition-colors duration-300">{item.nombre}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 transition-colors duration-300">Cantidad: {item.cantidad}</p>
-                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300 mt-0.5 transition-colors duration-300">$ {(item.precio * item.cantidad).toFixed(2)}</p>
+                  {deletingItemId === item.id ? (
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">¿Cuántos deseas eliminar?</span>
+                      <div className="flex items-center gap-1.5">
+                        <select
+                          value={cantidadAEliminar}
+                          onChange={(e) => setCantidadAEliminar(parseInt(e.target.value))}
+                          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs rounded-lg px-2 py-1 outline-none text-zinc-850 dark:text-zinc-150 font-bold"
+                        >
+                          {Array.from({ length: item.cantidad }, (_, i) => i + 1).map((val) => (
+                            <option key={val} value={val}>{val === item.cantidad ? `Todos (${val})` : `${val} unid.`}</option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => {
+                            restarCantidadDelCarrito(item.id, cantidadAEliminar);
+                            setDeletingItemId(null);
+                          }}
+                          className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
+                          title="Confirmar"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </button>
+                        <button
+                          onClick={() => setDeletingItemId(null)}
+                          className="w-7 h-7 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-lg flex items-center justify-center transition-colors"
+                          title="Cancelar"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate transition-colors duration-300">{item.nombre}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 transition-colors duration-300">Cantidad: {item.cantidad}</p>
+                      <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300 mt-1.5 transition-colors duration-300">$ {(item.precio * item.cantidad).toFixed(2)}</p>
+                    </>
+                  )}
                 </div>
-                <button
-                  onClick={() => eliminarDelCarrito(item.id)}
-                  className="text-zinc-300 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-400 transition-colors shrink-0"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
-                </button>
+                {deletingItemId !== item.id && (
+                  <button
+                    onClick={() => {
+                      if (item.cantidad > 1) {
+                        setDeletingItemId(item.id);
+                        setCantidadAEliminar(1);
+                      } else {
+                        eliminarDelCarrito(item.id);
+                      }
+                    }}
+                    className="text-zinc-350 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-450 transition-colors shrink-0 p-1"
+                    title="Eliminar del carrito"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+                  </button>
+                )}
               </div>
             ))
           )}
