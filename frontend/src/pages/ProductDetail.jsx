@@ -3,10 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const { agregarAlCarrito } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   
   const [producto, setProducto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,6 +100,30 @@ const ProductDetail = () => {
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
                 alt={producto.name}
               />
+
+              {/* 👇 NUEVO BOTÓN DE WISHLIST (Esquina Superior Derecha de la Imagen Principal) 👇 */}
+              <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(producto)}
+                  title={isInWishlist(producto.id) ? "Quitar de favoritos" : "Añadir a favoritos"}
+                  className="w-10 h-10 rounded-full flex items-center justify-center shadow-md bg-white/90 backdrop-blur-sm hover:bg-white text-zinc-900 transition-all duration-300 hover:scale-110 dark:bg-zinc-900/90 dark:text-white dark:hover:bg-zinc-900"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20" height="20"
+                    viewBox="0 0 24 24"
+                    fill={isInWishlist(producto.id) ? "#ef4444" : "none"}
+                    stroke={isInWishlist(producto.id) ? "#ef4444" : "currentColor"}
+                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    className="transition-colors duration-300"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </button>
+              </div>
+              {/*  FIN DEL BOTÓN DE WISHLIST  */}
+
               <div className="absolute inset-0 rounded-3xl border border-zinc-200/50 dark:border-zinc-800 pointer-events-none z-10"></div>
               {!producto.is_active && (
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-20">
