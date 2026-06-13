@@ -33,6 +33,25 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (reque
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log(`✅ ¡Pago verificado exitosamente! Sesión segura: ${session.id}`);
+
+    // NUEVO: Extraemos la "nota secreta" (metadata) y descontamos el stock en la BD
+    try {
+      if (session.metadata && session.metadata.cartData) {
+        // Convertimos el texto JSON de vuelta a un arreglo de JavaScript
+        const itemsComprados = JSON.parse(session.metadata.cartData);
+
+        // Recorremos cada producto comprado y actualizamos PostgreSQL
+        for (const item of itemsComprados) {
+          await pool.query(
+            'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1',
+            [item.cantidad, item.id]
+          );
+        }
+        console.log("📦 ¡Inventario restado correctamente en PostgreSQL!");
+      }
+    } catch (dbError) {
+      console.error("❌ Error al actualizar la base de datos:", dbError.message);
+    }
   }
 
   response.send();
@@ -671,37 +690,37 @@ app.delete('/api/wishlist/:productId', async (req, res) => {
 // ==========================================
 app.post('/api/checkout', async (req, res) => {
   try {
-    const { cartItems } = req.body; // Recibimos el carrito desde React
+    const { cartItems } = req.body;
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-    // 1. Transformar el carrito al formato exacto que exige Stripe (line_items)
     const line_items = cartItems.map((item) => {
       return {
         price_data: {
           currency: 'usd',
           product_data: {
             name: item.nombre,
-            images: item.imagen ? [item.imagen] : [], // Mostramos la foto del producto en la pasarela
+            images: item.imagen ? [item.imagen] : [],
           },
-          // Stripe maneja los precios en centavos enteros para evitar errores de decimales.
-          // Ejemplo: $15.50 se manda como 1550.
           unit_amount: Math.round(item.precio * 100),
         },
         quantity: item.cantidad,
       };
     });
 
-    // 2. Crear la sesión de pago segura en los servidores de Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      mode: 'payment', // 'payment' es para pago único (no suscripción)
+      mode: 'payment',
       line_items: line_items,
-      // Hacia dónde devolver al usuario cuando termine:
       success_url: `${FRONTEND_URL}/success`,
       cancel_url: `${FRONTEND_URL}/cancel`,
+      // NUEVO: Guardamos una lista compacta con los IDs y cantidades para el Webhook
+      metadata: {
+        cartData: JSON.stringify(
+          cartItems.map(item => ({ id: item.id, cantidad: item.cantidad }))
+        )
+      }
     });
 
-    // 3. Devolver la URL generada al frontend
     res.json({ url: session.url });
 
   } catch (error) {

@@ -17,7 +17,8 @@ const ProductDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const fetchProductoId = async () => {
+    const fetchProductoId = async (showLoading = true) => {
+      if (showLoading) setIsLoading(true);
       try {
         const res = await fetch(`http://localhost:3000/api/products/${id}`);
         if (res.ok) {
@@ -27,11 +28,18 @@ const ProductDetail = () => {
       } catch (error) {
         console.error("Error al cargar el producto:", error);
       } finally {
-        setIsLoading(false);
+        if (showLoading) setIsLoading(false);
       }
     };
 
-    fetchProductoId();
+    fetchProductoId(true);
+
+    // Consulta en tiempo real (polling cada 5 segundos)
+    const interval = setInterval(() => {
+      fetchProductoId(false);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [id]);
 
   if (isLoading) {
@@ -177,7 +185,11 @@ const ProductDetail = () => {
               <div className="text-xs flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${producto.stock_quantity > 5 ? 'bg-green-500' : producto.stock_quantity > 0 ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`}></span>
                 <span className="text-zinc-500 dark:text-zinc-400">
-                  {producto.stock_quantity > 5 ? 'Disponibilidad inmediata' : producto.stock_quantity > 0 ? `¡Últimas ${producto.stock_quantity} unidades disponibles!` : 'Sin existencias en inventario'}
+                  {producto.stock_quantity > 5 
+                    ? `Disponibilidad inmediata (${producto.stock_quantity} unidades en stock)` 
+                    : producto.stock_quantity > 0 
+                      ? `¡Últimas ${producto.stock_quantity} unidades disponibles!` 
+                      : 'Sin existencias en inventario'}
                 </span>
               </div>
 
