@@ -5,6 +5,31 @@ const CartDrawer = ({ isOpen, onClose }) => {
   const { carrito, eliminarDelCarrito, restarCantidadDelCarrito, totalPrecio } = useCart();
   const [deletingItemId, setDeletingItemId] = useState(null);
   const [cantidadAEliminar, setCantidadAEliminar] = useState(1);
+  const [isCargandoPago, setIsCargandoPago] = useState(false);
+
+  // NUEVA FUNCION: Llama al backend para ir a Stripe
+  const handleCheckout = async () => {
+    try {
+      setIsCargandoPago(true);
+      const response = await fetch('http://localhost:3000/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartItems: carrito }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url; // Redirección mágica a Stripe
+      } else {
+        alert("Hubo un problema al generar el enlace de pago.");
+        setIsCargandoPago(false);
+      }
+    } catch (error) {
+      console.error("Error al ir a pagar:", error);
+      setIsCargandoPago(false);
+    }
+  };
 
   return (
     <>
@@ -20,7 +45,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
       {/* Panel lateral */}
       {/* CÓDIGO CORREGIDO: z-[110] para que pase por encima del overlay oscuro (Antes estaba en z-50) */}
       <div className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white dark:bg-zinc-950 z-[110] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out border-l border-transparent dark:border-zinc-800 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        
+
         {/* Cabecera */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
           <h2 className="text-sm font-bold uppercase tracking-widest dark:text-white">Tu Carrito</h2>
@@ -115,8 +140,19 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <span className="text-sm text-zinc-500 dark:text-zinc-400 transition-colors duration-300">Total</span>
               <span className="text-lg font-bold text-zinc-900 dark:text-white transition-colors duration-300">$ {totalPrecio.toFixed(2)}</span>
             </div>
-            <button className="w-full py-4 rounded-xl text-sm font-semibold transition-colors duration-300 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white shadow-lg">
-              Proceder al pago
+            <button
+              onClick={handleCheckout}
+              disabled={isCargandoPago}
+              className="w-full py-4 rounded-xl text-sm font-semibold transition-colors duration-300 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+            >
+              {isCargandoPago ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white dark:text-zinc-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  Procesando...
+                </>
+              ) : (
+                "Proceder al pago"
+              )}
             </button>
           </div>
         )}

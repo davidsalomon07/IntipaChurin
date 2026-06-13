@@ -1,3 +1,6 @@
+require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -10,6 +13,50 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+
+// ==========================================
+// EXCEPCIÓN DE SEGURIDAD: WEBHOOK DE STRIPE
+// ==========================================
+app.post('/api/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
+  const sig = request.headers['stripe-signature'];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('❌ Error de firma en el Webhook:', err.message);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    console.log(`✅ ¡Pago verificado exitosamente! Sesión segura: ${session.id}`);
+
+    // NUEVO: Extraemos la "nota secreta" (metadata) y descontamos el stock en la BD
+    try {
+      if (session.metadata && session.metadata.cartData) {
+        // Convertimos el texto JSON de vuelta a un arreglo de JavaScript
+        const itemsComprados = JSON.parse(session.metadata.cartData);
+
+        // Recorremos cada producto comprado y actualizamos PostgreSQL
+        for (const item of itemsComprados) {
+          await pool.query(
+            'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1',
+            [item.cantidad, item.id]
+          );
+        }
+        console.log("📦 ¡Inventario restado correctamente en PostgreSQL!");
+      }
+    } catch (dbError) {
+      console.error("❌ Error al actualizar la base de datos:", dbError.message);
+    }
+  }
+
+  response.send();
+});
+
 app.use(express.json());
 
 // Permitimos que el frontend pueda acceder a la carpeta "uploads" para ver las fotos
@@ -635,6 +682,50 @@ app.delete('/api/wishlist/:productId', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al eliminar de la wishlist:", error.message);
     res.status(500).json({ error: "Error interno del servidor." });
+  }
+});
+
+// ==========================================
+// 16. MÓDULO DE PAGOS (STRIPE CHECKOUT)
+// ==========================================
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const { cartItems } = req.body;
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    const line_items = cartItems.map((item) => {
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.nombre,
+            images: item.imagen ? [item.imagen] : [],
+          },
+          unit_amount: Math.round(item.precio * 100),
+        },
+        quantity: item.cantidad,
+      };
+    });
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: line_items,
+      success_url: `${FRONTEND_URL}/success`,
+      cancel_url: `${FRONTEND_URL}/cancel`,
+      // NUEVO: Guardamos una lista compacta con los IDs y cantidades para el Webhook
+      metadata: {
+        cartData: JSON.stringify(
+          cartItems.map(item => ({ id: item.id, cantidad: item.cantidad }))
+        )
+      }
+    });
+
+    res.json({ url: session.url });
+
+  } catch (error) {
+    console.error("❌ Error al crear la sesión de Stripe:", error.message);
+    res.status(500).json({ error: "No se pudo generar el enlace de pago." });
   }
 });
 

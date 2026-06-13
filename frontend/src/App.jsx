@@ -19,6 +19,8 @@ import Wishlist from './pages/Wishlist'; // Agregado
 import WhatsAppButton from './components/WhatsAppButton';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductDetail from './pages/ProductDetail';
+import Success from './pages/Success';
+import Cancel from './pages/Cancel';
 
 function App() {
   return (
@@ -77,6 +79,8 @@ function App() {
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/shop/producto/:id" element={<ProductDetail />} />
+                  <Route path="/success" element={<Success />} />
+                  <Route path="/cancel" element={<Cancel />} />
                 </Routes>
                 <WhatsAppButton />
               </div>
