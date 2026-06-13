@@ -1,3 +1,6 @@
+require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -635,6 +638,50 @@ app.delete('/api/wishlist/:productId', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al eliminar de la wishlist:", error.message);
     res.status(500).json({ error: "Error interno del servidor." });
+  }
+});
+
+// ==========================================
+// 16. MÓDULO DE PAGOS (STRIPE CHECKOUT)
+// ==========================================
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const { cartItems } = req.body; // Recibimos el carrito desde React
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    // 1. Transformar el carrito al formato exacto que exige Stripe (line_items)
+    const line_items = cartItems.map((item) => {
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.nombre,
+            images: item.imagen ? [item.imagen] : [], // Mostramos la foto del producto en la pasarela
+          },
+          // Stripe maneja los precios en centavos enteros para evitar errores de decimales.
+          // Ejemplo: $15.50 se manda como 1550.
+          unit_amount: Math.round(item.precio * 100),
+        },
+        quantity: item.cantidad,
+      };
+    });
+
+    // 2. Crear la sesión de pago segura en los servidores de Stripe
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment', // 'payment' es para pago único (no suscripción)
+      line_items: line_items,
+      // Hacia dónde devolver al usuario cuando termine:
+      success_url: `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${FRONTEND_URL}/checkout/cancel`,
+    });
+
+    // 3. Devolver la URL generada al frontend
+    res.json({ url: session.url });
+
+  } catch (error) {
+    console.error("❌ Error al crear la sesión de Stripe:", error.message);
+    res.status(500).json({ error: "No se pudo generar el enlace de pago." });
   }
 });
 
