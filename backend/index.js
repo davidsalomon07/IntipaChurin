@@ -30,30 +30,63 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (reque
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // Si el pago es confirmado por el banco
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    console.log(`✅ ¡Pago verificado exitosamente! Sesión segura: ${session.id}`);
+    console.log(`✅ ¡Pago exitoso! Procesando orden: ${session.id}`);
 
-    // NUEVO: Extraemos la "nota secreta" (metadata) y descontamos el stock en la BD
     try {
-      if (session.metadata && session.metadata.cartData) {
-        // Convertimos el texto JSON de vuelta a un arreglo de JavaScript
+      if (session.metadata && session.metadata.cartData && session.metadata.user_id) {
+        const userId = parseInt(session.metadata.user_id);
         const itemsComprados = JSON.parse(session.metadata.cartData);
 
-        // Recorremos cada producto comprado y actualizamos PostgreSQL
+        // El monto viene en centavos (ej: 1550 = $15.50), lo pasamos a decimal
+        const totalAmount = session.amount_total / 100;
+
+        // INICIAMOS UNA TRANSACCIÓN SQL (Si algo falla, no se guarda nada a medias)
+        await pool.query('BEGIN');
+
+        // 1. Crear el registro principal en la tabla "orders"
+        const orderResult = await pool.query(
+          `INSERT INTO orders (user_id, total_amount, status, stripe_session_id) 
+           VALUES ($1, $2, 'PAGADO', $3) RETURNING id`,
+          [userId, totalAmount, session.id]
+        );
+        const orderId = orderResult.rows[0].id;
+
+        // 2. Procesar cada producto comprado
         for (const item of itemsComprados) {
+          // A. Guardar el detalle exacto en "order_items"
           await pool.query(
-            'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1',
+            `INSERT INTO order_items (order_id, product_id, quantity, price) 
+             VALUES ($1, $2, $3, $4)`,
+            [orderId, item.id, item.cantidad, item.precio]
+          );
+
+          // B. Restar el stock del inventario
+          await pool.query(
+            `UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2`,
             [item.cantidad, item.id]
           );
         }
-        console.log("📦 ¡Inventario restado correctamente en PostgreSQL!");
+
+        // 3. FASE 5: Automatización - Si algún producto se quedó sin stock, lo ocultamos
+        await pool.query(
+          `UPDATE products SET is_active = false WHERE stock_quantity <= 0`
+        );
+
+        // Confirmar todos los cambios en la BD
+        await pool.query('COMMIT');
+        console.log(`📦 ¡Orden #${orderId} generada e inventario actualizado con éxito!`);
       }
     } catch (dbError) {
-      console.error("❌ Error al actualizar la base de datos:", dbError.message);
+      // Si hay error en la BD, revertimos todo para evitar descuadres
+      await pool.query('ROLLBACK');
+      console.error("❌ Error CRÍTICO al procesar la orden en PostgreSQL:", dbError.message);
     }
   }
 
+  // Responder 200 a Stripe para decirle "Mensaje recibido"
   response.send();
 });
 
@@ -690,8 +723,13 @@ app.delete('/api/wishlist/:productId', async (req, res) => {
 // ==========================================
 app.post('/api/checkout', async (req, res) => {
   try {
-    const { cartItems } = req.body;
+    const { cartItems, user_id } = req.body;
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    // Verificación de seguridad rápida
+    if (!user_id) {
+      return res.status(400).json({ error: "Debes iniciar sesión para comprar." });
+    }
 
     const line_items = cartItems.map((item) => {
       return {
@@ -713,10 +751,10 @@ app.post('/api/checkout', async (req, res) => {
       line_items: line_items,
       success_url: `${FRONTEND_URL}/success`,
       cancel_url: `${FRONTEND_URL}/cancel`,
-      // NUEVO: Guardamos una lista compacta con los IDs y cantidades para el Webhook
       metadata: {
+        user_id: user_id.toString(),
         cartData: JSON.stringify(
-          cartItems.map(item => ({ id: item.id, cantidad: item.cantidad }))
+          cartItems.map(item => ({ id: item.id, cantidad: item.cantidad, precio: item.precio }))
         )
       }
     });
@@ -726,6 +764,102 @@ app.post('/api/checkout', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al crear la sesión de Stripe:", error.message);
     res.status(500).json({ error: "No se pudo generar el enlace de pago." });
+  }
+});
+
+// ==========================================
+// 17. READ: Obtener historial de pedidos (Cliente)
+// ==========================================
+app.get('/api/usuarios/pedidos', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado." });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    // 1. Obtenemos las órdenes principales del usuario
+    const ordersQuery = await pool.query(
+      'SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+
+    // 2. Para cada orden, buscamos qué productos exactos se compraron
+    const orders = ordersQuery.rows;
+    for (let order of orders) {
+      const itemsQuery = await pool.query(
+        `SELECT oi.*, p.name, p.image_url 
+         FROM order_items oi 
+         JOIN products p ON oi.product_id = p.id 
+         WHERE oi.order_id = $1`,
+        [order.id]
+      );
+      order.items = itemsQuery.rows;
+    }
+
+    res.json(orders);
+  } catch (error) {
+    console.error("❌ Error al obtener los pedidos:", error.message);
+    res.status(500).json({ error: "Error al cargar el historial de compras." });
+  }
+});
+
+// ==========================================
+// 18. ADMIN - READ: Obtener todos los pedidos globales
+// ==========================================
+app.get('/api/admin/pedidos', verificarAdmin, async (req, res) => {
+  try {
+    // 1. Obtenemos todas las órdenes de la tienda con los datos de quien compró
+    const ordersQuery = await pool.query(`
+      SELECT o.*, u.first_name, u.last_name, u.email 
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      ORDER BY o.created_at DESC
+    `);
+
+    const orders = ordersQuery.rows;
+
+    // 2. Buscamos el detalle de los productos para cada venta
+    for (let order of orders) {
+      const itemsQuery = await pool.query(
+        `SELECT oi.*, p.name 
+         FROM order_items oi 
+         JOIN products p ON oi.product_id = p.id 
+         WHERE oi.order_id = $1`,
+        [order.id]
+      );
+      order.items = itemsQuery.rows;
+    }
+
+    res.json(orders);
+  } catch (error) {
+    console.error("❌ Error al obtener pedidos de admin:", error.message);
+    res.status(500).json({ error: "Error al cargar la gestión de pedidos." });
+  }
+});
+
+// ==========================================
+// 19. ADMIN - UPDATE: Actualizar estado de un pedido
+// ==========================================
+app.patch('/api/admin/pedidos/:id/estado', verificarAdmin, async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    const updateQuery = await pool.query(
+      'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *',
+      [status, orderId]
+    );
+
+    if (updateQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Orden no encontrada." });
+    }
+
+    res.json({ message: "Estado de orden actualizado.", order: updateQuery.rows[0] });
+  } catch (error) {
+    console.error("❌ Error al actualizar el estado del pedido:", error.message);
+    res.status(500).json({ error: "Error al actualizar el pedido." });
   }
 });
 

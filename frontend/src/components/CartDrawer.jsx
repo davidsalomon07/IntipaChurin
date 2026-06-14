@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { jwtDecode } from "jwt-decode";
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const { carrito, eliminarDelCarrito, restarCantidadDelCarrito, totalPrecio } = useCart();
@@ -7,22 +8,44 @@ const CartDrawer = ({ isOpen, onClose }) => {
   const [cantidadAEliminar, setCantidadAEliminar] = useState(1);
   const [isCargandoPago, setIsCargandoPago] = useState(false);
 
-  // NUEVA FUNCION: Llama al backend para ir a Stripe
+  // NUEVA FUNCION: Llama al backend para ir a Stripe mandando el user_id
   const handleCheckout = async () => {
     try {
       setIsCargandoPago(true);
+
+      const token = localStorage.getItem('token');
+      let userId = null;
+
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          userId = decoded.id;
+        } catch (error) {
+          console.error("Token inválido:", error);
+        }
+      }
+
+      if (!userId) {
+        alert("Debes iniciar sesión para poder comprar.");
+        setIsCargandoPago(false);
+        return;
+      }
+
       const response = await fetch('http://localhost:3000/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cartItems: carrito }),
+        body: JSON.stringify({
+          cartItems: carrito,
+          user_id: userId
+        }),
       });
 
       const data = await response.json();
 
       if (data.url) {
-        window.location.href = data.url; // Redirección mágica a Stripe
+        window.location.href = data.url;
       } else {
-        alert("Hubo un problema al generar el enlace de pago.");
+        alert(data.error || "Hubo un problema al generar el enlace de pago.");
         setIsCargandoPago(false);
       }
     } catch (error) {
@@ -34,7 +57,6 @@ const CartDrawer = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay oscuro detrás del panel */}
-      {/* CÓDIGO CORREGIDO: z-[100] (Antes estaba en z-40) */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-[100] backdrop-blur-sm transition-opacity"
@@ -43,7 +65,6 @@ const CartDrawer = ({ isOpen, onClose }) => {
       )}
 
       {/* Panel lateral */}
-      {/* CÓDIGO CORREGIDO: z-[110] para que pase por encima del overlay oscuro (Antes estaba en z-50) */}
       <div className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white dark:bg-zinc-950 z-[110] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out border-l border-transparent dark:border-zinc-800 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
 
         {/* Cabecera */}
