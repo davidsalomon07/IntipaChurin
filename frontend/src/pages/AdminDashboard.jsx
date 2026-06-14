@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from 'react-hot-toast'; // Importado para alertas de validación
 import {
   Search,
   Package,
@@ -158,12 +159,24 @@ const AdminDashboard = () => {
   // 1. Crear (Ahora enviamos FormData en lugar de JSON)
   const handleProductSubmit = async (e) => {
     e.preventDefault();
+    const priceVal = parseFloat(productForm.price);
+    const stockVal = parseInt(productForm.stock_quantity);
+
+    if (isNaN(priceVal) || priceVal < 0) {
+      toast.error("El precio no puede ser negativo ni estar vacío.");
+      return;
+    }
+    if (isNaN(stockVal) || stockVal < 0) {
+      toast.error("El stock no puede ser negativo ni estar vacío.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('name', productForm.name);
       formData.append('description', productForm.description);
-      formData.append('price', parseFloat(productForm.price));
-      formData.append('stock_quantity', parseInt(productForm.stock_quantity));
+      formData.append('price', priceVal);
+      formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
@@ -201,12 +214,24 @@ const AdminDashboard = () => {
   // 3. Enviar Edición (FormData)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    const priceVal = parseFloat(productForm.price);
+    const stockVal = parseInt(productForm.stock_quantity);
+
+    if (isNaN(priceVal) || priceVal < 0) {
+      toast.error("El precio no puede ser negativo ni estar vacío.");
+      return;
+    }
+    if (isNaN(stockVal) || stockVal < 0) {
+      toast.error("El stock no puede ser negativo ni estar vacío.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('name', productForm.name);
       formData.append('description', productForm.description);
-      formData.append('price', parseFloat(productForm.price));
-      formData.append('stock_quantity', parseInt(productForm.stock_quantity));
+      formData.append('price', priceVal);
+      formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
@@ -595,11 +620,11 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                 </div>
                 <div>
@@ -661,11 +686,11 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                 </div>
                 <div>

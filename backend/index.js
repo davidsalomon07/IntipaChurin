@@ -445,6 +445,13 @@ app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (r
   try {
     const { category_id, name, description, price, stock_quantity } = req.body;
 
+    if (parseFloat(price) < 0) {
+      return res.status(400).json({ error: "El precio no puede ser negativo." });
+    }
+    if (parseInt(stock_quantity) < 0) {
+      return res.status(400).json({ error: "El stock no puede ser negativo." });
+    }
+
     const is_active = true;
     const finalImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
 
@@ -471,6 +478,13 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
   try {
     const productId = req.params.id;
     const { name, description, price, stock_quantity } = req.body;
+
+    if (parseFloat(price) < 0) {
+      return res.status(400).json({ error: "El precio no puede ser negativo." });
+    }
+    if (parseInt(stock_quantity) < 0) {
+      return res.status(400).json({ error: "El stock no puede ser negativo." });
+    }
 
     // 1. Buscamos la URL de la imagen actual en la BD antes de hacer cualquier cambio
     const productActualQuery = await pool.query('SELECT image_url FROM products WHERE id = $1', [productId]);
