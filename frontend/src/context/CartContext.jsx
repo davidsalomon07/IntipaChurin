@@ -7,30 +7,49 @@ export const CartProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
 
   const agregarAlCarrito = (producto) => {
-    setCarrito((prev) => {
-      const existe = prev.find((item) => item.id === producto.id);
-      
-      if (existe) {
-        if (producto.stock_quantity !== undefined && existe.cantidad >= producto.stock_quantity) {
-          toast.error("Límite de stock alcanzado para este producto.");
-          return prev;
+    const existe = carrito.find((item) => item.id === producto.id);
+
+    if (existe) {
+      if (producto.stock_quantity !== undefined && existe.cantidad >= producto.stock_quantity) {
+        toast.error("Límite de stock alcanzado para este producto.", { id: `stock-limit-${producto.id}` });
+        return;
+      }
+      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.id}` });
+      setCarrito((prev) => {
+        const itemExistente = prev.find((item) => item.id === producto.id);
+        if (itemExistente) {
+          if (producto.stock_quantity !== undefined && itemExistente.cantidad >= producto.stock_quantity) {
+            return prev;
+          }
+          return prev.map((item) =>
+            item.id === producto.id
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          );
         }
-        toast.success("Producto agregado al carrito");
-        return prev.map((item) =>
-          item.id === producto.id
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
-      }
-
+        return [...prev, { ...producto, cantidad: 1 }];
+      });
+    } else {
       if (producto.stock_quantity !== undefined && producto.stock_quantity <= 0) {
-        toast.error("Este producto está agotado.");
-        return prev;
+        toast.error("Este producto está agotado.", { id: `out-of-stock-${producto.id}` });
+        return;
       }
-
-      toast.success("Producto agregado al carrito");
-      return [...prev, { ...producto, cantidad: 1 }];
-    });
+      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.id}` });
+      setCarrito((prev) => {
+        const itemExistente = prev.find((item) => item.id === producto.id);
+        if (itemExistente) {
+          if (producto.stock_quantity !== undefined && itemExistente.cantidad >= producto.stock_quantity) {
+            return prev;
+          }
+          return prev.map((item) =>
+            item.id === producto.id
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          );
+        }
+        return [...prev, { ...producto, cantidad: 1 }];
+      });
+    }
   };
 
   const vaciarCarrito = () => setCarrito([]);
