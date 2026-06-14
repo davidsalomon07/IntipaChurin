@@ -15,7 +15,8 @@ import {
   PanelLeftOpen,
   Sun,
   Moon,
-  Store
+  Store,
+  Truck
 } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
 import Cropper from 'react-easy-crop';
@@ -77,6 +78,7 @@ const AdminDashboard = () => {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [pedidos, setPedidos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Control de Modales
@@ -133,7 +135,7 @@ const AdminDashboard = () => {
 
   const cargarDatos = async () => {
     setIsLoading(true);
-    await Promise.all([cargarProductos(), cargarCategorias(), cargarUsuarios()]);
+    await Promise.all([cargarProductos(), cargarCategorias(), cargarUsuarios(), cargarPedidos()]);
     setIsLoading(false);
   };
 
@@ -152,6 +154,31 @@ const AdminDashboard = () => {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) setUsuarios(await res.json());
+  };
+
+  const cargarPedidos = async () => {
+    const res = await fetch('http://localhost:3000/api/admin/pedidos', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) setPedidos(await res.json());
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/admin/pedidos/${orderId}/estado`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        toast.success("Estado de la orden actualizado.");
+        cargarPedidos();
+      } else {
+        toast.error("Error al actualizar la orden.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // --- LÓGICA CRUD PRODUCTOS ---
@@ -309,14 +336,15 @@ const AdminDashboard = () => {
   const filteredProductos = productos.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
   const filteredCategorias = categorias.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
   const filteredUsuarios = usuarios.filter(u => u.first_name.toLowerCase().includes(search.toLowerCase()) || u.last_name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+  const filteredPedidos = pedidos.filter(p => p.id.toString().includes(search) || p.first_name.toLowerCase().includes(search.toLowerCase()) || p.email.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
 
       {/* Sidebar Minimalista y Overlay para Móvil */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -346,6 +374,12 @@ const AdminDashboard = () => {
             className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'usuarios' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
           >
             <Users size={18} /> Cuentas Registradas
+          </div>
+          <div
+            onClick={() => setActiveTab('pedidos')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'pedidos' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+          >
+            <Truck size={18} /> Gestión de Pedidos
           </div>
         </nav>
 
@@ -379,6 +413,7 @@ const AdminDashboard = () => {
                 {activeTab === 'productos' && 'Productos'}
                 {activeTab === 'categorias' && 'Categorías'}
                 {activeTab === 'usuarios' && 'Usuarios'}
+                {activeTab === 'pedidos' && 'Gestión de Pedidos'}
               </h1>
             </div>
           </div>
@@ -570,6 +605,58 @@ const AdminDashboard = () => {
                               <td className="py-4 px-6 text-sm text-zinc-500 dark:text-zinc-500 truncate">{new Date(u.created_at).toLocaleDateString('es-EC')}</td>
                               <td className="py-4 px-6 text-center">
                                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400">Activo</span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </>
+                  )}
+
+                  {/* === PEDIDOS === */}
+                  {activeTab === 'pedidos' && (
+                    <>
+                      <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                        <tr className="w-full">
+                          <th className="w-[10%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Orden</th>
+                          <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Cliente</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha</th>
+                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Total</th>
+                          <th className="w-[25%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Gestión Logística</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+                        {filteredPedidos.length === 0 ? (
+                          <tr><td colSpan="5" className="py-16 text-center text-zinc-500 text-sm">No hay pedidos registrados en el sistema.</td></tr>
+                        ) : (
+                          filteredPedidos.map((p) => (
+                            <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                              <td className="py-4 px-6 font-bold text-zinc-900 dark:text-white">#{p.id}</td>
+                              <td className="py-4 px-6">
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-semibold text-zinc-900 dark:text-white">{p.first_name} {p.last_name}</span>
+                                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{p.email}</span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400">
+                                {new Date(p.created_at).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </td>
+                              <td className="py-4 px-6 font-bold text-zinc-900 dark:text-white">
+                                ${parseFloat(p.total_amount).toFixed(2)}
+                              </td>
+                              <td className="py-4 px-6 text-center">
+                                <select
+                                  value={p.status}
+                                  onChange={(e) => handleStatusChange(p.id, e.target.value)}
+                                  className={`text-xs font-bold px-3 py-2 rounded-xl outline-none cursor-pointer transition-colors border shadow-sm ${p.status === 'PAGADO' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50' :
+                                      p.status === 'ENVIADO' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/50' :
+                                        'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50'
+                                    }`}
+                                >
+                                  <option value="PAGADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">PAGADO (Pendiente)</option>
+                                  <option value="ENVIADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">ENVIADO (En tránsito)</option>
+                                  <option value="ENTREGADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">ENTREGADO (Finalizado)</option>
+                                </select>
                               </td>
                             </tr>
                           ))
@@ -869,19 +956,19 @@ const AdminDashboard = () => {
                 {confirmAction.type === 'delete' ? 'Eliminar Producto' : 'Desactivar Producto'}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8">
-                {confirmAction.type === 'delete' 
+                {confirmAction.type === 'delete'
                   ? `¿Estás seguro de que deseas eliminar permanentemente el producto "${confirmAction.product.name}"? Esta acción no se puede deshacer.`
                   : `¿Estás seguro de que deseas desactivar el producto "${confirmAction.product.name}"? No será visible para los clientes.`}
               </p>
-              
+
               <div className="flex gap-4">
-                <button 
+                <button
                   onClick={() => setConfirmAction(null)}
                   className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     if (confirmAction.type === 'delete') {
                       executeDeleteProduct(confirmAction.product.id);
