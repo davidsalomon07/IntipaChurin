@@ -86,9 +86,9 @@ const Wishlist = () => {
                                             nombre: producto.name,
                                             precio: parseFloat(producto.price),
                                             categoria: producto.category_name || 'General',
-                                            imagen: producto.image_url
+                                            imagen: producto.image_url,
+                                            stock_quantity: producto.stock_quantity
                                         });
-                                        toast.success(`¡${producto.name} añadido al carrito!`);
                                     }}
                                     className="mt-auto w-full py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border-2 border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white transition-colors dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-zinc-900"
                                 >

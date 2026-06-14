@@ -731,6 +731,18 @@ app.post('/api/checkout', async (req, res) => {
       return res.status(400).json({ error: "Debes iniciar sesión para comprar." });
     }
 
+    // VERIFICACIÓN DE STOCK EN BASE DE DATOS
+    for (const item of cartItems) {
+      const dbProduct = await pool.query('SELECT stock_quantity, name FROM products WHERE id = $1', [item.id]);
+      if (dbProduct.rows.length === 0) {
+        return res.status(400).json({ error: `El producto ${item.nombre} ya no existe.` });
+      }
+      const stockActual = dbProduct.rows[0].stock_quantity;
+      if (item.cantidad > stockActual) {
+        return res.status(400).json({ error: `No hay suficiente stock para ${dbProduct.rows[0].name}. Disponible: ${stockActual}, Solicitado: ${item.cantidad}.` });
+      }
+    }
+
     const line_items = cartItems.map((item) => {
       return {
         price_data: {

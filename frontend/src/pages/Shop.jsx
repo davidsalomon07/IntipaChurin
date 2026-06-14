@@ -163,7 +163,8 @@ const Shop = () => {
                           nombre: item.name,
                           precio: parseFloat(item.price),
                           categoria: item.category_name,
-                          imagen: item.image_url
+                          imagen: item.image_url,
+                          stock_quantity: item.stock_quantity
                         });
                       }}
                       title="Añadir al carrito"

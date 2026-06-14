@@ -4,12 +4,12 @@ import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 
 const Success = () => {
-    // Opcional: Si tienes una función para vaciar el carrito en tu contexto, la puedes llamar aquí.
-    // const { vaciarCarrito } = useCart();
+    // Llamar a vaciarCarrito para limpiar la sesión después del pago
+    const { vaciarCarrito } = useCart();
 
-    // useEffect(() => {
-    //   vaciarCarrito();
-    // }, []);
+    useEffect(() => {
+      vaciarCarrito();
+    }, []);
 
     return (
         <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-300">

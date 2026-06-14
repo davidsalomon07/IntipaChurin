@@ -200,7 +200,8 @@ const ProductDetail = () => {
                   nombre: `${producto.name} (${tallaSeleccionada})`,
                   precio: parseFloat(producto.price),
                   categoria: producto.category_name,
-                  imagen: producto.image_url
+                  imagen: producto.image_url,
+                  stock_quantity: producto.stock_quantity
                 })}
                 className={`w-full py-4 rounded-xl text-sm font-bold shadow-sm transition-all duration-300 ${(!producto.is_active || producto.stock_quantity <= 0) ? 'bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-700 cursor-not-allowed' : 'bg-zinc-900 text-white hover:bg-zinc-800 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100'}`}
               >
