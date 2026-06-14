@@ -56,9 +56,9 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (reque
 
         // 2. Procesar cada producto comprado
         for (const item of itemsComprados) {
-          // A. Guardar el detalle exacto en "order_items"
+          // A. Guardar el detalle exacto en "order_items" (Usando tu columna unit_price confirmada)
           await pool.query(
-            `INSERT INTO order_items (order_id, product_id, quantity, price) 
+            `INSERT INTO order_items (order_id, product_id, quantity, unit_price) 
              VALUES ($1, $2, $3, $4)`,
             [orderId, item.id, item.cantidad, item.precio]
           );
@@ -789,7 +789,7 @@ app.get('/api/usuarios/pedidos', async (req, res) => {
     const orders = ordersQuery.rows;
     for (let order of orders) {
       const itemsQuery = await pool.query(
-        `SELECT oi.*, p.name, p.image_url 
+        `SELECT oi.id, oi.order_id, oi.product_id, oi.quantity, oi.unit_price, p.name, p.image_url 
          FROM order_items oi 
          JOIN products p ON oi.product_id = p.id 
          WHERE oi.order_id = $1`,

@@ -13,21 +13,25 @@ const mapContainerStyle = { width: '100%', height: '200px', borderRadius: '0.75r
 const defaultCenter = { lat: -0.2103, lng: -78.4889 }; // Centrado en Quito
 
 const UserProfile = () => {
-  const [activeTab, setActiveTab] = useState('datos'); 
-  const [userData, setUserData] = useState(null); 
+  const [activeTab, setActiveTab] = useState('datos');
+  const [userData, setUserData] = useState(null);
   const [isMobileMenuVisible, setIsMobileMenuVisible] = useState(true);
-  
+
   // Estados para Datos Personales
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '', phone: '' });
 
   // Estados para Direcciones
-  const [addresses, setAddresses] = useState([]); 
-  const [showAddressForm, setShowAddressForm] = useState(false); 
-  const [editingAddressId, setEditingAddressId] = useState(null); 
+  const [addresses, setAddresses] = useState([]);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [addressFormData, setAddressFormData] = useState({
     title: '', street_address: '', city: '', postal_code: ''
   });
+
+  // NUEVO: Estado para Pedidos
+  const [pedidos, setPedidos] = useState([]);
+  const [isLoadingPedidos, setIsLoadingPedidos] = useState(false);
 
   // Estados y Hooks de Google Maps
   const { isLoaded } = useLoadScript({
@@ -66,8 +70,27 @@ const UserProfile = () => {
         phone: parsedUser.phone || ''
       });
       fetchAddresses(storedToken);
+      fetchPedidos(storedToken); // NUEVO: Cargamos los pedidos
     }
   }, [navigate]);
+
+  // NUEVA FUNCION: Llama a la API de tu backend para obtener el historial
+  const fetchPedidos = async (token) => {
+    try {
+      setIsLoadingPedidos(true);
+      const res = await fetch('http://localhost:3000/api/usuarios/pedidos', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPedidos(data);
+      }
+    } catch (err) {
+      console.error("Error al cargar pedidos:", err);
+    } finally {
+      setIsLoadingPedidos(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -100,8 +123,8 @@ const UserProfile = () => {
       if (!response.ok) throw new Error(data.error);
 
       setUserData(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user)); 
-      setIsEditing(false); 
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setIsEditing(false);
       toast.success("¡Datos actualizados correctamente!");
     } catch (err) {
       toast.error(err.message);
@@ -129,10 +152,10 @@ const UserProfile = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const url = editingAddressId 
-        ? `http://localhost:3000/api/usuarios/direcciones/${editingAddressId}` 
+      const url = editingAddressId
+        ? `http://localhost:3000/api/usuarios/direcciones/${editingAddressId}`
         : 'http://localhost:3000/api/usuarios/direcciones';
-      
+
       const method = editingAddressId ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -144,8 +167,8 @@ const UserProfile = () => {
       if (!response.ok) throw new Error(data.error);
 
       toast.success(data.message);
-      fetchAddresses(token); 
-      closeAddressForm(); 
+      fetchAddresses(token);
+      closeAddressForm();
     } catch (err) {
       toast.error(err.message);
     }
@@ -165,8 +188,8 @@ const UserProfile = () => {
       if (!response.ok) throw new Error(data.error);
 
       toast.success(data.message);
-      fetchAddresses(token); 
-      setAddressToDelete(null); 
+      fetchAddresses(token);
+      setAddressToDelete(null);
     } catch (err) {
       toast.error(err.message);
       setAddressToDelete(null);
@@ -187,9 +210,9 @@ const UserProfile = () => {
         setAddressFormData({
           ...addressFormData,
           street_address: place.formatted_address || place.name,
-          city: city || addressFormData.city 
+          city: city || addressFormData.city
         });
-        
+
         setMapCenter({
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng()
@@ -224,21 +247,18 @@ const UserProfile = () => {
     setShowMap(false);
   };
 
-  const pedidos = [
-    { id: "ORD-0921", fecha: "15 Abr 2026", total: 140.00, estado: "Entregado", items: "Essential Hoodie, Classic Boxy Tee" },
-    { id: "ORD-0854", fecha: "02 Mar 2026", total: 75.00, estado: "Entregado", items: "Cargo Pant Parachute" }
-  ];
+  // La constante "pedidos" falsa fue eliminada.
 
   if (!userData) return null;
 
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-[#333] dark:text-zinc-50 font-sans selection:bg-blue-100 dark:selection:bg-blue-900/50 flex flex-col transition-colors duration-300">
-      
+
       {/* NAVBAR */}
       <Navbar backButton={true} />
 
       <main className="max-w-275 mx-auto px-6 pt-28 pb-24 grow w-full flex flex-col md:flex-row gap-8">
-        
+
         {/* SIDEBAR */}
         <aside className={`w-full md:w-80 flex-col gap-6 ${isMobileMenuVisible ? 'flex' : 'hidden md:flex'}`}>
           <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
@@ -283,18 +303,18 @@ const UserProfile = () => {
         {/* CONTENIDO PRINCIPAL */}
         <div className={`flex-1 ${!isMobileMenuVisible ? 'block' : 'hidden md:block'}`}>
           {/* BOTÓN VOLVER (SÓLO MÓVIL) */}
-          <button 
-            onClick={() => setIsMobileMenuVisible(true)} 
+          <button
+            onClick={() => setIsMobileMenuVisible(true)}
             className="md:hidden flex items-center gap-2 text-[14px] font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white mb-6 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
             Volver
           </button>
-          
+
           {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
             <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
-              
+
               {!isEditing ? (
                 <button onClick={() => setIsEditing(true)} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -319,28 +339,26 @@ const UserProfile = () => {
                   <input
                     type="text"
                     value={formData.first_name}
-                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                     disabled={!isEditing}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
-                      isEditing
-                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
-                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
-                    }`}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                      : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                      }`}
                   />
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                   <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Apellido</label>
                   <input
                     type="text"
                     value={formData.last_name}
-                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                     disabled={!isEditing}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
-                      isEditing
-                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
-                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
-                    }`}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                      : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                      }`}
                   />
                 </div>
 
@@ -349,13 +367,12 @@ const UserProfile = () => {
                   <input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     disabled={!isEditing}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
-                      isEditing
-                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
-                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
-                    }`}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                      : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                      }`}
                   />
                 </div>
 
@@ -364,14 +381,13 @@ const UserProfile = () => {
                   <input
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     disabled={!isEditing}
                     placeholder={isEditing ? "Ingrese su número" : "Añadir número"}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${
-                      isEditing
-                        ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
-                        : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
-                    }`}
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                      : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
+                      }`}
                   />
                 </div>
 
@@ -409,7 +425,7 @@ const UserProfile = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Custom Dropdown Idioma */}
                 <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
                   <span className="text-[15px] text-gray-700 dark:text-zinc-300">Idioma</span>
@@ -443,14 +459,14 @@ const UserProfile = () => {
                 <form onSubmit={handleSaveAddress} className="space-y-5 max-w-2xl">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Título</label>
-                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({...addressFormData, title: e.target.value})} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({ ...addressFormData, title: e.target.value })} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
-                  
+
                   {!showMap ? (
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                       <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Dirección</label>
                       <div className="flex-1 flex flex-col sm:flex-row gap-3">
-                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                         <button type="button" onClick={() => setShowMap(true)} className="w-full sm:w-auto px-4 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors shrink-0 text-center">📍 Mapa</button>
                       </div>
                     </div>
@@ -462,7 +478,7 @@ const UserProfile = () => {
                           <button type="button" onClick={() => setShowMap(false)} className="text-xs font-bold text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar mapa</button>
                         </div>
                         <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
-                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({...addressFormData, street_address: e.target.value})} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                         </Autocomplete>
                         <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
                           <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}><Marker position={mapCenter} /></GoogleMap>
@@ -473,12 +489,12 @@ const UserProfile = () => {
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Ciudad</label>
-                    <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({...addressFormData, city: e.target.value})} placeholder="Ej. Quito" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                    <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value })} placeholder="Ej. Quito" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Código Postal</label>
-                    <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({...addressFormData, postal_code: e.target.value})} placeholder="Opcional" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
+                    <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({ ...addressFormData, postal_code: e.target.value })} placeholder="Opcional" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-colors" />
                   </div>
 
                   <div className="flex gap-4 pt-4">
@@ -511,23 +527,64 @@ const UserProfile = () => {
           {activeTab === 'pedidos' && (
             <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
               <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Mis Pedidos</h1>
-              {pedidos.length > 0 ? (
+
+              {isLoadingPedidos ? (
+                <div className="text-center py-10 text-gray-400 dark:text-zinc-500 text-sm">Cargando tu historial...</div>
+              ) : pedidos.length > 0 ? (
                 <div className="space-y-4">
-                  {pedidos.map((p, idx) => (
-                    <div key={idx} className="border border-gray-100 dark:border-zinc-800 p-5 rounded-2xl flex justify-between items-center hover:border-gray-200 dark:hover:border-zinc-700 transition-colors">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1"><span className="font-semibold text-[14px] dark:text-white">{p.id}</span><span className="text-[11px] px-2 py-0.5 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 rounded-md font-medium">{p.estado}</span></div>
-                        <p className="text-[13px] text-gray-500 dark:text-zinc-400">{p.fecha}</p>
+                  {pedidos.map((p) => {
+                    // Calculamos la cantidad total de artículos en el pedido
+                    const totalArticulos = p.items ? p.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
+
+                    // Formateamos la fecha a un formato legible
+                    const fechaFormateada = new Date(p.created_at).toLocaleDateString('es-ES', {
+                      year: 'numeric', month: 'short', day: 'numeric'
+                    });
+
+                    // Colores del estado
+                    const estadoColor = p.status === 'PAGADO' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'
+                      : p.status === 'ENVIADO' ? 'bg-yellow-50 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400'
+                        : 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400';
+
+                    return (
+                      <div key={p.id} className="border border-gray-100 dark:border-zinc-800 p-5 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-gray-200 dark:hover:border-zinc-700 transition-colors">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="font-bold text-[15px] dark:text-white">Orden #{p.id}</span>
+                            <span className={`text-[11px] px-2.5 py-0.5 rounded-md font-bold tracking-wider ${estadoColor}`}>
+                              {p.status}
+                            </span>
+                          </div>
+                          <p className="text-[13px] text-gray-500 dark:text-zinc-400 mb-1">
+                            {fechaFormateada} • {totalArticulos} {totalArticulos === 1 ? 'artículo' : 'artículos'}
+                          </p>
+                          {/* Miniatura de los productos (Opcional, muy visual) */}
+                          {p.items && p.items.length > 0 && (
+                            <div className="flex gap-2 mt-3 overflow-hidden">
+                              {p.items.slice(0, 4).map((item, i) => (
+                                <img key={i} src={item.image_url} alt={item.name} className="w-10 h-10 object-cover rounded-lg bg-gray-100 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700" title={`${item.name} (x${item.quantity})`} />
+                              ))}
+                              {p.items.length > 4 && (
+                                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-zinc-800/50 flex items-center justify-center text-xs font-medium text-gray-500 dark:text-zinc-400">
+                                  +{p.items.length - 4}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="sm:text-right flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto">
+                          <p className="font-bold text-[18px] text-gray-900 dark:text-white mb-2">${parseFloat(p.total_amount).toFixed(2)}</p>
+                          <span className="text-[12px] font-medium text-gray-400 dark:text-zinc-500">ID Pago: {p.stripe_session_id ? p.stripe_session_id.substring(0, 15) + '...' : 'N/A'}</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-[15px] dark:text-white mb-1">${p.total.toFixed(2)}</p>
-                        <button className="text-[12px] text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">Detalles</button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
-                <div className="text-center py-10 text-gray-400 dark:text-zinc-500 text-sm">No has realizado pedidos todavía.</div>
+                <div className="text-center py-16 flex flex-col items-center gap-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-gray-300 dark:text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                  <p className="text-gray-400 dark:text-zinc-500 text-sm font-medium">Aún no tienes compras en tu historial.</p>
+                </div>
               )}
             </div>
           )}
