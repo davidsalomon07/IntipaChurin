@@ -145,7 +145,7 @@ const Home = () => {
 
       {/* HERO SECTION - SPLIT LAYOUT */}
       <section className="pt-28 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="relative w-full h-auto min-h-[75vh] md:h-[80vh] rounded-[2rem] overflow-hidden group border border-white/5 bg-[#0e1014]">
+        <div className="relative w-full h-auto min-h-[75vh] md:h-[80vh] rounded-[2rem] overflow-hidden group border border-white/10 bg-[#0e1014] shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
           <div className="flex flex-col md:flex-row w-full h-full">
 
             {/* Columna Izquierda - Texto */}
@@ -253,38 +253,46 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="overflow-hidden -my-24 py-24 -mx-6 px-6 md:-mx-12 md:px-12">
           {categoriasDB.length === 0 ? (
             <div className="text-center text-zinc-500 py-10 w-full">
               <p>Estamos preparando las colecciones para ti.</p>
             </div>
           ) : (
-            <div className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" style={{ transform: `translateX(calc(-${catIndex * (100 / itemsPerView)}% - ${catIndex * 1.5}rem))` }}>
-              {categoriasDB.map((cat) => (
-                <div key={cat.id} className="min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-[#0e1014] rounded-3xl border border-white/5 overflow-hidden flex flex-col relative shrink-0">
-                  <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
-                    <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
-                    <div className="w-8 h-[2px] bg-white/20 mb-6"></div>
-                    <p className="text-sm text-zinc-400 max-w-[200px] mb-8 flex-grow">
-                      {cat.name.toLowerCase() === 'hoodies' ? 'Comodidad y estilo en cada detalle. Perfectos para cualquier ocasión.' :
-                        cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
-                          'Diseño, funcionalidad y comodidad para tu día a día.'}
-                    </p>
-                    <div className="pb-8">
-                      <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center gap-3 border border-white/20 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
-                        Ver {cat.name} <ArrowRightIcon />
-                      </Link>
+            <div className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}>
+              {categoriasDB.map((cat, index) => {
+                const isVisible = index >= catIndex && index < catIndex + itemsPerView;
+                return (
+                  <div
+                    key={cat.id}
+                    className={`min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] shrink-0 relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                      isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                    }`}
+                  >
+                    <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
+                      <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
+                      <div className="w-8 h-[2px] bg-white/20 mb-6"></div>
+                      <p className="text-sm text-zinc-400 max-w-[200px] mb-8 flex-grow">
+                        {cat.name.toLowerCase() === 'hoodies' ? 'Comodidad y estilo en cada detalle. Perfectos para cualquier ocasión.' :
+                          cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
+                            'Diseño, funcionalidad y comodidad para tu día a día.'}
+                      </p>
+                      <div className="pb-8">
+                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center gap-3 border border-white/20 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
+                          Ver {cat.name} <ArrowRightIcon />
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="absolute top-0 right-0 w-[60%] h-full flex items-center justify-end overflow-hidden pointer-events-none opacity-80">
+                      <img
+                        src={categoryImages[cat.name.toLowerCase()] || `https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`}
+                        className="w-full h-full object-cover translate-x-[10%]"
+                        alt={cat.name}
+                      />
                     </div>
                   </div>
-                  <div className="absolute top-0 right-0 w-[60%] h-full flex items-center justify-end overflow-hidden pointer-events-none opacity-80">
-                    <img
-                      src={categoryImages[cat.name.toLowerCase()] || `https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`}
-                      className="w-full h-full object-cover translate-x-[10%]"
-                      alt={cat.name}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -318,8 +326,8 @@ const Home = () => {
             <div className="col-span-full py-12 text-center text-zinc-500"><p>Próximamente nuevos ingresos.</p></div>
           ) : (
             productosDestacados.map((producto) => (
-              <div key={producto.id} className="group cursor-pointer flex flex-col bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/10 transition-colors" onClick={() => navigate(`/shop/producto/${producto.id}`)}>
-                <div className="w-full aspect-[4/5] relative bg-[#1a1a1a] overflow-hidden flex items-center justify-center">
+              <div key={producto.id} className="group cursor-pointer flex flex-col bg-[#0e1014] rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_24px_60px_rgba(0,0,0,0.6)] hover:-translate-y-1" onClick={() => navigate(`/shop/producto/${producto.id}`)}>
+                <div className="w-full aspect-[4/5] relative bg-[#0e1014] overflow-hidden flex items-center justify-center">
                   <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
 
                   {/* Favoritos */}
@@ -349,7 +357,7 @@ const Home = () => {
 
       {/* --- LANZAMIENTO EXCLUSIVO --- */}
       <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-white/5">
+        <div className="bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
           <div className="w-full md:w-1/2 p-10 md:p-20 flex flex-col justify-center order-2 md:order-1">
             <div className="inline-flex items-center gap-2 border border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h9.04" /><path d="M11 2v9" /></svg>
@@ -409,7 +417,7 @@ const Home = () => {
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {testimonials.map((testimonial, i) => (
-              <div key={i} className="snap-start min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-[#0e1014] p-6 md:p-8 rounded-2xl border border-white/5 flex flex-col justify-between h-[280px] md:h-[260px] shrink-0">
+              <div key={i} className="snap-start min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 flex flex-col justify-between h-[280px] md:h-[260px] shrink-0">
                 <div>
                   <div className="flex text-white mb-6">
                     {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>))}
