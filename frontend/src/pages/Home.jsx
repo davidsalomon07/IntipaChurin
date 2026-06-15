@@ -82,7 +82,7 @@ const Home = () => {
   const [categoriasDB, setCategoriasDB] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [catIndex, setCatIndex] = useState(0);
-  const testiScrollRef = useRef(null);
+  const [testiIndex, setTestiIndex] = useState(0);
 
   const intervalRef = useRef(null);
 
@@ -128,15 +128,12 @@ const Home = () => {
   }, []);
 
   const scrollTestimonialsLeft = () => {
-    if (testiScrollRef.current) {
-      testiScrollRef.current.scrollBy({ left: -testiScrollRef.current.offsetWidth / 1.5, behavior: 'smooth' });
-    }
+    setTestiIndex((prev) => Math.max(0, prev - 1));
   };
 
   const scrollTestimonialsRight = () => {
-    if (testiScrollRef.current) {
-      testiScrollRef.current.scrollBy({ left: testiScrollRef.current.offsetWidth / 1.5, behavior: 'smooth' });
-    }
+    const limite = testimonials.length - itemsPerView;
+    setTestiIndex((prev) => Math.min(limite, prev + 1));
   };
 
   return (
@@ -259,7 +256,7 @@ const Home = () => {
               <p>Estamos preparando las colecciones para ti.</p>
             </div>
           ) : (
-            <div className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}>
+            <div className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}>
               {categoriasDB.map((cat, index) => {
                 const isVisible = index >= catIndex && index < catIndex + itemsPerView;
                 return (
@@ -410,29 +407,36 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="relative max-w-[1200px] mx-auto">
+        <div className="overflow-hidden -my-8 py-8 -mx-6 px-6 md:-mx-12 md:px-12">
           <div
-            ref={testiScrollRef}
-            className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-8"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6"
+            style={{ transform: `translateX(calc(-${testiIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}
           >
-            {testimonials.map((testimonial, i) => (
-              <div key={i} className="snap-start min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 flex flex-col justify-between h-[280px] md:h-[260px] shrink-0">
-                <div>
-                  <div className="flex text-white mb-6">
-                    {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>))}
+            {testimonials.map((testimonial, i) => {
+              const isVisible = i >= testiIndex && i < testiIndex + itemsPerView;
+              return (
+                <div
+                  key={i}
+                  className={`snap-start w-[85vw] min-w-[85vw] md:w-[calc((100%-3rem)/3)] md:min-w-[calc((100%-3rem)/3)] bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                    isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                  }`}
+                >
+                  <div>
+                    <div className="flex text-white mb-6">
+                      {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>))}
+                    </div>
+                    <p className="text-zinc-300 text-sm md:text-base font-light leading-relaxed mb-8 line-clamp-4">"{testimonial.text}"</p>
                   </div>
-                  <p className="text-zinc-300 text-sm md:text-base font-light leading-relaxed mb-8 line-clamp-4">"{testimonial.text}"</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <img src={testimonial.img} alt={testimonial.author} className="w-10 h-10 rounded-full object-cover grayscale opacity-80" />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-white">{testimonial.author}</span>
-                    <span className="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">Cliente verificado <CheckIcon /></span>
+                  <div className="flex items-center gap-4">
+                    <img src={testimonial.img} alt={testimonial.author} className="w-10 h-10 rounded-full object-cover grayscale opacity-80" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-white">{testimonial.author}</span>
+                      <span className="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">Cliente verificado <CheckIcon /></span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
