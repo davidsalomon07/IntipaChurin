@@ -60,6 +60,14 @@ const testimonials = [
   { text: "Piezas minimalistas que combinan con todo. Definitivamente mis nuevos básicos para el día a día.", author: "Sofía C.", img: "https://placehold.co/100x100/1a1a1a/ffffff?text=SC" },
   { text: "Excelente atención al cliente y las prendas llegaron súper rápido. Volveré a comprar.", author: "Luis F.", img: "https://placehold.co/100x100/1a1a1a/ffffff?text=LF" },
 ];
+const categoryImages = {
+  hoodies: "/categorias/hoodies.png",
+  camisetas: "/categorias/camisetas.png",
+  pantalones: "/categorias/pantalones.png",
+  shorts: "/categorias/shorts.png",
+
+  // Agrega aquí más categorías mapeándolas con su ruta en public
+};
 
 const Home = () => {
   const navigate = useNavigate();
@@ -139,7 +147,7 @@ const Home = () => {
       <section className="pt-28 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
         <div className="relative w-full h-auto min-h-[75vh] md:h-[80vh] rounded-[2rem] overflow-hidden group border border-white/5 bg-[#0e1014]">
           <div className="flex flex-col md:flex-row w-full h-full">
-            
+
             {/* Columna Izquierda - Texto */}
             <div className="w-full md:w-[45%] h-full flex flex-col justify-center px-8 md:px-16 py-12 md:py-0 z-[2] order-2 md:order-1 relative">
               <span className="text-xs md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-white/70">
@@ -167,35 +175,35 @@ const Home = () => {
                 <div className="flex items-center gap-3 text-white/80">
                   <ShippingIcon />
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold">Envíos a todo el Perú</span>
+                    <span className="text-xs font-semibold">Envíos a todo Ecuador</span>
                   </div>
                 </div>
                 <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
                 <div className="flex items-center gap-3 text-white/80">
                   <ExchangeIcon />
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold">Cambios y<br/>devoluciones fáciles</span>
+                    <span className="text-xs font-semibold">Cambios y<br />devoluciones fáciles</span>
                   </div>
                 </div>
                 <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
                 <div className="flex items-center gap-3 text-white/80">
                   <LockIcon />
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold">Pago 100%<br/>seguro</span>
+                    <span className="text-xs font-semibold">Pago 100%<br />seguro</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Columna Derecha - Imagen */}
-            <div className="w-full md:w-[55%] h-[50vh] md:h-full relative order-1 md:order-2 overflow-hidden flex items-center justify-center bg-[#0a0a0a]">
+            <div className="w-full md:w-[55%] h-[50vh] md:h-full relative order-1 md:order-2 overflow-hidden flex items-center justify-center bg-[#0e1014]">
               {/* Marca de agua */}
               <div className="absolute inset-0 flex items-center justify-center z-[1] select-none pointer-events-none overflow-hidden">
                 <span className="text-[12rem] md:text-[20rem] font-bold text-white/[0.02] tracking-tighter leading-none whitespace-nowrap">
                   {heroImages[currentSlide].title}
                 </span>
               </div>
-              
+
               {heroImages.map((image, index) => (
                 <img
                   key={index}
@@ -240,27 +248,27 @@ const Home = () => {
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">Encuentra tu estilo</h2>
           </div>
           <div className="hidden md:flex gap-2">
-            <button onClick={() => setCatIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg></button>
-            <button onClick={() => { const limite = categoriasDB.length - itemsPerView; setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button onClick={() => setCatIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+            <button onClick={() => { const limite = categoriasDB.length - itemsPerView; setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
           </div>
         </div>
 
         <div className="overflow-hidden">
           {categoriasDB.length === 0 ? (
-             <div className="text-center text-zinc-500 py-10 w-full">
-               <p>Estamos preparando las colecciones para ti.</p>
-             </div>
+            <div className="text-center text-zinc-500 py-10 w-full">
+              <p>Estamos preparando las colecciones para ti.</p>
+            </div>
           ) : (
             <div className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" style={{ transform: `translateX(calc(-${catIndex * (100 / itemsPerView)}% - ${catIndex * 1.5}rem))` }}>
               {categoriasDB.map((cat) => (
-                <div key={cat.id} className="min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-[#141414] rounded-2xl border border-white/5 overflow-hidden flex flex-col relative shrink-0">
+                <div key={cat.id} className="min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-[#0e1014] rounded-3xl border border-white/5 overflow-hidden flex flex-col relative shrink-0">
                   <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
                     <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
                     <div className="w-8 h-[2px] bg-white/20 mb-6"></div>
                     <p className="text-sm text-zinc-400 max-w-[200px] mb-8 flex-grow">
                       {cat.name.toLowerCase() === 'hoodies' ? 'Comodidad y estilo en cada detalle. Perfectos para cualquier ocasión.' :
-                       cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
-                       'Diseño, funcionalidad y comodidad para tu día a día.'}
+                        cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
+                          'Diseño, funcionalidad y comodidad para tu día a día.'}
                     </p>
                     <div className="pb-8">
                       <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center gap-3 border border-white/20 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
@@ -269,7 +277,11 @@ const Home = () => {
                     </div>
                   </div>
                   <div className="absolute top-0 right-0 w-[60%] h-full flex items-center justify-end overflow-hidden pointer-events-none opacity-80">
-                     <img src={`https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`} className="w-full h-full object-cover translate-x-[10%]" alt={cat.name} />
+                    <img
+                      src={categoryImages[cat.name.toLowerCase()] || `https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`}
+                      className="w-full h-full object-cover translate-x-[10%]"
+                      alt={cat.name}
+                    />
                   </div>
                 </div>
               ))}
@@ -291,8 +303,8 @@ const Home = () => {
               Ver catálogo completo <ArrowRightIcon />
             </Link>
             <div className="hidden md:flex gap-2">
-              <button className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg></button>
-              <button className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg></button>
+              <button className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+              <button className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
             </div>
           </div>
         </div>
@@ -300,7 +312,7 @@ const Home = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {isLoading ? (
             <div className="col-span-full py-12 flex justify-center text-zinc-400">
-               <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             </div>
           ) : productosDestacados.length === 0 ? (
             <div className="col-span-full py-12 text-center text-zinc-500"><p>Próximamente nuevos ingresos.</p></div>
@@ -309,7 +321,7 @@ const Home = () => {
               <div key={producto.id} className="group cursor-pointer flex flex-col bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/10 transition-colors" onClick={() => navigate(`/shop/producto/${producto.id}`)}>
                 <div className="w-full aspect-[4/5] relative bg-[#1a1a1a] overflow-hidden flex items-center justify-center">
                   <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
-                  
+
                   {/* Favoritos */}
                   <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
@@ -340,14 +352,14 @@ const Home = () => {
         <div className="bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-white/5">
           <div className="w-full md:w-1/2 p-10 md:p-20 flex flex-col justify-center order-2 md:order-1">
             <div className="inline-flex items-center gap-2 border border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
-               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h9.04"/><path d="M11 2v9"/></svg>
-               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h9.04" /><path d="M11 2v9" /></svg>
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
             </div>
-            
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight text-white">Trazabilidad &<br/>Minimalismo</h2>
+
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight text-white">Trazabilidad &<br />Minimalismo</h2>
             <div className="w-12 h-[2px] bg-white/20 mb-6"></div>
             <p className="text-zinc-400 mb-10 leading-relaxed max-w-md text-sm md:text-base">Descubre nuestra primera línea de prendas estructuradas. Diseñadas en Quito, pensadas para adaptarse a cualquier estilo de vida sin perder la esencia.</p>
-            
+
             <div className="mb-16">
               <Link to="/lookbook" className="inline-flex items-center gap-3 bg-white text-black px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-colors">
                 Ver Lookbook <ArrowRightIcon />
@@ -357,19 +369,19 @@ const Home = () => {
             <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/10">
               <div className="flex items-start gap-3">
                 <div className="text-zinc-400"><LeafIcon /></div>
-                <span className="text-xs text-zinc-400 leading-tight">Materiales<br/>premium</span>
+                <span className="text-xs text-zinc-400 leading-tight">Materiales<br />premium</span>
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-zinc-400"><TargetIcon /></div>
-                <span className="text-xs text-zinc-400 leading-tight">Diseño<br/>atemporal</span>
+                <span className="text-xs text-zinc-400 leading-tight">Diseño<br />atemporal</span>
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-zinc-400"><ShirtIcon /></div>
-                <span className="text-xs text-zinc-400 leading-tight">Hecho en<br/>Ecuador</span>
+                <span className="text-xs text-zinc-400 leading-tight">Hecho en<br />Ecuador</span>
               </div>
             </div>
           </div>
-          
+
           <div className="w-full md:w-1/2 h-[50vh] md:h-auto relative order-1 md:order-2 bg-[#1a1a1a]">
             <img src="/carrusel/heo3.jpg" className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-lighten" alt="Lanzamiento" />
           </div>
@@ -385,22 +397,22 @@ const Home = () => {
             <p className="text-zinc-400 text-sm md:text-base max-w-xl">Miles de personas ya forman parte de Intipa Churin. Esto es lo que opinan sobre nuestra calidad y diseño.</p>
           </div>
           <div className="hidden md:flex gap-2">
-            <button onClick={scrollTestimonialsLeft} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg></button>
-            <button onClick={scrollTestimonialsRight} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button onClick={scrollTestimonialsLeft} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+            <button onClick={scrollTestimonialsRight} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
           </div>
         </div>
 
         <div className="relative max-w-[1200px] mx-auto">
-          <div 
+          <div
             ref={testiScrollRef}
-            className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-8" 
+            className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-8"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {testimonials.map((testimonial, i) => (
               <div key={i} className="snap-start min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] bg-[#0e1014] p-6 md:p-8 rounded-2xl border border-white/5 flex flex-col justify-between h-[280px] md:h-[260px] shrink-0">
                 <div>
                   <div className="flex text-white mb-6">
-                    {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>))}
+                    {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>))}
                   </div>
                   <p className="text-zinc-300 text-sm md:text-base font-light leading-relaxed mb-8 line-clamp-4">"{testimonial.text}"</p>
                 </div>
