@@ -75,6 +75,7 @@ const Home = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const itemsPerView = 3;
+  const prodItemsPerView = 4;
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imgErrors, setImgErrors] = useState({});
@@ -83,6 +84,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [catIndex, setCatIndex] = useState(0);
   const [testiIndex, setTestiIndex] = useState(0);
+  const [prodIndex, setProdIndex] = useState(0);
 
   const intervalRef = useRef(null);
 
@@ -279,6 +281,102 @@ const Home = () => {
     }
   };
 
+  // Lógica de arrastre y trackpad para carrusel de productos (Nuevos Esenciales)
+  const [prodDragOffset, setProdDragOffset] = useState(0);
+  const [isProdDragging, setIsProdDragging] = useState(false);
+  const prodTouchStartRef = useRef(null);
+  const prodContainerRef = useRef(null);
+
+  const handleProdDragStart = (clientX) => {
+    prodTouchStartRef.current = clientX;
+    setIsProdDragging(true);
+  };
+
+  const handleProdDragMove = (clientX) => {
+    if (!isProdDragging || prodTouchStartRef.current === null) return;
+    let offset = clientX - prodTouchStartRef.current;
+    
+    const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+    const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
+    
+    // Bounds físicos reales del contenedor completo
+    const maxDragRight = prodIndex * stepSize;
+    const maxDragLeft = -(limite - prodIndex) * stepSize;
+    
+    if (offset > maxDragRight) offset = maxDragRight;
+    if (offset < maxDragLeft) offset = maxDragLeft;
+    
+    setProdDragOffset(offset);
+  };
+
+  const handleProdDragEnd = () => {
+    if (!isProdDragging || prodTouchStartRef.current === null) return;
+    setIsProdDragging(false);
+    
+    const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+    const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
+    
+    // Calcular cuántos pasos completos hemos arrastrado
+    let steps = Math.round(-prodDragOffset / stepSize);
+    
+    // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
+    if (steps === 0) {
+      if (prodDragOffset < -minSwipeDistance) steps = 1;
+      if (prodDragOffset > minSwipeDistance) steps = -1;
+    }
+    
+    setProdIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+    setProdDragOffset(0);
+    prodTouchStartRef.current = null;
+  };
+
+  const onProdTouchStart = (e) => handleProdDragStart(e.targetTouches[0].clientX);
+  const onProdTouchMove = (e) => handleProdDragMove(e.targetTouches[0].clientX);
+  const onProdTouchEnd = () => handleProdDragEnd();
+
+  const onProdMouseDown = (e) => handleProdDragStart(e.clientX);
+  const onProdMouseMove = (e) => handleProdDragMove(e.clientX);
+  const onProdMouseUp = () => handleProdDragEnd();
+  const onProdMouseLeave = () => { if (isProdDragging) handleProdDragEnd(); };
+
+  const prodWheelAccumulator = useRef(0);
+  const prodWheelTimeout = useRef(null);
+
+  const onProdWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      setIsProdDragging(true);
+      
+      let newOffset = prodWheelAccumulator.current - e.deltaX;
+      
+      const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+      const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
+      
+      const maxDragRight = prodIndex * stepSize;
+      const maxDragLeft = -(limite - prodIndex) * stepSize;
+      
+      if (newOffset > maxDragRight) newOffset = maxDragRight;
+      if (newOffset < maxDragLeft) newOffset = maxDragLeft;
+      
+      prodWheelAccumulator.current = newOffset;
+      setProdDragOffset(prodWheelAccumulator.current);
+
+      if (prodWheelTimeout.current) clearTimeout(prodWheelTimeout.current);
+      
+      prodWheelTimeout.current = setTimeout(() => {
+        setIsProdDragging(false);
+        const distance = prodWheelAccumulator.current;
+        let steps = Math.round(-distance / stepSize);
+        if (steps === 0) {
+          if (distance < -minSwipeDistance) steps = 1;
+          if (distance > minSwipeDistance) steps = -1;
+        }
+        setProdIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+        setProdDragOffset(0);
+        prodWheelAccumulator.current = 0;
+      }, 600);
+    }
+  };
+
   const startAutoPlay = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
@@ -305,7 +403,7 @@ const Home = () => {
         ]);
         if (resProductos.ok) {
           const dataProductos = await resProductos.json();
-          setProductosDestacados(dataProductos.slice(0, 4));
+          setProductosDestacados(dataProductos.slice(0, 8));
         }
         if (resCategorias.ok) {
           const dataCategorias = await resCategorias.json();
@@ -536,13 +634,13 @@ const Home = () => {
               Ver catálogo completo <ArrowRightIcon />
             </Link>
             <div className="hidden md:flex gap-2">
-              <button className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
-              <button className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
+              <button onClick={() => setProdIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+              <button onClick={() => { const limite = productosDestacados.length - prodItemsPerView; setProdIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="overflow-hidden -my-24 py-24 -mx-6 px-6 md:-mx-12 md:px-12">
           {isLoading ? (
             <div className="col-span-full py-12 flex justify-center text-zinc-400">
               <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -550,32 +648,83 @@ const Home = () => {
           ) : productosDestacados.length === 0 ? (
             <div className="col-span-full py-12 text-center text-zinc-500"><p>Próximamente nuevos ingresos.</p></div>
           ) : (
-            productosDestacados.map((producto) => (
-              <div key={producto.id} className="group cursor-pointer flex flex-col bg-[#0e1014] rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_24px_60px_rgba(0,0,0,0.6)] hover:-translate-y-1" onClick={() => navigate(`/shop/producto/${producto.id}`)}>
-                <div className="w-full aspect-[4/5] relative bg-[#0e1014] overflow-hidden flex items-center justify-center">
-                  <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
+            <div
+              ref={prodContainerRef}
+              className={`flex w-full ${isProdDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`}
+              style={{ transform: `translateX(calc(-${prodIndex} * (100% + 1.5rem) / ${prodItemsPerView} + ${prodDragOffset}px))` }}
+              onTouchStart={onProdTouchStart}
+              onTouchMove={onProdTouchMove}
+              onTouchEnd={onProdTouchEnd}
+              onMouseDown={onProdMouseDown}
+              onMouseMove={onProdMouseMove}
+              onMouseUp={onProdMouseUp}
+              onMouseLeave={onProdMouseLeave}
+              onWheel={onProdWheel}
+            >
+              {productosDestacados.map((producto, index) => {
+                const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+                const floatIndex = prodIndex - (prodDragOffset / stepSize);
+                
+                const distFromLeft = index - floatIndex;
+                const distFromRight = (floatIndex + prodItemsPerView - 1) - index;
+                
+                let progress = 1;
+                if (distFromLeft < 0) {
+                   progress = 1 + distFromLeft;
+                } else if (distFromRight < 0) {
+                   progress = 1 + distFromRight;
+                }
+                progress = Math.min(1, Math.max(0, progress));
+                
+                let opacityClass = "opacity-0 scale-95 pointer-events-none";
+                let dynamicStyle = {};
 
-                  {/* Favoritos */}
-                  <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleWishlist(producto); }}
-                      className="w-8 h-8 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-md text-white hover:bg-black/80 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={isInWishlist(producto.id) ? "white" : "none"} stroke="white" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                    </button>
+                if (progress < 1 && progress > 0) {
+                   dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                } else if (progress === 1) {
+                   opacityClass = "opacity-100 scale-100";
+                   if (!(index >= prodIndex && index < prodIndex + prodItemsPerView)) {
+                     dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                   }
+                } else {
+                   if (index >= prodIndex && index < prodIndex + prodItemsPerView) {
+                     dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                   }
+                }
+
+                return (
+                  <div
+                    key={producto.id}
+                    style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
+                    className={`product-card-item group cursor-pointer flex flex-col bg-[#0e1014] rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-300 hover:-translate-y-1'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''} shadow-[0_24px_60px_rgba(0,0,0,0.6)]`}
+                    onClick={() => navigate(`/shop/producto/${producto.id}`)}
+                  >
+                    <div className="w-full aspect-[4/5] relative bg-[#0e1014] overflow-hidden flex items-center justify-center">
+                      <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
+
+                      {/* Favoritos */}
+                      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleWishlist(producto); }}
+                          className="w-8 h-8 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-md text-white hover:bg-black/80 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={isInWishlist(producto.id) ? "white" : "none"} stroke="white" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-5 flex justify-between items-end">
+                      <div>
+                        <h3 className="text-sm font-semibold text-white mb-1 truncate">{producto.name}</h3>
+                        <p className="text-sm text-zinc-400">S/ {parseFloat(producto.price).toFixed(2)}</p>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors border border-white/5">
+                        <BagIcon />
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="p-5 flex justify-between items-end">
-                  <div>
-                    <h3 className="text-sm font-semibold text-white mb-1 truncate">{producto.name}</h3>
-                    <p className="text-sm text-zinc-400">S/ {parseFloat(producto.price).toFixed(2)}</p>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors border border-white/5">
-                    <BagIcon />
-                  </button>
-                </div>
-              </div>
-            ))
+                );
+              })}
+            </div>
           )}
         </div>
       </section>

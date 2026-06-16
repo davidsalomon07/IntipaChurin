@@ -155,4 +155,18 @@ picture {
     width: calc((100% - 3rem) / 3);
     min-width: calc((100% - 3rem) / 3);
   }
+}
+
+/* Item de productos destacado con 4 columnas en desktop */
+.product-card-item {
+  width: 85vw;
+  min-width: 85vw;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .product-card-item {
+    width: calc((100% - 4.5rem) / 4);
+    min-width: calc((100% - 4.5rem) / 4);
+  }
 }
