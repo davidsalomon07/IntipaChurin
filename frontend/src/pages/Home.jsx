@@ -87,48 +87,195 @@ const Home = () => {
   const intervalRef = useRef(null);
 
   // Lógica de arrastre y trackpad para carrusel de categorías
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-  const wheelTimeout = useRef(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartRef = useRef(null);
+  const containerRef = useRef(null);
   const minSwipeDistance = 50;
 
-  const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+  const handleDragStart = (clientX) => {
+    touchStartRef.current = clientX;
+    setIsDragging(true);
   };
 
-  const onTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
+  const handleDragMove = (clientX) => {
+    if (!isDragging || touchStartRef.current === null) return;
+    let offset = clientX - touchStartRef.current;
     
-    if (isLeftSwipe) {
-      const limite = categoriasDB.length - itemsPerView;
-      setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1));
-    } else if (isRightSwipe) {
-      setCatIndex(prev => Math.max(0, prev - 1));
+    const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, categoriasDB.length - itemsPerView);
+    
+    // Bounds físicos reales del contenedor completo
+    const maxDragRight = catIndex * stepSize;
+    const maxDragLeft = -(limite - catIndex) * stepSize;
+    
+    if (offset > maxDragRight) offset = maxDragRight;
+    if (offset < maxDragLeft) offset = maxDragLeft;
+    
+    setDragOffset(offset);
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging || touchStartRef.current === null) return;
+    setIsDragging(false);
+    
+    const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, categoriasDB.length - itemsPerView);
+    
+    // Calcular cuántos pasos completos hemos arrastrado
+    let steps = Math.round(-dragOffset / stepSize);
+    
+    // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
+    if (steps === 0) {
+      if (dragOffset < -minSwipeDistance) steps = 1;
+      if (dragOffset > minSwipeDistance) steps = -1;
+    }
+    
+    setCatIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+    setDragOffset(0);
+    touchStartRef.current = null;
+  };
+
+  const onTouchStart = (e) => handleDragStart(e.targetTouches[0].clientX);
+  const onTouchMove = (e) => handleDragMove(e.targetTouches[0].clientX);
+  const onTouchEnd = () => handleDragEnd();
+
+  const onMouseDown = (e) => handleDragStart(e.clientX);
+  const onMouseMove = (e) => handleDragMove(e.clientX);
+  const onMouseUp = () => handleDragEnd();
+  const onMouseLeave = () => { if (isDragging) handleDragEnd(); };
+
+  const wheelAccumulator = useRef(0);
+  const wheelTimeout = useRef(null);
+
+  const onWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      setIsDragging(true);
+      
+      let newOffset = wheelAccumulator.current - e.deltaX;
+      
+      const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+      const limite = Math.max(0, categoriasDB.length - itemsPerView);
+      
+      const maxDragRight = catIndex * stepSize;
+      const maxDragLeft = -(limite - catIndex) * stepSize;
+      
+      if (newOffset > maxDragRight) newOffset = maxDragRight;
+      if (newOffset < maxDragLeft) newOffset = maxDragLeft;
+      
+      wheelAccumulator.current = newOffset;
+      setDragOffset(wheelAccumulator.current);
+
+      if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
+      
+      wheelTimeout.current = setTimeout(() => {
+        setIsDragging(false);
+        const distance = wheelAccumulator.current;
+        let steps = Math.round(-distance / stepSize);
+        if (steps === 0) {
+          if (distance < -minSwipeDistance) steps = 1;
+          if (distance > minSwipeDistance) steps = -1;
+        }
+        setCatIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+        setDragOffset(0);
+        wheelAccumulator.current = 0;
+      }, 600);
     }
   };
 
-  const onWheel = (e) => {
-    // Si el scroll horizontal es dominante
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 15) {
-      if (!wheelTimeout.current) {
-        if (e.deltaX > 0) {
-          const limite = categoriasDB.length - itemsPerView;
-          setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1));
-        } else {
-          setCatIndex(prev => Math.max(0, prev - 1));
+  // Lógica de arrastre y trackpad para carrusel de testimonios
+  const [testiDragOffset, setTestiDragOffset] = useState(0);
+  const [isTestiDragging, setIsTestiDragging] = useState(false);
+  const testiTouchStartRef = useRef(null);
+  const testiContainerRef = useRef(null);
+
+  const handleTestiDragStart = (clientX) => {
+    testiTouchStartRef.current = clientX;
+    setIsTestiDragging(true);
+  };
+
+  const handleTestiDragMove = (clientX) => {
+    if (!isTestiDragging || testiTouchStartRef.current === null) return;
+    let offset = clientX - testiTouchStartRef.current;
+    
+    const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, testimonials.length - itemsPerView);
+    
+    // Bounds físicos reales del contenedor completo
+    const maxDragRight = testiIndex * stepSize;
+    const maxDragLeft = -(limite - testiIndex) * stepSize;
+    
+    if (offset > maxDragRight) offset = maxDragRight;
+    if (offset < maxDragLeft) offset = maxDragLeft;
+    
+    setTestiDragOffset(offset);
+  };
+
+  const handleTestiDragEnd = () => {
+    if (!isTestiDragging || testiTouchStartRef.current === null) return;
+    setIsTestiDragging(false);
+    
+    const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, testimonials.length - itemsPerView);
+    
+    // Calcular cuántos pasos completos hemos arrastrado
+    let steps = Math.round(-testiDragOffset / stepSize);
+    
+    // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
+    if (steps === 0) {
+      if (testiDragOffset < -minSwipeDistance) steps = 1;
+      if (testiDragOffset > minSwipeDistance) steps = -1;
+    }
+    
+    setTestiIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+    setTestiDragOffset(0);
+    testiTouchStartRef.current = null;
+  };
+
+  const onTestiTouchStart = (e) => handleTestiDragStart(e.targetTouches[0].clientX);
+  const onTestiTouchMove = (e) => handleTestiDragMove(e.targetTouches[0].clientX);
+  const onTestiTouchEnd = () => handleTestiDragEnd();
+
+  const onTestiMouseDown = (e) => handleTestiDragStart(e.clientX);
+  const onTestiMouseMove = (e) => handleTestiDragMove(e.clientX);
+  const onTestiMouseUp = () => handleTestiDragEnd();
+  const onTestiMouseLeave = () => { if (isTestiDragging) handleTestiDragEnd(); };
+
+  const testiWheelAccumulator = useRef(0);
+  const testiWheelTimeout = useRef(null);
+
+  const onTestiWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      setIsTestiDragging(true);
+      
+      let newOffset = testiWheelAccumulator.current - e.deltaX;
+      
+      const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+      const limite = Math.max(0, testimonials.length - itemsPerView);
+      
+      const maxDragRight = testiIndex * stepSize;
+      const maxDragLeft = -(limite - testiIndex) * stepSize;
+      
+      if (newOffset > maxDragRight) newOffset = maxDragRight;
+      if (newOffset < maxDragLeft) newOffset = maxDragLeft;
+      
+      testiWheelAccumulator.current = newOffset;
+      setTestiDragOffset(testiWheelAccumulator.current);
+
+      if (testiWheelTimeout.current) clearTimeout(testiWheelTimeout.current);
+      
+      testiWheelTimeout.current = setTimeout(() => {
+        setIsTestiDragging(false);
+        const distance = testiWheelAccumulator.current;
+        let steps = Math.round(-distance / stepSize);
+        if (steps === 0) {
+          if (distance < -minSwipeDistance) steps = 1;
+          if (distance > minSwipeDistance) steps = -1;
         }
-        wheelTimeout.current = setTimeout(() => {
-          wheelTimeout.current = null;
-        }, 400);
-      }
+        setTestiIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+        setTestiDragOffset(0);
+        testiWheelAccumulator.current = 0;
+      }, 600);
     }
   };
 
@@ -298,19 +445,54 @@ const Home = () => {
             </div>
           ) : (
             <div 
-              className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" 
-              style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}
+              ref={containerRef}
+              className={`flex w-full ${isDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`} 
+              style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView} + ${dragOffset}px))` }}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseLeave}
               onWheel={onWheel}
             >
               {categoriasDB.map((cat, index) => {
-                const isVisible = index >= catIndex && index < catIndex + itemsPerView;
+                const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+                const floatIndex = catIndex - (dragOffset / stepSize);
+                
+                const distFromLeft = index - floatIndex;
+                const distFromRight = (floatIndex + itemsPerView - 1) - index;
+                
+                let progress = 1;
+                if (distFromLeft < 0) {
+                   progress = 1 + distFromLeft;
+                } else if (distFromRight < 0) {
+                   progress = 1 + distFromRight;
+                }
+                progress = Math.min(1, Math.max(0, progress));
+                
+                let opacityClass = "opacity-0 scale-95 pointer-events-none";
+                let dynamicStyle = {};
+
+                if (progress < 1 && progress > 0) {
+                   dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                } else if (progress === 1) {
+                   opacityClass = "opacity-100 scale-100";
+                   if (!(index >= catIndex && index < catIndex + itemsPerView)) {
+                     dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                   }
+                } else {
+                   if (index >= catIndex && index < catIndex + itemsPerView) {
+                     dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                   }
+                }
+
                 return (
                   <div
                     key={cat.id}
-                    className={`min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] shrink-0 relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
+                    style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
+                    className={`carousel-card-item relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
                   >
                     <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
                       <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
@@ -454,16 +636,54 @@ const Home = () => {
 
         <div className="overflow-hidden -my-8 py-8 -mx-6 px-6 md:-mx-12 md:px-12">
           <div
-            className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6"
-            style={{ transform: `translateX(calc(-${testiIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}
+            ref={testiContainerRef}
+            className={`flex w-full ${isTestiDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`}
+            style={{ transform: `translateX(calc(-${testiIndex} * (100% + 1.5rem) / ${itemsPerView} + ${testiDragOffset}px))` }}
+            onTouchStart={onTestiTouchStart}
+            onTouchMove={onTestiTouchMove}
+            onTouchEnd={onTestiTouchEnd}
+            onMouseDown={onTestiMouseDown}
+            onMouseMove={onTestiMouseMove}
+            onMouseUp={onTestiMouseUp}
+            onMouseLeave={onTestiMouseLeave}
+            onWheel={onTestiWheel}
           >
             {testimonials.map((testimonial, i) => {
-              const isVisible = i >= testiIndex && i < testiIndex + itemsPerView;
+              const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+              const floatIndex = testiIndex - (testiDragOffset / stepSize);
+              
+              const distFromLeft = i - floatIndex;
+              const distFromRight = (floatIndex + itemsPerView - 1) - i;
+              
+              let progress = 1;
+              if (distFromLeft < 0) {
+                 progress = 1 + distFromLeft;
+              } else if (distFromRight < 0) {
+                 progress = 1 + distFromRight;
+              }
+              progress = Math.min(1, Math.max(0, progress));
+              
+              let opacityClass = "opacity-0 scale-95 pointer-events-none";
+              let dynamicStyle = {};
+
+              if (progress < 1 && progress > 0) {
+                 dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+              } else if (progress === 1) {
+                 opacityClass = "opacity-100 scale-100";
+                 if (!(i >= testiIndex && i < testiIndex + itemsPerView)) {
+                   dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                 }
+              } else {
+                 if (i >= testiIndex && i < testiIndex + itemsPerView) {
+                   dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                 }
+              }
+
               return (
                 <div
                   key={i}
-                  className={`snap-start w-[85vw] min-w-[85vw] md:w-[calc((100%-3rem)/3)] md:min-w-[calc((100%-3rem)/3)] bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                    }`}
+                  style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
+                  className={`snap-start carousel-card-item bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
                 >
                   <div>
                     <div className="flex text-white mb-6">

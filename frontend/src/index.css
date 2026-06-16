@@ -141,4 +141,18 @@ picture {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Item del carrusel con ancho responsivo y alineación simétrica perfecta */
+.carousel-card-item {
+  width: 85vw;
+  min-width: 85vw;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .carousel-card-item {
+    width: calc((100% - 3rem) / 3);
+    min-width: calc((100% - 3rem) / 3);
+  }
 }
