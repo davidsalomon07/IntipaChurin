@@ -42,9 +42,8 @@ body::before {
 }
 
 html.dark body::before {
-  /* background-image: url("/modo oscuro.png") !important; */
-  background-image: none !important;
-  opacity: 0.02 !important;
+  background-image: url("/modo oscuro.png") !important;
+  opacity: 0.01 !important;
   /* Habilita la imagen de fondo en modo oscuro */
 }
 
@@ -55,8 +54,7 @@ html.dark body::before {
   }
 
   html.dark body::before {
-    /* background-image: url("/modo oscuro movil.png") !important; */
-    background-image: none !important;
+    background-image: url("/modo oscuro movil.png") !important;
   }
 }
 
@@ -138,6 +136,7 @@ picture {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -169,4 +168,4 @@ picture {
     width: calc((100% - 4.5rem) / 4);
     min-width: calc((100% - 4.5rem) / 4);
   }
-}
+}

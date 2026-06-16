@@ -428,54 +428,54 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen text-zinc-50 font-sans selection:bg-zinc-800 transition-colors duration-300 relative">
+    <div className="bg-[#FCFCFC] dark:bg-[#0a0a0a] min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 transition-colors duration-300 relative">
       <Navbar />
 
       {/* HERO SECTION - SPLIT LAYOUT */}
       <section className="pt-28 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="relative w-full h-auto min-h-[75vh] md:h-[80vh] rounded-[2rem] overflow-hidden group border border-white/10 bg-[#0e1014] shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+        <div className="relative w-full h-auto min-h-[75vh] md:h-[80vh] rounded-[2rem] overflow-hidden group border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0e1014] shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
           <div className="flex flex-col md:flex-row w-full h-full">
 
             {/* Columna Izquierda - Texto */}
             <div className="w-full md:w-[45%] h-full flex flex-col justify-center px-8 md:px-16 py-12 md:py-0 z-[2] order-2 md:order-1 relative">
               <div className="w-full max-w-md mx-auto">
-                <span className="text-xs md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-white/70 block">
+                <span className="text-xs md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-zinc-500 dark:text-white/70 block">
                   Colección Esencial 2026
                 </span>
-                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-white leading-tight">
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-zinc-900 dark:text-white leading-tight">
                   Define tu estilo.
                 </h1>
-                <div className="w-16 h-[2px] bg-white/20 mb-6"></div>
-                <p className="text-sm md:text-base font-light mb-10 text-white/60 leading-relaxed">
+                <div className="w-16 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+                <p className="text-sm md:text-base font-light mb-10 text-zinc-600 dark:text-white/60 leading-relaxed">
                   Siluetas modernas y versátiles. Diseñadas sin distinciones de
                   género para una comodidad absoluta y expresión libre.
                 </p>
                 <div>
                   <Link
                     to="/shop"
-                    className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-all duration-300"
+                    className="inline-flex items-center gap-3 bg-zinc-900 text-white dark:bg-white dark:text-black px-8 py-4 rounded-full text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-300"
                   >
                     Explorar colección <ArrowRightIcon />
                   </Link>
                 </div>
 
                 {/* Beneficios en Hero */}
-                <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-6 sm:gap-4 justify-between items-start sm:items-center">
-                  <div className="flex items-center gap-3 text-white/80">
+                <div className="mt-16 pt-8 border-t border-zinc-200 dark:border-white/10 flex flex-col sm:flex-row gap-6 sm:gap-4 justify-between items-start sm:items-center">
+                  <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
                     <ShippingIcon />
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold">Envíos a todo Ecuador</span>
                     </div>
                   </div>
-                  <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
-                  <div className="flex items-center gap-3 text-white/80">
+                  <div className="hidden sm:block w-[1px] h-8 bg-zinc-200 dark:bg-white/10"></div>
+                  <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
                     <ExchangeIcon />
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold">Cambios y<br />devoluciones fáciles</span>
                     </div>
                   </div>
-                  <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
-                  <div className="flex items-center gap-3 text-white/80">
+                  <div className="hidden sm:block w-[1px] h-8 bg-zinc-200 dark:bg-white/10"></div>
+                  <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
                     <LockIcon />
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold">Pago 100%<br />seguro</span>
@@ -486,7 +486,7 @@ const Home = () => {
             </div>
 
             {/* Columna Derecha - Imagen */}
-            <div className="w-full md:w-[55%] h-[50vh] md:h-full relative order-1 md:order-2 overflow-hidden flex items-center justify-center bg-[#0e1014]">
+            <div className="w-full md:w-[55%] h-[50vh] md:h-full relative order-1 md:order-2 overflow-hidden flex items-center justify-center bg-zinc-50 dark:bg-[#0e1014]">
               {heroImages.map((image, index) => (
                 <img
                   key={index}
@@ -513,8 +513,8 @@ const Home = () => {
                 className={`
                   rounded-full transition-all duration-500 ease-in-out
                   ${index === currentSlide
-                    ? 'bg-white w-8 h-1.5'
-                    : 'bg-white/30 w-1.5 h-1.5 hover:bg-white/60'
+                    ? 'bg-zinc-900 dark:bg-white w-8 h-1.5'
+                    : 'bg-zinc-300 dark:bg-white/30 w-1.5 h-1.5 hover:bg-zinc-400 dark:hover:bg-white/60'
                   }
                 `}
               />
@@ -528,11 +528,11 @@ const Home = () => {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div>
             <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-3 block">COMPRAR POR CATEGORÍA</span>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">Encuentra tu estilo</h2>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white mb-4">Encuentra tu estilo</h2>
           </div>
           <div className="hidden md:flex gap-2">
-            <button onClick={() => setCatIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
-            <button onClick={() => { const limite = categoriasDB.length - itemsPerView; setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
+            <button onClick={() => setCatIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+            <button onClick={() => { const limite = categoriasDB.length - itemsPerView; setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
           </div>
         </div>
 
@@ -590,18 +590,18 @@ const Home = () => {
                   <div
                     key={cat.id}
                     style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
-                    className={`carousel-card-item relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
+                    className={`carousel-card-item relative shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-white dark:bg-[#0e1014] rounded-3xl border border-zinc-200 dark:border-white/10 overflow-hidden flex flex-col transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
                   >
                     <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
-                      <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
-                      <div className="w-8 h-[2px] bg-white/20 mb-6"></div>
-                      <p className="text-sm text-zinc-400 max-w-[200px] mb-8 flex-grow">
+                      <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4">{cat.name}</h3>
+                      <div className="w-8 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-[200px] mb-8 flex-grow">
                         {cat.name.toLowerCase() === 'hoodies' ? 'Comodidad y estilo en cada detalle. Perfectos para cualquier ocasión.' :
                           cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
                             'Diseño, funcionalidad y comodidad para tu día a día.'}
                       </p>
                       <div className="pb-8">
-                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center gap-3 border border-white/20 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
+                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center gap-3 border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors">
                           Ver {cat.name} <ArrowRightIcon />
                         </Link>
                       </div>
@@ -626,16 +626,16 @@ const Home = () => {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div>
             <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-3 block">SELECCIÓN INICIAL</span>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">Nuevos esenciales.</h2>
-            <p className="text-zinc-400 text-sm md:text-base max-w-xl">Piezas clave que definen tu estilo. Descubre lo más nuevo de la colección.</p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white mb-4">Nuevos esenciales.</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base max-w-xl">Piezas clave que definen tu estilo. Descubre lo más nuevo de la colección.</p>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/shop" className="border border-white/20 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-white/10 transition-colors flex items-center gap-2">
+            <Link to="/shop" className="border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors flex items-center gap-2">
               Ver catálogo completo <ArrowRightIcon />
             </Link>
             <div className="hidden md:flex gap-2">
-              <button onClick={() => setProdIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
-              <button onClick={() => { const limite = productosDestacados.length - prodItemsPerView; setProdIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
+              <button onClick={() => setProdIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+              <button onClick={() => { const limite = productosDestacados.length - prodItemsPerView; setProdIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
             </div>
           </div>
         </div>
@@ -696,10 +696,10 @@ const Home = () => {
                   <div
                     key={producto.id}
                     style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
-                    className={`product-card-item group cursor-pointer flex flex-col bg-[#0e1014] rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-300 hover:-translate-y-1'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''} shadow-[0_24px_60px_rgba(0,0,0,0.6)]`}
+                    className={`product-card-item group cursor-pointer flex flex-col bg-white dark:bg-[#0e1014] rounded-3xl overflow-hidden border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-300 hover:-translate-y-1'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''} shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]`}
                     onClick={() => navigate(`/shop/producto/${producto.id}`)}
                   >
-                    <div className="w-full aspect-[4/5] relative bg-[#0e1014] overflow-hidden flex items-center justify-center">
+                    <div className="w-full aspect-[4/5] relative bg-zinc-50 dark:bg-[#0e1014] overflow-hidden flex items-center justify-center">
                       <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
 
                       {/* Favoritos */}
@@ -714,10 +714,10 @@ const Home = () => {
                     </div>
                     <div className="p-5 flex justify-between items-end">
                       <div>
-                        <h3 className="text-sm font-semibold text-white mb-1 truncate">{producto.name}</h3>
-                        <p className="text-sm text-zinc-400">S/ {parseFloat(producto.price).toFixed(2)}</p>
+                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1 truncate">{producto.name}</h3>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">S/ {parseFloat(producto.price).toFixed(2)}</p>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors border border-white/5">
+                      <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }} className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 flex items-center justify-center text-zinc-800 dark:text-white transition-colors border border-zinc-200 dark:border-white/5">
                         <BagIcon />
                       </button>
                     </div>
@@ -731,39 +731,39 @@ const Home = () => {
 
       {/* --- LANZAMIENTO EXCLUSIVO --- */}
       <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+        <div className="bg-white dark:bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-zinc-200 dark:border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
           <div className="w-full md:w-[38%] pt-8 pb-8 pl-8 pr-4 md:py-16 md:pl-16 md:pr-8 flex flex-col justify-center order-2 md:order-1">
-            <div className="inline-flex items-center gap-2 border border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
+            <div className="inline-flex items-center gap-2 border border-zinc-200 dark:border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 dark:text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
             </div>
 
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight text-white">Trazabilidad &<br />Minimalismo</h2>
-            <div className="w-12 h-[2px] bg-white/20 mb-6"></div>
-            <p className="text-zinc-400 mb-10 leading-relaxed max-w-md text-sm md:text-base">Descubre nuestra primera línea de prendas estructuradas. Diseñadas en Quito, pensadas para adaptarse a cualquier estilo de vida sin perder la esencia.</p>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight text-zinc-900 dark:text-white">Trazabilidad &<br />Minimalismo</h2>
+            <div className="w-12 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed max-w-md text-sm md:text-base">Descubre nuestra primera línea de prendas estructuradas. Diseñadas en Quito, pensadas para adaptarse a cualquier estilo de vida sin perder la esencia.</p>
 
             <div className="mb-16">
-              <Link to="/lookbook" className="inline-flex items-center gap-3 bg-white text-black px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-colors">
+              <Link to="/lookbook" className="inline-flex items-center gap-3 bg-zinc-900 text-white dark:bg-white dark:text-black px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
                 Ver Lookbook <ArrowRightIcon />
               </Link>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/10">
+            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-zinc-200 dark:border-white/10">
               <div className="flex items-start gap-3">
-                <div className="text-zinc-400"><LeafIcon /></div>
-                <span className="text-xs text-zinc-400 leading-tight">Materiales<br />premium</span>
+                <div className="text-zinc-500 dark:text-zinc-400"><LeafIcon /></div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Materiales<br />premium</span>
               </div>
               <div className="flex items-start gap-3">
-                <div className="text-zinc-400"><TargetIcon /></div>
-                <span className="text-xs text-zinc-400 leading-tight">Diseño<br />atemporal</span>
+                <div className="text-zinc-500 dark:text-zinc-400"><TargetIcon /></div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Diseño<br />atemporal</span>
               </div>
               <div className="flex items-start gap-3">
-                <div className="text-zinc-400"><ShirtIcon /></div>
-                <span className="text-xs text-zinc-400 leading-tight">Hecho en<br />Ecuador</span>
+                <div className="text-zinc-500 dark:text-zinc-400"><ShirtIcon /></div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Hecho en<br />Ecuador</span>
               </div>
             </div>
           </div>
 
-          <div className="w-full md:w-[62%] h-[50vh] md:h-auto order-1 md:order-2 bg-[#0e1014] flex items-center justify-center pt-8 pb-8 pl-4 pr-8 md:py-16 md:pl-8 md:pr-16 relative min-h-[400px] md:min-h-0">
+          <div className="w-full md:w-[62%] h-[50vh] md:h-auto order-1 md:order-2 bg-zinc-50 dark:bg-[#0e1014] flex items-center justify-center pt-8 pb-8 pl-4 pr-8 md:py-16 md:pl-8 md:pr-16 relative min-h-[400px] md:min-h-0">
             <img src="/trazabilidad.png" className="w-full h-full max-h-[48vh] md:max-h-[70vh] object-contain rounded-2xl" alt="Lanzamiento" />
           </div>
         </div>
@@ -774,12 +774,12 @@ const Home = () => {
         <div className="flex justify-between items-end mb-16">
           <div className="flex flex-col">
             <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-3 block">COMUNIDAD</span>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4">Lo que dice nuestra comunidad</h2>
-            <p className="text-zinc-400 text-sm md:text-base max-w-xl">Miles de personas ya forman parte de Intipa Churin. Esto es lo que opinan sobre nuestra calidad y diseño.</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white mb-4">Lo que dice nuestra comunidad</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base max-w-xl">Miles de personas ya forman parte de Intipa Churin. Esto es lo que opinan sobre nuestra calidad y diseño.</p>
           </div>
           <div className="hidden md:flex gap-2">
-            <button onClick={scrollTestimonialsLeft} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
-            <button onClick={scrollTestimonialsRight} className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
+            <button onClick={scrollTestimonialsLeft} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+            <button onClick={scrollTestimonialsRight} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
           </div>
         </div>
 
@@ -832,18 +832,18 @@ const Home = () => {
                 <div
                   key={i}
                   style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
-                  className={`snap-start carousel-card-item bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
+                  className={`snap-start carousel-card-item bg-white dark:bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-zinc-200 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
                 >
                   <div>
-                    <div className="flex text-white mb-6">
+                    <div className="flex text-amber-500 dark:text-white mb-6">
                       {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>))}
                     </div>
-                    <p className="text-zinc-300 text-sm md:text-base font-light leading-relaxed mb-8 line-clamp-4">"{testimonial.text}"</p>
+                    <p className="text-zinc-600 dark:text-zinc-300 text-sm md:text-base font-light leading-relaxed mb-8 line-clamp-4">"{testimonial.text}"</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <img src={testimonial.img} alt={testimonial.author} className="w-10 h-10 rounded-full object-cover grayscale opacity-80" />
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-white">{testimonial.author}</span>
+                      <span className="text-sm font-bold text-zinc-900 dark:text-white">{testimonial.author}</span>
                       <span className="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">Cliente verificado <CheckIcon /></span>
                     </div>
                   </div>
