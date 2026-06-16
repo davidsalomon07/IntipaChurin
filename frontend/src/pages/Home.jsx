@@ -86,6 +86,52 @@ const Home = () => {
 
   const intervalRef = useRef(null);
 
+  // Lógica de arrastre y trackpad para carrusel de categorías
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const wheelTimeout = useRef(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      const limite = categoriasDB.length - itemsPerView;
+      setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1));
+    } else if (isRightSwipe) {
+      setCatIndex(prev => Math.max(0, prev - 1));
+    }
+  };
+
+  const onWheel = (e) => {
+    // Si el scroll horizontal es dominante
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 15) {
+      if (!wheelTimeout.current) {
+        if (e.deltaX > 0) {
+          const limite = categoriasDB.length - itemsPerView;
+          setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1));
+        } else {
+          setCatIndex(prev => Math.max(0, prev - 1));
+        }
+        wheelTimeout.current = setTimeout(() => {
+          wheelTimeout.current = null;
+        }, 400);
+      }
+    }
+  };
+
   const startAutoPlay = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
@@ -251,14 +297,20 @@ const Home = () => {
               <p>Estamos preparando las colecciones para ti.</p>
             </div>
           ) : (
-            <div className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}>
+            <div 
+              className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] gap-6" 
+              style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView}))` }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onWheel={onWheel}
+            >
               {categoriasDB.map((cat, index) => {
                 const isVisible = index >= catIndex && index < catIndex + itemsPerView;
                 return (
                   <div
                     key={cat.id}
-                    className={`min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] shrink-0 relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                      }`}
+                    className={`min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] shrink-0 relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
                   >
                     <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
                       <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
@@ -351,7 +403,6 @@ const Home = () => {
         <div className="bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
           <div className="w-full md:w-[38%] pt-8 pb-8 pl-8 pr-4 md:py-16 md:pl-16 md:pr-8 flex flex-col justify-center order-2 md:order-1">
             <div className="inline-flex items-center gap-2 border border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h9.04" /><path d="M11 2v9" /></svg>
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
             </div>
 

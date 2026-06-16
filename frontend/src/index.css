@@ -133,3 +133,12 @@ picture {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
+
+/* Hide scrollbar for carousel */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
