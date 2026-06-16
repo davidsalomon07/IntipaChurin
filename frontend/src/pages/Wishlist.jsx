@@ -22,7 +22,7 @@ const Wishlist = () => {
 
             <main className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto min-h-[80vh]">
                 <div className="mb-10 flex items-center justify-between">
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight dark:text-white">Lista de Deseos</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight dark:text-white">Favoritos</h1>
                     <span className="text-sm font-semibold bg-zinc-100 dark:bg-zinc-900 px-4 py-2 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800">
                         {wishlist.length} {wishlist.length === 1 ? 'artículo' : 'artículos'}
                     </span>

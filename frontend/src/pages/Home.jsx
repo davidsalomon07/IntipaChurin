@@ -35,22 +35,22 @@ const CheckIcon = () => (
 
 const heroImages = [
   {
-    src: "/carrusel/heo3.jpg",
-    alt: "Define tu estilo",
-    title: "HERO 3",
-    fallback: "https://placehold.co/1920x1080/0a0a0a/ffffff?text=HERO+3"
-  },
-  {
-    src: "/carrusel/heo1.jpg",
+    src: "/carrusel/heo1.png",
     alt: "Colección Esencial",
     title: "HERO 1",
     fallback: "https://placehold.co/1920x1080/1a1a1a/ffffff?text=HERO+1"
   },
   {
-    src: "/carrusel/heo2.jpg",
+    src: "/carrusel/heo2.png",
     alt: "Modelos Diversos",
     title: "HERO 2",
     fallback: "https://placehold.co/1920x1080/111111/ffffff?text=HERO+2"
+  },
+  {
+    src: "/carrusel/heo3.png",
+    alt: "Define tu estilo",
+    title: "HERO 3",
+    fallback: "https://placehold.co/1920x1080/0a0a0a/ffffff?text=HERO+3"
   },
 ];
 
@@ -147,46 +147,48 @@ const Home = () => {
 
             {/* Columna Izquierda - Texto */}
             <div className="w-full md:w-[45%] h-full flex flex-col justify-center px-8 md:px-16 py-12 md:py-0 z-[2] order-2 md:order-1 relative">
-              <span className="text-xs md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-white/70">
-                Colección Esencial 2026
-              </span>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-white leading-tight">
-                Define tu estilo.
-              </h1>
-              <div className="w-16 h-[2px] bg-white/20 mb-6"></div>
-              <p className="text-sm md:text-base font-light mb-10 max-w-md text-white/60 leading-relaxed">
-                Siluetas modernas y versátiles. Diseñadas sin distinciones de
-                género para una comodidad absoluta y expresión libre.
-              </p>
-              <div>
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-all duration-300"
-                >
-                  Explorar colección <ArrowRightIcon />
-                </Link>
-              </div>
+              <div className="w-full max-w-md mx-auto">
+                <span className="text-xs md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-white/70 block">
+                  Colección Esencial 2026
+                </span>
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-white leading-tight">
+                  Define tu estilo.
+                </h1>
+                <div className="w-16 h-[2px] bg-white/20 mb-6"></div>
+                <p className="text-sm md:text-base font-light mb-10 text-white/60 leading-relaxed">
+                  Siluetas modernas y versátiles. Diseñadas sin distinciones de
+                  género para una comodidad absoluta y expresión libre.
+                </p>
+                <div>
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-all duration-300"
+                  >
+                    Explorar colección <ArrowRightIcon />
+                  </Link>
+                </div>
 
-              {/* Beneficios en Hero */}
-              <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-6 sm:gap-4 justify-between items-start sm:items-center">
-                <div className="flex items-center gap-3 text-white/80">
-                  <ShippingIcon />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold">Envíos a todo Ecuador</span>
+                {/* Beneficios en Hero */}
+                <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-6 sm:gap-4 justify-between items-start sm:items-center">
+                  <div className="flex items-center gap-3 text-white/80">
+                    <ShippingIcon />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold">Envíos a todo Ecuador</span>
+                    </div>
                   </div>
-                </div>
-                <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
-                <div className="flex items-center gap-3 text-white/80">
-                  <ExchangeIcon />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold">Cambios y<br />devoluciones fáciles</span>
+                  <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
+                  <div className="flex items-center gap-3 text-white/80">
+                    <ExchangeIcon />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold">Cambios y<br />devoluciones fáciles</span>
+                    </div>
                   </div>
-                </div>
-                <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
-                <div className="flex items-center gap-3 text-white/80">
-                  <LockIcon />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold">Pago 100%<br />seguro</span>
+                  <div className="hidden sm:block w-[1px] h-8 bg-white/10"></div>
+                  <div className="flex items-center gap-3 text-white/80">
+                    <LockIcon />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold">Pago 100%<br />seguro</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -194,13 +196,6 @@ const Home = () => {
 
             {/* Columna Derecha - Imagen */}
             <div className="w-full md:w-[55%] h-[50vh] md:h-full relative order-1 md:order-2 overflow-hidden flex items-center justify-center bg-[#0e1014]">
-              {/* Marca de agua */}
-              <div className="absolute inset-0 flex items-center justify-center z-[1] select-none pointer-events-none overflow-hidden">
-                <span className="text-[12rem] md:text-[20rem] font-bold text-white/[0.02] tracking-tighter leading-none whitespace-nowrap">
-                  {heroImages[currentSlide].title}
-                </span>
-              </div>
-
               {heroImages.map((image, index) => (
                 <img
                   key={index}
@@ -208,7 +203,7 @@ const Home = () => {
                   alt={image.alt}
                   onError={() => setImgErrors((prev) => ({ ...prev, [index]: true }))}
                   className={`
-                    absolute max-w-[90%] max-h-[90%] object-contain z-[2]
+                    absolute object-contain z-[2] max-w-[115%] max-h-[115%]
                     transition-all duration-1000 ease-in-out
                     ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
                   `}
@@ -262,9 +257,8 @@ const Home = () => {
                 return (
                   <div
                     key={cat.id}
-                    className={`min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] shrink-0 relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                      isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                    }`}
+                    className={`min-w-[85vw] md:min-w-[calc((100%-3rem)/3)] shrink-0 relative shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-[#0e1014] rounded-3xl border border-white/10 overflow-hidden flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                      }`}
                   >
                     <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
                       <h3 className="text-3xl font-bold text-white mb-4">{cat.name}</h3>
@@ -355,7 +349,7 @@ const Home = () => {
       {/* --- LANZAMIENTO EXCLUSIVO --- */}
       <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
         <div className="bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
-          <div className="w-full md:w-1/2 p-10 md:p-20 flex flex-col justify-center order-2 md:order-1">
+          <div className="w-full md:w-[38%] pt-8 pb-8 pl-8 pr-4 md:py-16 md:pl-16 md:pr-8 flex flex-col justify-center order-2 md:order-1">
             <div className="inline-flex items-center gap-2 border border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h9.04" /><path d="M11 2v9" /></svg>
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
@@ -387,8 +381,8 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="w-full md:w-1/2 h-[50vh] md:h-auto relative order-1 md:order-2 bg-[#1a1a1a]">
-            <img src="/carrusel/heo3.jpg" className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-lighten" alt="Lanzamiento" />
+          <div className="w-full md:w-[62%] h-[50vh] md:h-auto order-1 md:order-2 bg-[#0e1014] flex items-center justify-center pt-8 pb-8 pl-4 pr-8 md:py-16 md:pl-8 md:pr-16 relative min-h-[400px] md:min-h-0">
+            <img src="/trazabilidad.png" className="w-full h-full max-h-[48vh] md:max-h-[70vh] object-contain rounded-2xl" alt="Lanzamiento" />
           </div>
         </div>
       </section>
@@ -417,9 +411,8 @@ const Home = () => {
               return (
                 <div
                   key={i}
-                  className={`snap-start w-[85vw] min-w-[85vw] md:w-[calc((100%-3rem)/3)] md:min-w-[calc((100%-3rem)/3)] bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                    isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                  }`}
+                  className={`snap-start w-[85vw] min-w-[85vw] md:w-[calc((100%-3rem)/3)] md:min-w-[calc((100%-3rem)/3)] bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                    }`}
                 >
                   <div>
                     <div className="flex text-white mb-6">
@@ -442,7 +435,7 @@ const Home = () => {
       </section>
 
       {/* --- FOOTER (sin cambios) --- */}
-      <footer className="bg-white dark:bg-zinc-950 pt-20 pb-10 px-6 md:px-12 border-t border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
+      <footer className="bg-white dark:bg-zinc-950 pt-20 pb-0 px-6 md:px-12 border-t border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
         <div className="max-w-400 mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="md:col-span-1">
             <div className="text-xl font-bold tracking-widest uppercase mb-6 dark:text-white transition-colors duration-300">Intipa Churin</div>
@@ -487,11 +480,17 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="max-w-400 mx-auto border-t border-zinc-100 dark:border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300">
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium transition-colors duration-300">© 2026 Intipa Churin. Todos los derechos reservados.</p>
+        <div className="max-w-[1600px] mx-auto border-t border-zinc-100 dark:border-zinc-800 py-8 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300">
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium text-center md:text-left transition-colors duration-300">
+            © 2026 Intipa Churin. Todos los derechos reservados.
+          </p>
           <div className="flex gap-6 pr-0 md:pr-24">
-            <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">Instagram</a>
-            <a href="https://tiktok.com/@tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">Tiktok</a>
+            <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-300 text-xs font-bold uppercase tracking-wider">
+              Instagram
+            </a>
+            <a href="https://tiktok.com/@tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-300 text-xs font-bold uppercase tracking-wider">
+              Tiktok
+            </a>
           </div>
         </div>
       </footer>
