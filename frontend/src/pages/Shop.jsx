@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
@@ -69,9 +69,16 @@ const checkPixelColor = (imageUrl, xPercent, yPercent) => {
   });
 };
 
+const normalizarTexto = (texto) => {
+  if (!texto) return '';
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
 const Shop = () => {
   const { category } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
   const [isSortOpen, setIsSortOpen] = useState(false);
   const { agregarAlCarrito } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -255,6 +262,19 @@ const Shop = () => {
   }
   if (selectedColor) {
     productosFiltrados = productosFiltrados.filter(p => p.color === selectedColor);
+  }
+  if (searchQuery) {
+    const queryLimpiada = normalizarTexto(searchQuery);
+    const palabrasEscritas = queryLimpiada.split(' ').filter(Boolean);
+    productosFiltrados = productosFiltrados.filter(p => {
+      const nombreLimpiado = normalizarTexto(p.name);
+      const categoriaLimpiada = normalizarTexto(p.category_name || '');
+      const textoBuscable = `${nombreLimpiado} ${categoriaLimpiada}`;
+      return palabrasEscritas.every(palabra => {
+        const regex = new RegExp(`\\b${palabra}`);
+        return regex.test(textoBuscable);
+      });
+    });
   }
   const min = minPrice === "" ? 0 : parseFloat(minPrice);
   const max = priceRange === "" ? 300 : parseFloat(priceRange);
@@ -498,8 +518,18 @@ const Shop = () => {
           </div>
 
           {/* Chips de Filtros Activos */}
-          {(selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColor || min > 0 || max < 300) && (
+          {(selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColor || min > 0 || max < 300 || searchQuery) && (
             <div className="flex flex-wrap items-center gap-2 mb-8">
+              {searchQuery && (
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
+                  Búsqueda: {searchQuery}
+                  <button onClick={() => {
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete('search');
+                    setSearchParams(newParams);
+                  }} className="hover:text-zinc-900 dark:hover:text-white"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </span>
+              )}
               {selectedCategories.map(cat => (
                 <span key={cat} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
                   {cat}
@@ -539,6 +569,9 @@ const Shop = () => {
                   setSelectedColor(null);
                   setMinPrice("0");
                   setPriceRange("300");
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.delete('search');
+                  setSearchParams(newParams);
                 }}
                 className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white underline underline-offset-4 ml-2"
               >
@@ -638,6 +671,9 @@ const Shop = () => {
                   setSelectedColor(null);
                   setMinPrice("0");
                   setPriceRange("300");
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.delete('search');
+                  setSearchParams(newParams);
                 }}
                 className="mt-4 text-xs font-semibold underline underline-offset-4 hover:text-zinc-900 dark:hover:text-white"
               >
