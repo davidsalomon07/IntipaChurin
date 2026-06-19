@@ -607,9 +607,16 @@ const Shop = () => {
                   <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#151515] mb-4 relative transition-colors duration-300">
                     <img
                       src={item.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-100"
                       alt={item.name}
                     />
+                    {item.image_url_2 && (
+                      <img
+                        src={item.image_url_2}
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${hoveredProductId === item.id ? 'opacity-100' : 'opacity-0'}`}
+                        alt={`${item.name} vista trasera`}
+                      />
+                    )}
 
                     {/* Etiqueta de Descuento */}
                     {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (

@@ -85,6 +85,7 @@ const Home = () => {
   const [catIndex, setCatIndex] = useState(0);
   const [testiIndex, setTestiIndex] = useState(0);
   const [prodIndex, setProdIndex] = useState(0);
+  const [hoveredProductId, setHoveredProductId] = useState(null);
 
   const intervalRef = useRef(null);
 
@@ -709,9 +710,22 @@ const Home = () => {
                     style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
                     className={`product-card-item group cursor-pointer flex flex-col bg-white dark:bg-[#0e1014] rounded-3xl overflow-hidden border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-300 hover:-translate-y-1'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''} shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]`}
                     onClick={() => navigate(`/shop/producto/${producto.id}`)}
+                    onMouseEnter={() => setHoveredProductId(producto.id)}
+                    onMouseLeave={() => setHoveredProductId(null)}
                   >
                     <div className="w-full aspect-[4/5] relative bg-zinc-50 dark:bg-[#0e1014] overflow-hidden flex items-center justify-center">
-                      <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
+                      <img
+                        src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-100"
+                        alt={producto.name}
+                      />
+                      {producto.image_url_2 && (
+                        <img
+                          src={producto.image_url_2}
+                          className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${hoveredProductId === producto.id ? 'opacity-100' : 'opacity-0'}`}
+                          alt={`${producto.name} vista trasera`}
+                        />
+                      )}
 
                       {/* Etiqueta de Descuento */}
                       {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (

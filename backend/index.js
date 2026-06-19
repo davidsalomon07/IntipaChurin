@@ -367,6 +367,10 @@ app.get('/api/products', async (req, res) => {
         p.original_price,
         p.stock_quantity, 
         p.image_url, 
+        p.image_url_2,
+        p.image_url_3,
+        p.image_url_4,
+        p.image_url_5,
         p.is_active,
         p.sizes,
         p.color,
@@ -401,6 +405,10 @@ app.get('/api/products/:id', async (req, res) => {
         p.original_price,
         p.stock_quantity, 
         p.image_url, 
+        p.image_url_2,
+        p.image_url_3,
+        p.image_url_4,
+        p.image_url_5,
         p.is_active,
         p.sizes,
         p.color,
@@ -444,10 +452,19 @@ const verificarAdmin = async (req, res, next) => {
   }
 };
 
+// Configuración de Multer para múltiples imágenes
+const uploadMultiple = upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'image_2', maxCount: 1 },
+  { name: 'image_3', maxCount: 1 },
+  { name: 'image_4', maxCount: 1 },
+  { name: 'image_5', maxCount: 1 }
+]);
+
 // ==========================================
 // 9. ADMIN - CREATE: Agregar un nuevo producto (Con foto)
 // ==========================================
-app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (req, res) => {
+app.post('/api/admin/products', verificarAdmin, uploadMultiple, async (req, res) => {
   try {
     const { category_id, name, description, price, stock_quantity, color } = req.body;
     let { sizes, original_price } = req.body;
@@ -464,12 +481,18 @@ app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (r
     }
 
     const is_active = true;
-    const finalImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
+    const getFileUrl = (field) => req.files && req.files[field] ? `http://localhost:${PORT}/uploads/${req.files[field][0].filename}` : null;
+    
+    const finalImageUrl = getFileUrl('image');
+    const imageUrl2 = getFileUrl('image_2');
+    const imageUrl3 = getFileUrl('image_3');
+    const imageUrl4 = getFileUrl('image_4');
+    const imageUrl5 = getFileUrl('image_5');
 
     const newProduct = await pool.query(
-      `INSERT INTO products (category_id, name, description, price, original_price, stock_quantity, image_url, is_active, sizes, color) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [category_id, name, description, price, original_price, stock_quantity, finalImageUrl, is_active, sizes, color]
+      `INSERT INTO products (category_id, name, description, price, original_price, stock_quantity, image_url, image_url_2, image_url_3, image_url_4, image_url_5, is_active, sizes, color) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+      [category_id, name, description, price, original_price, stock_quantity, finalImageUrl, imageUrl2, imageUrl3, imageUrl4, imageUrl5, is_active, sizes, color]
     );
 
     res.status(201).json({
@@ -485,7 +508,7 @@ app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (r
 // ==========================================
 // 10. ADMIN - UPDATE: Editar un producto existente (Con o sin foto nueva)
 // ==========================================
-app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async (req, res) => {
+app.put('/api/admin/products/:id', verificarAdmin, uploadMultiple, async (req, res) => {
   try {
     const productId = req.params.id;
     const { name, description, price, stock_quantity, color } = req.body;
@@ -502,38 +525,44 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
       return res.status(400).json({ error: "El stock no puede ser negativo." });
     }
 
-    // 1. Buscamos la URL de la imagen actual en la BD antes de hacer cualquier cambio
-    const productActualQuery = await pool.query('SELECT image_url FROM products WHERE id = $1', [productId]);
-    const oldImageUrl = productActualQuery.rows[0]?.image_url;
+    // 1. Buscamos las URLs de las imágenes actuales en la BD
+    const productActualQuery = await pool.query('SELECT image_url, image_url_2, image_url_3, image_url_4, image_url_5 FROM products WHERE id = $1', [productId]);
+    const oldImages = productActualQuery.rows[0] || {};
 
-    const newImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
+    const getNewOrOldImageUrl = (fieldName, oldUrl, removeFlag) => {
+      if (req.files && req.files[fieldName]) return `http://localhost:${PORT}/uploads/${req.files[fieldName][0].filename}`;
+      if (removeFlag === 'true' || removeFlag === true) return null;
+      return oldUrl;
+    };
 
-    let updateQuery;
-    if (newImageUrl) {
-      updateQuery = await pool.query(
-        `UPDATE products 
-         SET name = $1, description = $2, price = $3, original_price = $4, stock_quantity = $5, image_url = $6, sizes = $7, color = $8 
-         WHERE id = $9 RETURNING *`,
-        [name, description, price, original_price, stock_quantity, newImageUrl, sizes, color, productId]
-      );
+    const newImageUrl = getNewOrOldImageUrl('image', oldImages.image_url, false);
+    const newImageUrl2 = getNewOrOldImageUrl('image_2', oldImages.image_url_2, req.body.remove_image_2);
+    const newImageUrl3 = getNewOrOldImageUrl('image_3', oldImages.image_url_3, req.body.remove_image_3);
+    const newImageUrl4 = getNewOrOldImageUrl('image_4', oldImages.image_url_4, req.body.remove_image_4);
+    const newImageUrl5 = getNewOrOldImageUrl('image_5', oldImages.image_url_5, req.body.remove_image_5);
 
-      // 2. Si se subió una foto nueva y ya existía una vieja, la borramos del disco local
-      if (oldImageUrl) {
-        const fs = require('fs'); // Importamos fs aquí localmente por seguridad
-        const filename = oldImageUrl.split('/').pop();
+    const updateQuery = await pool.query(
+      `UPDATE products 
+       SET name = $1, description = $2, price = $3, original_price = $4, stock_quantity = $5, image_url = $6, image_url_2 = $7, image_url_3 = $8, image_url_4 = $9, image_url_5 = $10, sizes = $11, color = $12 
+       WHERE id = $13 RETURNING *`,
+      [name, description, price, original_price, stock_quantity, newImageUrl, newImageUrl2, newImageUrl3, newImageUrl4, newImageUrl5, sizes, color, productId]
+    );
+
+    // 2. Borramos las fotos que fueron reemplazadas o eliminadas
+    const fs = require('fs');
+    const deleteOldImage = (oldUrl, newUrl) => {
+      if (oldUrl && oldUrl !== newUrl) {
+        const filename = oldUrl.split('/').pop();
         const filePath = path.join(__dirname, 'uploads', filename);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       }
-    } else {
-      updateQuery = await pool.query(
-        `UPDATE products 
-         SET name = $1, description = $2, price = $3, original_price = $4, stock_quantity = $5, sizes = $6, color = $7 
-         WHERE id = $8 RETURNING *`,
-        [name, description, price, original_price, stock_quantity, sizes, color, productId]
-      );
-    }
+    };
+    
+    deleteOldImage(oldImages.image_url, newImageUrl);
+    deleteOldImage(oldImages.image_url_2, newImageUrl2);
+    deleteOldImage(oldImages.image_url_3, newImageUrl3);
+    deleteOldImage(oldImages.image_url_4, newImageUrl4);
+    deleteOldImage(oldImages.image_url_5, newImageUrl5);
 
     if (updateQuery.rows.length === 0) {
       return res.status(404).json({ error: "Producto no encontrado." });
@@ -584,9 +613,9 @@ app.delete('/api/admin/products/:id', verificarAdmin, async (req, res) => {
   try {
     const productId = req.params.id;
 
-    // 1. Buscamos la URL de la imagen antes de eliminar el registro
-    const productActualQuery = await pool.query('SELECT image_url FROM products WHERE id = $1', [productId]);
-    const imageUrlToDelete = productActualQuery.rows[0]?.image_url;
+    // 1. Buscamos las URLs de las imágenes antes de eliminar el registro
+    const productActualQuery = await pool.query('SELECT image_url, image_url_2, image_url_3, image_url_4, image_url_5 FROM products WHERE id = $1', [productId]);
+    const imgs = productActualQuery.rows[0] || {};
 
     // 2. Eliminamos el registro de la base de datos
     const deleteQuery = await pool.query(
@@ -598,15 +627,17 @@ app.delete('/api/admin/products/:id', verificarAdmin, async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado." });
     }
 
-    // 3. Borramos la foto asociada del disco duro local
-    if (imageUrlToDelete) {
-      const fs = require('fs');
-      const filename = imageUrlToDelete.split('/').pop();
-      const filePath = path.join(__dirname, 'uploads', filename);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+    // 3. Borramos las fotos asociadas del disco duro local
+    const fs = require('fs');
+    [imgs.image_url, imgs.image_url_2, imgs.image_url_3, imgs.image_url_4, imgs.image_url_5].forEach(url => {
+      if (url) {
+        const filename = url.split('/').pop();
+        const filePath = path.join(__dirname, 'uploads', filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
       }
-    }
+    });
 
     res.json({ message: "Producto eliminado definitivamente del inventario." });
   } catch (error) {

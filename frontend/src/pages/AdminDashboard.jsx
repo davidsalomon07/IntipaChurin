@@ -90,7 +90,7 @@ const AdminDashboard = () => {
   const [confirmAction, setConfirmAction] = useState(null);
 
   // Formularios completos (Agregamos image_file, sizes y color)
-  const estadoInicialProducto = { name: '', description: '', price: '', original_price: '', stock_quantity: '', category_id: '', sizes: [], color: '', image_file: null, is_active: true };
+  const estadoInicialProducto = { name: '', description: '', price: '', original_price: '', stock_quantity: '', category_id: '', sizes: [], color: '', image_file: null, image_file_2: null, image_file_3: null, image_file_4: null, image_file_5: null, remove_image_2: false, remove_image_3: false, remove_image_4: false, remove_image_5: false, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
@@ -212,6 +212,10 @@ const AdminDashboard = () => {
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
       }
+      if (productForm.image_file_2) formData.append('image_2', productForm.image_file_2);
+      if (productForm.image_file_3) formData.append('image_3', productForm.image_file_3);
+      if (productForm.image_file_4) formData.append('image_4', productForm.image_file_4);
+      if (productForm.image_file_5) formData.append('image_5', productForm.image_file_5);
 
       const response = await fetch('http://localhost:3000/api/admin/products', {
         method: 'POST',
@@ -239,7 +243,20 @@ const AdminDashboard = () => {
       category_id: p.category_id || '',
       sizes: p.sizes || [],
       color: p.color || '',
+      image_url: p.image_url,
+      image_url_2: p.image_url_2,
+      image_url_3: p.image_url_3,
+      image_url_4: p.image_url_4,
+      image_url_5: p.image_url_5,
       image_file: null, // Reseteamos por si quiere subir una foto nueva
+      image_file_2: null,
+      image_file_3: null,
+      image_file_4: null,
+      image_file_5: null,
+      remove_image_2: false,
+      remove_image_3: false,
+      remove_image_4: false,
+      remove_image_5: false,
       is_active: p.is_active
     });
     setIsEditProductModalOpen(true);
@@ -274,6 +291,14 @@ const AdminDashboard = () => {
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
       }
+      if (productForm.image_file_2) formData.append('image_2', productForm.image_file_2);
+      if (productForm.image_file_3) formData.append('image_3', productForm.image_file_3);
+      if (productForm.image_file_4) formData.append('image_4', productForm.image_file_4);
+      if (productForm.image_file_5) formData.append('image_5', productForm.image_file_5);
+      if (productForm.remove_image_2) formData.append('remove_image_2', 'true');
+      if (productForm.remove_image_3) formData.append('remove_image_3', 'true');
+      if (productForm.remove_image_4) formData.append('remove_image_4', 'true');
+      if (productForm.remove_image_5) formData.append('remove_image_5', 'true');
 
       const response = await fetch(`http://localhost:3000/api/admin/products/${editingProductId}`, {
         method: 'PUT',
@@ -823,6 +848,29 @@ const AdminDashboard = () => {
                   )}
                 </div>
                 <div>
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imágenes Secundarias (Opcionales, 4 máx)</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[2, 3, 4, 5].map(num => (
+                      <div key={num} className="flex flex-col gap-2">
+                        <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
+                          {productForm[`image_file_${num}`] ? (
+                            <>
+                              <img src={URL.createObjectURL(productForm[`image_file_${num}`])} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
+                              <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+                              <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                              <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
+                              <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0] }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
                   <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none"></textarea>
                 </div>
@@ -934,6 +982,29 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   )}
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imágenes Secundarias (Opcionales, 4 máx)</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[2, 3, 4, 5].map(num => (
+                      <div key={num} className="flex flex-col gap-2">
+                        <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
+                          {(productForm[`image_url_${num}`] && !productForm[`remove_image_${num}`]) || productForm[`image_file_${num}`] ? (
+                            <>
+                              <img src={productForm[`image_file_${num}`] ? URL.createObjectURL(productForm[`image_file_${num}`]) : productForm[`image_url_${num}`]} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
+                              <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null, [`remove_image_${num}`]: true })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+                              <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                              <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
+                              <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0], [`remove_image_${num}`]: false }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>

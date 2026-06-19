@@ -120,14 +120,22 @@ const ProductDetail = () => {
     );
   }
 
-  // Mock de imágenes secundarias para la galería
-  const imagenes = producto ? [
-    producto.image_url || `https://placehold.co/800x1060/f5f5f4/d6d3d1?text=VISTA+1`,
-    `https://placehold.co/800x1060/e5e5e5/a3a3a3?text=VISTA+2`,
-    `https://placehold.co/800x1060/d4d4d4/737373?text=VISTA+3`,
-    `https://placehold.co/800x1060/c4c4c4/525252?text=VISTA+4`,
-    `https://placehold.co/800x1060/a3a3a3/404040?text=VISTA+5`,
-  ] : [];
+  // Imágenes de la galería
+  const baseImagenes = producto ? [
+    producto.image_url,
+    producto.image_url_2,
+    producto.image_url_3,
+    producto.image_url_4,
+    producto.image_url_5,
+  ].filter(Boolean) : [];
+
+  // Garantizamos que siempre hayan 5 imágenes para mantener la alineación del diseño
+  const imagenes = Array.from({ length: 5 }).map((_, i) => {
+    if (baseImagenes.length > 0) {
+      return baseImagenes[i] || baseImagenes[0]; // Rellenar con la imagen principal si faltan
+    }
+    return `https://placehold.co/800x1060/f5f5f4/d6d3d1?text=SIN+FOTO`;
+  });
 
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 flex flex-col transition-colors duration-300">
