@@ -43,7 +43,7 @@ body::before {
 
 html.dark body::before {
   background-image: url("/modo oscuro.png") !important;
-  opacity: 0.01 !important;
+  opacity: 0.00 !important;
   /* Habilita la imagen de fondo en modo oscuro */
 }
 

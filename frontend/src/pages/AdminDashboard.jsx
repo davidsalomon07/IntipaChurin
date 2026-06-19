@@ -89,8 +89,8 @@ const AdminDashboard = () => {
   const [previewProduct, setPreviewProduct] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
 
-  // Formularios completos (Agregamos image_file)
-  const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
+  // Formularios completos (Agregamos image_file, sizes y color)
+  const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', sizes: [], color: '', image_file: null, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
@@ -205,6 +205,8 @@ const AdminDashboard = () => {
       formData.append('price', priceVal);
       formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
+      formData.append('sizes', JSON.stringify(productForm.sizes || []));
+      formData.append('color', productForm.color || '');
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
       }
@@ -232,6 +234,8 @@ const AdminDashboard = () => {
       price: p.price,
       stock_quantity: p.stock_quantity,
       category_id: p.category_id || '',
+      sizes: p.sizes || [],
+      color: p.color || '',
       image_file: null, // Reseteamos por si quiere subir una foto nueva
       is_active: p.is_active
     });
@@ -260,6 +264,8 @@ const AdminDashboard = () => {
       formData.append('price', priceVal);
       formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
+      formData.append('sizes', JSON.stringify(productForm.sizes || []));
+      formData.append('color', productForm.color || '');
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
       }
@@ -713,6 +719,50 @@ const AdminDashboard = () => {
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
                     <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
+                    <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
+                      <option value="">Selecciona un color...</option>
+                      <option value="Black">Negro (Black)</option>
+                      <option value="White">Blanco (White)</option>
+                      <option value="Dark Gray">Gris Oscuro (Dark Gray)</option>
+                      <option value="Light Gray">Gris Claro (Light Gray)</option>
+                      <option value="Beige">Beige</option>
+                      <option value="Navy">Azul Marino (Navy)</option>
+                      <option value="Blue">Azul (Blue)</option>
+                      <option value="Red">Rojo (Red)</option>
+                      <option value="Burgundy">Vino (Burgundy)</option>
+                      <option value="Green">Verde (Green)</option>
+                      <option value="Olive">Verde Oliva (Olive)</option>
+                      <option value="Yellow">Amarillo (Yellow)</option>
+                      <option value="Pink">Rosa (Pink)</option>
+                      <option value="Purple">Morado (Purple)</option>
+                      <option value="Brown">Marrón (Brown)</option>
+                      <option value="Orange">Naranja (Orange)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Tallas Disponibles</label>
+                    <div className="flex gap-4 pt-2">
+                      {['S', 'M', 'L', 'XL'].map(talla => (
+                        <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-white text-sm font-bold">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 accent-zinc-900 dark:accent-white cursor-pointer"
+                            checked={(productForm.sizes || []).includes(talla)} 
+                            onChange={() => {
+                              const currentSizes = productForm.sizes || [];
+                              setProductForm({ 
+                                ...productForm, 
+                                sizes: currentSizes.includes(talla) ? currentSizes.filter(s => s !== talla) : [...currentSizes, talla] 
+                              });
+                            }}
+                          />
+                          {talla}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen del Producto (Recorte Interactivo)</label>
@@ -778,6 +828,50 @@ const AdminDashboard = () => {
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
                     <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
+                    <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
+                      <option value="">Selecciona un color...</option>
+                      <option value="Black">Negro (Black)</option>
+                      <option value="White">Blanco (White)</option>
+                      <option value="Dark Gray">Gris Oscuro (Dark Gray)</option>
+                      <option value="Light Gray">Gris Claro (Light Gray)</option>
+                      <option value="Beige">Beige</option>
+                      <option value="Navy">Azul Marino (Navy)</option>
+                      <option value="Blue">Azul (Blue)</option>
+                      <option value="Red">Rojo (Red)</option>
+                      <option value="Burgundy">Vino (Burgundy)</option>
+                      <option value="Green">Verde (Green)</option>
+                      <option value="Olive">Verde Oliva (Olive)</option>
+                      <option value="Yellow">Amarillo (Yellow)</option>
+                      <option value="Pink">Rosa (Pink)</option>
+                      <option value="Purple">Morado (Purple)</option>
+                      <option value="Brown">Marrón (Brown)</option>
+                      <option value="Orange">Naranja (Orange)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Tallas Disponibles</label>
+                    <div className="flex gap-4 pt-2">
+                      {['S', 'M', 'L', 'XL'].map(talla => (
+                        <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-white text-sm font-bold">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 accent-zinc-900 dark:accent-white cursor-pointer"
+                            checked={(productForm.sizes || []).includes(talla)} 
+                            onChange={() => {
+                              const currentSizes = productForm.sizes || [];
+                              setProductForm({ 
+                                ...productForm, 
+                                sizes: currentSizes.includes(talla) ? currentSizes.filter(s => s !== talla) : [...currentSizes, talla] 
+                              });
+                            }}
+                          />
+                          {talla}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div>

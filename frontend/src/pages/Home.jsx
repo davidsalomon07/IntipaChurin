@@ -103,36 +103,36 @@ const Home = () => {
   const handleDragMove = (clientX) => {
     if (!isDragging || touchStartRef.current === null) return;
     let offset = clientX - touchStartRef.current;
-    
+
     const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
     const limite = Math.max(0, categoriasDB.length - itemsPerView);
-    
+
     // Bounds físicos reales del contenedor completo
     const maxDragRight = catIndex * stepSize;
     const maxDragLeft = -(limite - catIndex) * stepSize;
-    
+
     if (offset > maxDragRight) offset = maxDragRight;
     if (offset < maxDragLeft) offset = maxDragLeft;
-    
+
     setDragOffset(offset);
   };
 
   const handleDragEnd = () => {
     if (!isDragging || touchStartRef.current === null) return;
     setIsDragging(false);
-    
+
     const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
     const limite = Math.max(0, categoriasDB.length - itemsPerView);
-    
+
     // Calcular cuántos pasos completos hemos arrastrado
     let steps = Math.round(-dragOffset / stepSize);
-    
+
     // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
     if (steps === 0) {
       if (dragOffset < -minSwipeDistance) steps = 1;
       if (dragOffset > minSwipeDistance) steps = -1;
     }
-    
+
     setCatIndex(prev => Math.min(Math.max(0, limite), prev + steps));
     setDragOffset(0);
     touchStartRef.current = null;
@@ -153,23 +153,23 @@ const Home = () => {
   const onWheel = (e) => {
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
       setIsDragging(true);
-      
+
       let newOffset = wheelAccumulator.current - e.deltaX;
-      
+
       const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
       const limite = Math.max(0, categoriasDB.length - itemsPerView);
-      
+
       const maxDragRight = catIndex * stepSize;
       const maxDragLeft = -(limite - catIndex) * stepSize;
-      
+
       if (newOffset > maxDragRight) newOffset = maxDragRight;
       if (newOffset < maxDragLeft) newOffset = maxDragLeft;
-      
+
       wheelAccumulator.current = newOffset;
       setDragOffset(wheelAccumulator.current);
 
       if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
-      
+
       wheelTimeout.current = setTimeout(() => {
         setIsDragging(false);
         const distance = wheelAccumulator.current;
@@ -199,36 +199,36 @@ const Home = () => {
   const handleTestiDragMove = (clientX) => {
     if (!isTestiDragging || testiTouchStartRef.current === null) return;
     let offset = clientX - testiTouchStartRef.current;
-    
+
     const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
     const limite = Math.max(0, testimonials.length - itemsPerView);
-    
+
     // Bounds físicos reales del contenedor completo
     const maxDragRight = testiIndex * stepSize;
     const maxDragLeft = -(limite - testiIndex) * stepSize;
-    
+
     if (offset > maxDragRight) offset = maxDragRight;
     if (offset < maxDragLeft) offset = maxDragLeft;
-    
+
     setTestiDragOffset(offset);
   };
 
   const handleTestiDragEnd = () => {
     if (!isTestiDragging || testiTouchStartRef.current === null) return;
     setIsTestiDragging(false);
-    
+
     const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
     const limite = Math.max(0, testimonials.length - itemsPerView);
-    
+
     // Calcular cuántos pasos completos hemos arrastrado
     let steps = Math.round(-testiDragOffset / stepSize);
-    
+
     // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
     if (steps === 0) {
       if (testiDragOffset < -minSwipeDistance) steps = 1;
       if (testiDragOffset > minSwipeDistance) steps = -1;
     }
-    
+
     setTestiIndex(prev => Math.min(Math.max(0, limite), prev + steps));
     setTestiDragOffset(0);
     testiTouchStartRef.current = null;
@@ -249,23 +249,23 @@ const Home = () => {
   const onTestiWheel = (e) => {
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
       setIsTestiDragging(true);
-      
+
       let newOffset = testiWheelAccumulator.current - e.deltaX;
-      
+
       const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
       const limite = Math.max(0, testimonials.length - itemsPerView);
-      
+
       const maxDragRight = testiIndex * stepSize;
       const maxDragLeft = -(limite - testiIndex) * stepSize;
-      
+
       if (newOffset > maxDragRight) newOffset = maxDragRight;
       if (newOffset < maxDragLeft) newOffset = maxDragLeft;
-      
+
       testiWheelAccumulator.current = newOffset;
       setTestiDragOffset(testiWheelAccumulator.current);
 
       if (testiWheelTimeout.current) clearTimeout(testiWheelTimeout.current);
-      
+
       testiWheelTimeout.current = setTimeout(() => {
         setIsTestiDragging(false);
         const distance = testiWheelAccumulator.current;
@@ -295,36 +295,36 @@ const Home = () => {
   const handleProdDragMove = (clientX) => {
     if (!isProdDragging || prodTouchStartRef.current === null) return;
     let offset = clientX - prodTouchStartRef.current;
-    
+
     const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
     const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
-    
+
     // Bounds físicos reales del contenedor completo
     const maxDragRight = prodIndex * stepSize;
     const maxDragLeft = -(limite - prodIndex) * stepSize;
-    
+
     if (offset > maxDragRight) offset = maxDragRight;
     if (offset < maxDragLeft) offset = maxDragLeft;
-    
+
     setProdDragOffset(offset);
   };
 
   const handleProdDragEnd = () => {
     if (!isProdDragging || prodTouchStartRef.current === null) return;
     setIsProdDragging(false);
-    
+
     const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
     const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
-    
+
     // Calcular cuántos pasos completos hemos arrastrado
     let steps = Math.round(-prodDragOffset / stepSize);
-    
+
     // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
     if (steps === 0) {
       if (prodDragOffset < -minSwipeDistance) steps = 1;
       if (prodDragOffset > minSwipeDistance) steps = -1;
     }
-    
+
     setProdIndex(prev => Math.min(Math.max(0, limite), prev + steps));
     setProdDragOffset(0);
     prodTouchStartRef.current = null;
@@ -345,23 +345,23 @@ const Home = () => {
   const onProdWheel = (e) => {
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
       setIsProdDragging(true);
-      
+
       let newOffset = prodWheelAccumulator.current - e.deltaX;
-      
+
       const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
       const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
-      
+
       const maxDragRight = prodIndex * stepSize;
       const maxDragLeft = -(limite - prodIndex) * stepSize;
-      
+
       if (newOffset > maxDragRight) newOffset = maxDragRight;
       if (newOffset < maxDragLeft) newOffset = maxDragLeft;
-      
+
       prodWheelAccumulator.current = newOffset;
       setProdDragOffset(prodWheelAccumulator.current);
 
       if (prodWheelTimeout.current) clearTimeout(prodWheelTimeout.current);
-      
+
       prodWheelTimeout.current = setTimeout(() => {
         setIsProdDragging(false);
         const distance = prodWheelAccumulator.current;
@@ -464,7 +464,7 @@ const Home = () => {
                   <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
                     <ShippingIcon />
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold">Envíos a todo Ecuador</span>
+                      <span className="text-xs font-semibold">Envíos a todo Chile</span>
                     </div>
                   </div>
                   <div className="hidden sm:block w-[1px] h-8 bg-zinc-200 dark:bg-white/10"></div>
@@ -542,9 +542,9 @@ const Home = () => {
               <p>Estamos preparando las colecciones para ti.</p>
             </div>
           ) : (
-            <div 
+            <div
               ref={containerRef}
-              className={`flex w-full ${isDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`} 
+              className={`flex w-full ${isDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`}
               style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView} + ${dragOffset}px))` }}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
@@ -558,32 +558,32 @@ const Home = () => {
               {categoriasDB.map((cat, index) => {
                 const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
                 const floatIndex = catIndex - (dragOffset / stepSize);
-                
+
                 const distFromLeft = index - floatIndex;
                 const distFromRight = (floatIndex + itemsPerView - 1) - index;
-                
+
                 let progress = 1;
                 if (distFromLeft < 0) {
-                   progress = 1 + distFromLeft;
+                  progress = 1 + distFromLeft;
                 } else if (distFromRight < 0) {
-                   progress = 1 + distFromRight;
+                  progress = 1 + distFromRight;
                 }
                 progress = Math.min(1, Math.max(0, progress));
-                
+
                 let opacityClass = "opacity-0 scale-95 pointer-events-none";
                 let dynamicStyle = {};
 
                 if (progress < 1 && progress > 0) {
-                   dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                  dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
                 } else if (progress === 1) {
-                   opacityClass = "opacity-100 scale-100";
-                   if (!(index >= catIndex && index < catIndex + itemsPerView)) {
-                     dynamicStyle = { opacity: 1, transform: `scale(1)` };
-                   }
+                  opacityClass = "opacity-100 scale-100";
+                  if (!(index >= catIndex && index < catIndex + itemsPerView)) {
+                    dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                  }
                 } else {
-                   if (index >= catIndex && index < catIndex + itemsPerView) {
-                     dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
-                   }
+                  if (index >= catIndex && index < catIndex + itemsPerView) {
+                    dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                  }
                 }
 
                 return (
@@ -664,32 +664,32 @@ const Home = () => {
               {productosDestacados.map((producto, index) => {
                 const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
                 const floatIndex = prodIndex - (prodDragOffset / stepSize);
-                
+
                 const distFromLeft = index - floatIndex;
                 const distFromRight = (floatIndex + prodItemsPerView - 1) - index;
-                
+
                 let progress = 1;
                 if (distFromLeft < 0) {
-                   progress = 1 + distFromLeft;
+                  progress = 1 + distFromLeft;
                 } else if (distFromRight < 0) {
-                   progress = 1 + distFromRight;
+                  progress = 1 + distFromRight;
                 }
                 progress = Math.min(1, Math.max(0, progress));
-                
+
                 let opacityClass = "opacity-0 scale-95 pointer-events-none";
                 let dynamicStyle = {};
 
                 if (progress < 1 && progress > 0) {
-                   dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                  dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
                 } else if (progress === 1) {
-                   opacityClass = "opacity-100 scale-100";
-                   if (!(index >= prodIndex && index < prodIndex + prodItemsPerView)) {
-                     dynamicStyle = { opacity: 1, transform: `scale(1)` };
-                   }
+                  opacityClass = "opacity-100 scale-100";
+                  if (!(index >= prodIndex && index < prodIndex + prodItemsPerView)) {
+                    dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                  }
                 } else {
-                   if (index >= prodIndex && index < prodIndex + prodItemsPerView) {
-                     dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
-                   }
+                  if (index >= prodIndex && index < prodIndex + prodItemsPerView) {
+                    dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                  }
                 }
 
                 return (
@@ -758,7 +758,7 @@ const Home = () => {
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-zinc-500 dark:text-zinc-400"><ShirtIcon /></div>
-                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Hecho en<br />Ecuador</span>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Hecho en<br />Chile</span>
               </div>
             </div>
           </div>
@@ -800,32 +800,32 @@ const Home = () => {
             {testimonials.map((testimonial, i) => {
               const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
               const floatIndex = testiIndex - (testiDragOffset / stepSize);
-              
+
               const distFromLeft = i - floatIndex;
               const distFromRight = (floatIndex + itemsPerView - 1) - i;
-              
+
               let progress = 1;
               if (distFromLeft < 0) {
-                 progress = 1 + distFromLeft;
+                progress = 1 + distFromLeft;
               } else if (distFromRight < 0) {
-                 progress = 1 + distFromRight;
+                progress = 1 + distFromRight;
               }
               progress = Math.min(1, Math.max(0, progress));
-              
+
               let opacityClass = "opacity-0 scale-95 pointer-events-none";
               let dynamicStyle = {};
 
               if (progress < 1 && progress > 0) {
-                 dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
               } else if (progress === 1) {
-                 opacityClass = "opacity-100 scale-100";
-                 if (!(i >= testiIndex && i < testiIndex + itemsPerView)) {
-                   dynamicStyle = { opacity: 1, transform: `scale(1)` };
-                 }
+                opacityClass = "opacity-100 scale-100";
+                if (!(i >= testiIndex && i < testiIndex + itemsPerView)) {
+                  dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                }
               } else {
-                 if (i >= testiIndex && i < testiIndex + itemsPerView) {
-                   dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
-                 }
+                if (i >= testiIndex && i < testiIndex + itemsPerView) {
+                  dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                }
               }
 
               return (

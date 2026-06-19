@@ -367,6 +367,8 @@ app.get('/api/products', async (req, res) => {
         p.stock_quantity, 
         p.image_url, 
         p.is_active,
+        p.sizes,
+        p.color,
         c.name AS category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
@@ -398,6 +400,8 @@ app.get('/api/products/:id', async (req, res) => {
         p.stock_quantity, 
         p.image_url, 
         p.is_active,
+        p.sizes,
+        p.color,
         c.name AS category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
@@ -443,7 +447,11 @@ const verificarAdmin = async (req, res, next) => {
 // ==========================================
 app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { category_id, name, description, price, stock_quantity } = req.body;
+    const { category_id, name, description, price, stock_quantity, color } = req.body;
+    let { sizes } = req.body;
+    if (typeof sizes === 'string') {
+      try { sizes = JSON.parse(sizes); } catch(e) { sizes = sizes.split(','); }
+    }
 
     if (parseFloat(price) < 0) {
       return res.status(400).json({ error: "El precio no puede ser negativo." });
@@ -456,9 +464,9 @@ app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (r
     const finalImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
 
     const newProduct = await pool.query(
-      `INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [category_id, name, description, price, stock_quantity, finalImageUrl, is_active]
+      `INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active, sizes, color) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [category_id, name, description, price, stock_quantity, finalImageUrl, is_active, sizes, color]
     );
 
     res.status(201).json({
@@ -477,7 +485,11 @@ app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (r
 app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, price, stock_quantity } = req.body;
+    const { name, description, price, stock_quantity, color } = req.body;
+    let { sizes } = req.body;
+    if (typeof sizes === 'string') {
+      try { sizes = JSON.parse(sizes); } catch(e) { sizes = sizes.split(','); }
+    }
 
     if (parseFloat(price) < 0) {
       return res.status(400).json({ error: "El precio no puede ser negativo." });
@@ -496,9 +508,9 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
     if (newImageUrl) {
       updateQuery = await pool.query(
         `UPDATE products 
-         SET name = $1, description = $2, price = $3, stock_quantity = $4, image_url = $5 
-         WHERE id = $6 RETURNING *`,
-        [name, description, price, stock_quantity, newImageUrl, productId]
+         SET name = $1, description = $2, price = $3, stock_quantity = $4, image_url = $5, sizes = $6, color = $7 
+         WHERE id = $8 RETURNING *`,
+        [name, description, price, stock_quantity, newImageUrl, sizes, color, productId]
       );
 
       // 2. Si se subió una foto nueva y ya existía una vieja, la borramos del disco local
@@ -513,9 +525,9 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
     } else {
       updateQuery = await pool.query(
         `UPDATE products 
-         SET name = $1, description = $2, price = $3, stock_quantity = $4 
-         WHERE id = $5 RETURNING *`,
-        [name, description, price, stock_quantity, productId]
+         SET name = $1, description = $2, price = $3, stock_quantity = $4, sizes = $5, color = $6 
+         WHERE id = $7 RETURNING *`,
+        [name, description, price, stock_quantity, sizes, color, productId]
       );
     }
 

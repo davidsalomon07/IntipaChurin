@@ -160,23 +160,27 @@ const ProductDetail = () => {
               </p>
             </div>
 
-            {/* Selector de Tallas Simulado */}
+            {/* Selector de Tallas */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Seleccionar Talla</h2>
                 <span className="text-xs text-zinc-400 font-medium">Calce Regular Unisex</span>
               </div>
               <div className="flex gap-3">
-                {['S', 'M', 'L', 'XL'].map((talla) => (
-                  <button
-                    key={talla}
-                    disabled={!producto.is_active}
-                    onClick={() => setTallaSeleccionada(talla)}
-                    className={`w-12 h-12 rounded-xl text-xs font-bold border transition-all duration-200 ${!producto.is_active ? 'border-zinc-100 text-zinc-300 dark:border-zinc-900 dark:text-zinc-800 cursor-not-allowed' : tallaSeleccionada === talla ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white shadow-md scale-105' : 'border-zinc-200 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500'}`}
-                  >
-                    {talla}
-                  </button>
-                ))}
+                {producto.sizes && producto.sizes.length > 0 ? (
+                  producto.sizes.map((talla) => (
+                    <button
+                      key={talla}
+                      disabled={!producto.is_active}
+                      onClick={() => setTallaSeleccionada(talla)}
+                      className={`w-12 h-12 rounded-xl text-xs font-bold border transition-all duration-200 ${!producto.is_active ? 'border-zinc-100 text-zinc-300 dark:border-zinc-900 dark:text-zinc-800 cursor-not-allowed' : tallaSeleccionada === talla ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white shadow-md scale-105' : 'border-zinc-200 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500'}`}
+                    >
+                      {talla}
+                    </button>
+                  ))
+                ) : (
+                  <span className="text-sm text-zinc-500 italic">No hay tallas registradas</span>
+                )}
               </div>
             </div>
 
