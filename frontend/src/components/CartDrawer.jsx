@@ -100,10 +100,16 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         <select
                           value={cantidadAEliminar}
                           onChange={(e) => setCantidadAEliminar(parseInt(e.target.value))}
-                          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs rounded-lg px-2 py-1 outline-none text-zinc-850 dark:text-zinc-150 font-bold"
+                          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs rounded-lg px-2 py-1 outline-none text-zinc-850 dark:text-zinc-200 font-bold cursor-pointer"
                         >
                           {Array.from({ length: item.cantidad }, (_, i) => i + 1).map((val) => (
-                            <option key={val} value={val}>{val === item.cantidad ? `Todos (${val})` : `${val} unid.`}</option>
+                            <option
+                              key={val}
+                              value={val}
+                              className="bg-white dark:bg-zinc-800 text-zinc-850 dark:text-zinc-200"
+                            >
+                              {val === item.cantidad ? `Todos (${val})` : `${val} unid.`}
+                            </option>
                           ))}
                         </select>
                         <button
