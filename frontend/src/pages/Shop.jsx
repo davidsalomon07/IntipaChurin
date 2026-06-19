@@ -582,8 +582,17 @@ const Shop = () => {
 
           {/* Grid de Productos */}
           {isLoading ? (
-            <div className="flex justify-center items-center py-24 w-full">
-              <svg className="animate-spin h-8 w-8 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-5 md:gap-y-12 w-full">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex flex-col animate-pulse w-full">
+                  <div className="w-full aspect-[4/5] rounded-xl bg-zinc-200 dark:bg-zinc-800/50 mb-4"></div>
+                  <div className="mt-auto px-1">
+                    <div className="h-2.5 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/3 mb-3"></div>
+                    <div className="h-3.5 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4 mb-2.5"></div>
+                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/4"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : productosFiltrados.length > 0 ? (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-5 md:gap-y-12">
