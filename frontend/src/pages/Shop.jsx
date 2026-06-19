@@ -76,8 +76,15 @@ const Shop = () => {
   const { agregarAlCarrito } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const [sortOption, setSortOption] = useState('Ordenar por: Destacados');
-  const sortOptions = ['Ordenar por: Destacados', 'Precio: Menor a Mayor', 'Precio: Mayor a Menor', 'Nuevos'];
+  const [sortOption, setSortOption] = useState('destacados');
+  const sortOptions = [
+    { value: 'destacados', label: 'Destacados' },
+    { value: 'precio_asc', label: 'Precio: Menor a Mayor' },
+    { value: 'precio_desc', label: 'Precio: Mayor a Menor' },
+    { value: 'nuevos', label: 'Nuevos' }
+  ];
+
+  const currentSortLabel = sortOptions.find(o => o.value === sortOption)?.label || 'Destacados';
 
   // Estados de datos
   const [productosDB, setProductosDB] = useState([]);
@@ -87,12 +94,53 @@ const Shop = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
-  const [priceRange, setPriceRange] = useState(300); // max value
+  const [minPrice, setMinPrice] = useState("0");
+  const [priceRange, setPriceRange] = useState("300"); // max value
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(() => {
     return typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
   });
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [whiteBgProductIds, setWhiteBgProductIds] = useState(new Set());
+
+  const handleMinChange = (valStr) => {
+    if (valStr === "") {
+      setMinPrice("");
+      return;
+    }
+    let cleanValStr = valStr;
+    if (cleanValStr.length > 1 && cleanValStr.startsWith("0")) {
+      cleanValStr = cleanValStr.replace(/^0+/, "");
+      if (cleanValStr === "") cleanValStr = "0";
+    }
+    const val = parseInt(cleanValStr);
+    if (isNaN(val)) return;
+    const cleanVal = Math.max(0, Math.min(300, val));
+    setMinPrice(cleanVal.toString());
+    const maxVal = priceRange === "" ? 300 : parseInt(priceRange);
+    if (cleanVal > maxVal && priceRange !== "") {
+      setPriceRange(cleanVal.toString());
+    }
+  };
+
+  const handleMaxChange = (valStr) => {
+    if (valStr === "") {
+      setPriceRange("");
+      return;
+    }
+    let cleanValStr = valStr;
+    if (cleanValStr.length > 1 && cleanValStr.startsWith("0")) {
+      cleanValStr = cleanValStr.replace(/^0+/, "");
+      if (cleanValStr === "") cleanValStr = "0";
+    }
+    const val = parseInt(cleanValStr);
+    if (isNaN(val)) return;
+    const cleanVal = Math.max(0, Math.min(300, val));
+    setPriceRange(cleanVal.toString());
+    const minVal = minPrice === "" ? 0 : parseInt(minPrice);
+    if (cleanVal < minVal && minPrice !== "") {
+      setMinPrice(cleanVal.toString());
+    }
+  };
 
   const sizesList = ['S', 'M', 'L', 'XL'];
   const colorsList = [
@@ -208,18 +256,23 @@ const Shop = () => {
   if (selectedColor) {
     productosFiltrados = productosFiltrados.filter(p => p.color === selectedColor);
   }
-  if (priceRange < 300) {
-    productosFiltrados = productosFiltrados.filter(p => parseFloat(p.price) <= priceRange);
+  const min = minPrice === "" ? 0 : parseFloat(minPrice);
+  const max = priceRange === "" ? 300 : parseFloat(priceRange);
+  if (min > 0 || max < 300) {
+    productosFiltrados = productosFiltrados.filter(p => {
+      const price = parseFloat(p.price);
+      return price >= min && price <= max;
+    });
   }
 
   // Lógica de ordenamiento
-  if (sortOption === 'Precio: Menor a Mayor') {
+  if (sortOption === 'precio_asc') {
     productosFiltrados = [...productosFiltrados].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-  } else if (sortOption === 'Precio: Mayor a Menor') {
+  } else if (sortOption === 'precio_desc') {
     productosFiltrados = [...productosFiltrados].sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-  } else if (sortOption === 'Nuevos') {
+  } else if (sortOption === 'nuevos') {
     productosFiltrados = [...productosFiltrados].sort((a, b) => b.id - a.id);
-  } else if (sortOption === 'Ordenar por: Destacados') {
+  } else {
     productosFiltrados = [...productosFiltrados].sort((a, b) => a.id - b.id);
   }
 
@@ -266,9 +319,8 @@ const Shop = () => {
 
         {/* --- SIDEBAR IZQUIERDO (Filtros) --- */}
         <aside className={`w-full lg:w-64 flex-shrink-0 bg-white dark:bg-[#0e1014] rounded-3xl shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)] hover:-translate-y-1 hover:border-zinc-300 dark:hover:border-white/20 transition-all duration-500 ease-in-out overflow-hidden ${isMobileFiltersOpen ? 'opacity-100 max-h-[1500px] lg:max-h-none p-6 md:p-8 border border-zinc-200/80 dark:border-white/10 mb-12 lg:mb-0 lg:mr-12 lg:min-w-[16rem] lg:max-w-[16rem]' : 'opacity-0 max-h-0 lg:max-h-0 lg:w-0 p-0 border-0 mb-0 lg:mr-0 pointer-events-none lg:min-w-0 lg:max-w-0'}`}>
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-800/50 lg:border-none lg:pb-0 lg:mb-6">
+          <div className="mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-800/50 lg:border-none lg:pb-0 lg:mb-6">
             <h2 className="text-xs font-bold tracking-widest text-zinc-900 dark:text-zinc-100">FILTRAR POR</h2>
-            <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
           </div>
 
           <FilterAccordion title="CATEGORÍA" defaultOpen={true}>
@@ -312,17 +364,79 @@ const Shop = () => {
 
           <FilterAccordion title="PRECIO" defaultOpen={true}>
             <div className="pt-2 pb-2">
-              <input
-                type="range"
-                min="0"
-                max="300"
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-white"
-              />
-              <div className="flex justify-between text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-5">
-                <span>S/ 0</span>
-                <span>{priceRange == 300 ? 'S/ 300+' : `S/ ${priceRange}`}</span>
+              {/* Slider de rango */}
+              <div className="px-1">
+                <input
+                  type="range"
+                  min="0"
+                  max="300"
+                  value={priceRange === "" ? 300 : priceRange}
+                  onChange={(e) => handleMaxChange(e.target.value)}
+                  className="w-full h-2 bg-zinc-200 dark:bg-zinc-800/80 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-white hover:bg-zinc-300 dark:hover:bg-zinc-700/80 transition-all duration-300 focus:outline-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-zinc-950 dark:[&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white dark:[&::-webkit-slider-thumb]:border-zinc-950 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform"
+                />
+                <div className="flex justify-between text-[11px] font-bold text-zinc-400 dark:text-zinc-500 mt-2.5 uppercase tracking-wider">
+                  <span>S/ {minPrice === "" ? 0 : minPrice}</span>
+                  <span>{priceRange === "" || priceRange >= 300 ? 'S/ 300+' : `S/ ${priceRange}`}</span>
+                </div>
+              </div>
+
+              {/* Entradas numéricas horizontales */}
+              <div className="flex items-center gap-2 mt-4">
+                <div className="relative flex items-center flex-1">
+                  <span className="absolute left-3.5 text-zinc-400 dark:text-zinc-500 text-xs font-semibold">S/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="300"
+                    placeholder="Mín"
+                    value={minPrice}
+                    onChange={(e) => handleMinChange(e.target.value)}
+                    className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 rounded-xl pl-7 pr-2 py-2 text-xs text-zinc-800 dark:text-zinc-200 font-semibold focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-center"
+                  />
+                </div>
+                <span className="text-zinc-300 dark:text-zinc-700 text-xs font-semibold">—</span>
+                <div className="relative flex items-center flex-1">
+                  <span className="absolute left-3.5 text-zinc-400 dark:text-zinc-500 text-xs font-semibold">S/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="300"
+                    placeholder="Máx"
+                    value={priceRange}
+                    onChange={(e) => handleMaxChange(e.target.value)}
+                    className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 rounded-xl pl-7 pr-2 py-2 text-xs text-zinc-800 dark:text-zinc-200 font-semibold focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-center"
+                  />
+                </div>
+              </div>
+
+              {/* Atajos de preselección rápida en lista vertical limpia */}
+              <div className="flex flex-col gap-1 mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-900/40">
+                {[
+                  { label: 'Todos los precios', min: "0", max: "300" },
+                  { label: 'Hasta S/ 100', min: "0", max: "100" },
+                  { label: 'S/ 100 - S/ 200', min: "100", max: "200" },
+                  { label: 'S/ 200 a más', min: "200", max: "300" }
+                ].map((preset) => {
+                  const isActive = minPrice === preset.min && priceRange === preset.max;
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        setMinPrice(preset.min);
+                        setPriceRange(preset.max);
+                      }}
+                      className={`flex items-center justify-between text-xs py-2 px-3 rounded-xl transition-all duration-300 text-left ${isActive ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white font-bold' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-900/30'}`}
+                    >
+                      <span>{preset.label}</span>
+                      {isActive && (
+                        <svg className="w-3.5 h-3.5 text-zinc-900 dark:text-white shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </FilterAccordion>
@@ -356,23 +470,26 @@ const Shop = () => {
                 <button
                   onClick={() => setIsSortOpen(!isSortOpen)}
                   onBlur={() => setTimeout(() => setIsSortOpen(false), 200)}
-                  className="flex items-center justify-between gap-3 bg-transparent border border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 text-sm rounded-full px-5 py-2 hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors focus:outline-none w-full lg:w-auto lg:min-w-[210px]"
+                  className="flex items-center justify-between gap-3 bg-transparent border border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 text-sm rounded-full px-5 py-2 hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors focus:outline-none w-full lg:w-auto lg:min-w-[220px]"
                 >
-                  <span>{sortOption}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-zinc-400 dark:text-zinc-500 font-normal">Ordenar por:</span>
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">{currentSortLabel}</span>
+                  </span>
                   <svg className={`w-4 h-4 text-zinc-400 dark:text-zinc-500 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
 
-                <div className={`absolute top-full right-0 mt-2 w-full lg:min-w-[210px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xl rounded-2xl py-2 z-20 origin-top-right transition-all duration-200 ${isSortOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
-                  {sortOptions.map((option, index) => (
+                <div className={`absolute top-full right-0 mt-2 w-full lg:min-w-[220px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xl rounded-2xl py-2 z-20 origin-top-right transition-all duration-200 ${isSortOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                  {sortOptions.map((option) => (
                     <button
-                      key={index}
+                      key={option.value}
                       onClick={() => {
-                        setSortOption(option);
+                        setSortOption(option.value);
                         setIsSortOpen(false);
                       }}
-                      className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${sortOption === option ? 'font-bold text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800/50' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white'}`}
+                      className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${sortOption === option.value ? 'font-bold text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800/50' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white'}`}
                     >
-                      {option}
+                      {option.label}
                     </button>
                   ))}
                 </div>
@@ -381,7 +498,7 @@ const Shop = () => {
           </div>
 
           {/* Chips de Filtros Activos */}
-          {(selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColor || priceRange < 300) && (
+          {(selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColor || min > 0 || max < 300) && (
             <div className="flex flex-wrap items-center gap-2 mb-8">
               {selectedCategories.map(cat => (
                 <span key={cat} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
@@ -401,10 +518,18 @@ const Shop = () => {
                   <button onClick={() => setSelectedColor(null)} className="hover:text-zinc-900 dark:hover:text-white"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </span>
               )}
-              {priceRange < 300 && (
+              {(min > 0 || max < 300) && (
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
-                  Hasta S/ {priceRange}
-                  <button onClick={() => setPriceRange(300)} className="hover:text-zinc-900 dark:hover:text-white"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                  Precio: {min > 0 && max < 300 ? `S/ ${min} - S/ ${max}` : min > 0 ? `S/ ${min} a más` : `Hasta S/ ${max}`}
+                  <button
+                    onClick={() => {
+                      setMinPrice("0");
+                      setPriceRange("300");
+                    }}
+                    className="hover:text-zinc-900 dark:hover:text-white"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
                 </span>
               )}
               <button
@@ -412,7 +537,8 @@ const Shop = () => {
                   setSelectedCategories([]);
                   setSelectedSizes([]);
                   setSelectedColor(null);
-                  setPriceRange(300);
+                  setMinPrice("0");
+                  setPriceRange("300");
                 }}
                 className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white underline underline-offset-4 ml-2"
               >
@@ -510,7 +636,8 @@ const Shop = () => {
                   setSelectedCategories([]);
                   setSelectedSizes([]);
                   setSelectedColor(null);
-                  setPriceRange(300);
+                  setMinPrice("0");
+                  setPriceRange("300");
                 }}
                 className="mt-4 text-xs font-semibold underline underline-offset-4 hover:text-zinc-900 dark:hover:text-white"
               >
