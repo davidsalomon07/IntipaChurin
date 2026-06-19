@@ -463,9 +463,34 @@ const AdminDashboard = () => {
 
           <div className="bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden flex flex-col">
             {isLoading ? (
-              <div className="p-20 text-center text-zinc-500 font-medium flex flex-col items-center">
-                <svg className="animate-spin h-8 w-8 mb-4 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Cargando información...
+              <div className="w-full">
+                {/* Skeleton Header de tabla */}
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 flex justify-between animate-pulse">
+                  <div className="h-3 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-1/6"></div>
+                  <div className="h-3 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-1/4"></div>
+                  <div className="h-3 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-1/6"></div>
+                </div>
+                {/* Skeleton Filas */}
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+                  {Array.from({ length: 6 }).map((_, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-4 px-6 animate-pulse">
+                      <div className="flex items-center gap-4 w-1/2">
+                        <div className="w-10 h-10 rounded-lg bg-zinc-200 dark:bg-zinc-800/80 shrink-0"></div>
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="h-3.5 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4"></div>
+                          <div className="h-2.5 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/3"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end gap-4 w-1/2">
+                        <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/4"></div>
+                        <div className="flex gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800/80"></div>
+                          <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800/80"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="overflow-x-auto w-full min-w-0">

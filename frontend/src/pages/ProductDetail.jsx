@@ -44,39 +44,54 @@ const ProductDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col transition-colors duration-300">
+      <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col justify-between transition-colors duration-300">
         <Navbar />
-        <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start animate-pulse">
-            <div className="flex flex-col-reverse md:flex-row gap-4 lg:gap-6 items-start w-full">
-              <div className="flex md:flex-col gap-3 overflow-hidden shrink-0 pb-2 md:pb-0 md:pr-2 md:w-20 lg:w-24">
+        <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full animate-pulse">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            {/* Lado Izquierdo: Galería de Imágenes Esqueleto */}
+            <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
+              {/* Thumbnails */}
+              <div className="flex md:grid md:grid-rows-5 gap-3 overflow-hidden shrink-0 md:w-20 lg:w-24 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full">
                 {Array.from({ length: 5 }).map((_, idx) => (
-                  <div key={idx} className="w-16 md:w-full aspect-[3/4] rounded-2xl bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  <div key={idx} className="w-16 md:w-full md:h-full aspect-[3/4] md:aspect-auto rounded-2xl bg-zinc-200 dark:bg-zinc-800/50"></div>
                 ))}
               </div>
-              <div className="w-full aspect-[3/4] rounded-3xl bg-zinc-200 dark:bg-zinc-800/50 flex-grow"></div>
+              {/* Imagen Principal */}
+              <div className="w-full aspect-[3/4] rounded-3xl bg-zinc-200 dark:bg-zinc-800/50"></div>
             </div>
+            
+            {/* Lado Derecho: Detalles Esqueleto */}
             <div className="flex flex-col h-full justify-center w-full">
+              {/* Categoría */}
               <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/4 mb-4"></div>
+              {/* Título */}
               <div className="h-10 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4 mb-6"></div>
+              {/* Precio */}
               <div className="h-6 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-10"></div>
+              
               <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
-                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/6 mb-5"></div>
-                <div className="space-y-4">
+                {/* Descripción label */}
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/6 mb-4"></div>
+                {/* Descripción lineas */}
+                <div className="space-y-3">
                   <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-full"></div>
                   <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-5/6"></div>
                   <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-4/5"></div>
                 </div>
               </div>
+              
+              {/* Tallas label */}
               <div className="mb-8">
-                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-5"></div>
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-4"></div>
                 <div className="flex gap-3">
                   {Array.from({ length: 4 }).map((_, idx) => (
                     <div key={idx} className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800/50"></div>
                   ))}
                 </div>
               </div>
-              <div className="space-y-5">
+              
+              {/* Stock status y botón */}
+              <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800/50"></div>
                   <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-2/3"></div>
@@ -122,15 +137,15 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           
           {/* Lado Izquierdo: Galería de Imágenes */}
-          <div className="flex flex-col-reverse md:flex-row gap-4 lg:gap-6 items-start">
+          <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
             {/* Thumbnails */}
-            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto pb-2 md:pb-0 md:pr-2 md:w-20 lg:w-24 shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex md:grid md:grid-rows-5 gap-3 overflow-x-auto md:overflow-y-hidden pb-2 md:pb-0 md:w-20 lg:w-24 shrink-0 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {imagenes.map((img, idx) => (
                 <button 
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative block p-0 w-16 md:w-full aspect-[3/4] shrink-0 rounded-2xl overflow-hidden transition-all duration-300 outline-none ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                  className={`relative block p-0 w-16 md:w-full md:h-full aspect-[3/4] md:aspect-auto shrink-0 rounded-2xl overflow-hidden transition-all duration-300 outline-none ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                 >
                   <img src={img} className="absolute inset-0 w-full h-full object-cover rounded-2xl" alt={`${producto.name} vista ${idx + 1}`} />
                   <div className={`absolute inset-0 rounded-2xl border-2 pointer-events-none transition-colors duration-300 z-10 ${selectedImage === idx ? 'border-zinc-900 dark:border-white' : 'border-transparent'}`}></div>
