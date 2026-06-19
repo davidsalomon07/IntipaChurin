@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import QuickViewModal from '../components/QuickViewModal';
 
 // --- Subcomponente Acordeón ---
 const FilterAccordion = ({ title, defaultOpen = true, children }) => {
@@ -108,6 +109,7 @@ const Shop = () => {
   });
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [whiteBgProductIds, setWhiteBgProductIds] = useState(new Set());
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   const handleMinChange = (valStr) => {
     if (valStr === "") {
@@ -649,6 +651,24 @@ const Shop = () => {
                       </button>
                     </div>
 
+                    {/* Botón Vista Rápida */}
+                    <div className="absolute bottom-3 left-3 z-10">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuickViewProduct(item);
+                        }}
+                        title="Vista Rápida"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
+                        style={{ backgroundColor: (hoveredProductId === item.id && !whiteBgProductIds.has(item.id)) ? getHoverBg(item.color) : 'rgba(9, 9, 11, 0.4)' }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                    </div>
+
                     {/* Botón de Carrito (estilo bolsa) */}
                     <div className="absolute bottom-3 right-3 z-10">
                       <button
@@ -713,6 +733,12 @@ const Shop = () => {
       </main>
 
       <MiniFooter />
+
+      <QuickViewModal 
+        isOpen={!!quickViewProduct} 
+        onClose={() => setQuickViewProduct(null)} 
+        producto={quickViewProduct} 
+      />
     </div>
   );
 };
