@@ -201,9 +201,21 @@ const ProductDetail = () => {
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 dark:text-white leading-tight">
               {producto.name}
             </h1>
-            <p className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-8">
-              $ {parseFloat(producto.price).toFixed(2)}
-            </p>
+            <div className="flex items-center gap-4 mb-8">
+              <p className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+                S/ {parseFloat(producto.price).toFixed(2)}
+              </p>
+              {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (
+                <div className="flex items-center gap-3">
+                  <p className="text-lg md:text-xl text-zinc-400 dark:text-zinc-500 line-through">
+                    S/ {parseFloat(producto.original_price).toFixed(2)}
+                  </p>
+                  <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">
+                    -{Math.round((1 - parseFloat(producto.price) / parseFloat(producto.original_price)) * 100)}%
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
               <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Descripción</h2>

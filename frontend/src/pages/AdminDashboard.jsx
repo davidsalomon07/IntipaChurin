@@ -90,7 +90,7 @@ const AdminDashboard = () => {
   const [confirmAction, setConfirmAction] = useState(null);
 
   // Formularios completos (Agregamos image_file, sizes y color)
-  const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', sizes: [], color: '', image_file: null, is_active: true };
+  const estadoInicialProducto = { name: '', description: '', price: '', original_price: '', stock_quantity: '', category_id: '', sizes: [], color: '', image_file: null, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
@@ -187,6 +187,7 @@ const AdminDashboard = () => {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     const priceVal = parseFloat(productForm.price);
+    const originalPriceVal = productForm.original_price ? parseFloat(productForm.original_price) : '';
     const stockVal = parseInt(productForm.stock_quantity);
 
     if (isNaN(priceVal) || priceVal < 0) {
@@ -203,6 +204,7 @@ const AdminDashboard = () => {
       formData.append('name', productForm.name);
       formData.append('description', productForm.description);
       formData.append('price', priceVal);
+      if (originalPriceVal) formData.append('original_price', originalPriceVal);
       formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
       formData.append('sizes', JSON.stringify(productForm.sizes || []));
@@ -232,6 +234,7 @@ const AdminDashboard = () => {
       name: p.name,
       description: p.description || '',
       price: p.price,
+      original_price: p.original_price || '',
       stock_quantity: p.stock_quantity,
       category_id: p.category_id || '',
       sizes: p.sizes || [],
@@ -246,6 +249,7 @@ const AdminDashboard = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     const priceVal = parseFloat(productForm.price);
+    const originalPriceVal = productForm.original_price ? parseFloat(productForm.original_price) : '';
     const stockVal = parseInt(productForm.stock_quantity);
 
     if (isNaN(priceVal) || priceVal < 0) {
@@ -262,6 +266,7 @@ const AdminDashboard = () => {
       formData.append('name', productForm.name);
       formData.append('description', productForm.description);
       formData.append('price', priceVal);
+      if (originalPriceVal) formData.append('original_price', originalPriceVal);
       formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
       formData.append('sizes', JSON.stringify(productForm.sizes || []));
@@ -738,11 +743,15 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio Anterior (Opcional $)</label>
+                    <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
@@ -848,11 +857,15 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio Anterior (Opcional $)</label>
+                    <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>

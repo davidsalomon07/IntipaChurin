@@ -713,6 +713,13 @@ const Home = () => {
                     <div className="w-full aspect-[4/5] relative bg-zinc-50 dark:bg-[#0e1014] overflow-hidden flex items-center justify-center">
                       <img src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={producto.name} />
 
+                      {/* Etiqueta de Descuento */}
+                      {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (
+                        <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm z-10">
+                          -{Math.round((1 - parseFloat(producto.price) / parseFloat(producto.original_price)) * 100)}%
+                        </div>
+                      )}
+
                       {/* Favoritos */}
                       <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -726,7 +733,12 @@ const Home = () => {
                     <div className="p-5 flex justify-between items-end">
                       <div>
                         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1 truncate">{producto.name}</h3>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400">S/ {parseFloat(producto.price).toFixed(2)}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-zinc-900 dark:text-white font-bold">S/ {parseFloat(producto.price).toFixed(2)}</p>
+                          {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (
+                            <p className="text-xs text-zinc-400 dark:text-zinc-500 line-through">S/ {parseFloat(producto.original_price).toFixed(2)}</p>
+                          )}
+                        </div>
                       </div>
                       <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }} className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 flex items-center justify-center text-zinc-800 dark:text-white transition-colors border border-zinc-200 dark:border-white/5">
                         <BagIcon />

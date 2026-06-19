@@ -611,6 +611,13 @@ const Shop = () => {
                       alt={item.name}
                     />
 
+                    {/* Etiqueta de Descuento */}
+                    {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (
+                      <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm z-10">
+                        -{Math.round((1 - parseFloat(item.price) / parseFloat(item.original_price)) * 100)}%
+                      </div>
+                    )}
+
                     {/* Botón de Wishlist */}
                     <div className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:-translate-y-2">
                       <button
@@ -665,7 +672,12 @@ const Shop = () => {
                   <div className="mt-auto px-1">
                     <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mb-1.5">{item.category_name || 'PRENDA'}</p>
                     <h3 className="text-[13px] md:text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 leading-snug">{item.name}</h3>
-                    <p className="text-xs md:text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">S/ {parseFloat(item.price).toFixed(2)}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs md:text-[13px] text-zinc-900 dark:text-white font-bold">S/ {parseFloat(item.price).toFixed(2)}</p>
+                      {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (
+                        <p className="text-xs md:text-[13px] text-zinc-400 dark:text-zinc-500 font-medium line-through">S/ {parseFloat(item.original_price).toFixed(2)}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

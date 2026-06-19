@@ -364,6 +364,7 @@ app.get('/api/products', async (req, res) => {
         p.name, 
         p.description, 
         p.price, 
+        p.original_price,
         p.stock_quantity, 
         p.image_url, 
         p.is_active,
@@ -397,6 +398,7 @@ app.get('/api/products/:id', async (req, res) => {
         p.name, 
         p.description, 
         p.price, 
+        p.original_price,
         p.stock_quantity, 
         p.image_url, 
         p.is_active,
@@ -448,7 +450,8 @@ const verificarAdmin = async (req, res, next) => {
 app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (req, res) => {
   try {
     const { category_id, name, description, price, stock_quantity, color } = req.body;
-    let { sizes } = req.body;
+    let { sizes, original_price } = req.body;
+    original_price = original_price ? parseFloat(original_price) : null;
     if (typeof sizes === 'string') {
       try { sizes = JSON.parse(sizes); } catch(e) { sizes = sizes.split(','); }
     }
@@ -464,9 +467,9 @@ app.post('/api/admin/products', verificarAdmin, upload.single('image'), async (r
     const finalImageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : null;
 
     const newProduct = await pool.query(
-      `INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active, sizes, color) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [category_id, name, description, price, stock_quantity, finalImageUrl, is_active, sizes, color]
+      `INSERT INTO products (category_id, name, description, price, original_price, stock_quantity, image_url, is_active, sizes, color) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [category_id, name, description, price, original_price, stock_quantity, finalImageUrl, is_active, sizes, color]
     );
 
     res.status(201).json({
@@ -486,7 +489,8 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
   try {
     const productId = req.params.id;
     const { name, description, price, stock_quantity, color } = req.body;
-    let { sizes } = req.body;
+    let { sizes, original_price } = req.body;
+    original_price = original_price ? parseFloat(original_price) : null;
     if (typeof sizes === 'string') {
       try { sizes = JSON.parse(sizes); } catch(e) { sizes = sizes.split(','); }
     }
@@ -508,9 +512,9 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
     if (newImageUrl) {
       updateQuery = await pool.query(
         `UPDATE products 
-         SET name = $1, description = $2, price = $3, stock_quantity = $4, image_url = $5, sizes = $6, color = $7 
-         WHERE id = $8 RETURNING *`,
-        [name, description, price, stock_quantity, newImageUrl, sizes, color, productId]
+         SET name = $1, description = $2, price = $3, original_price = $4, stock_quantity = $5, image_url = $6, sizes = $7, color = $8 
+         WHERE id = $9 RETURNING *`,
+        [name, description, price, original_price, stock_quantity, newImageUrl, sizes, color, productId]
       );
 
       // 2. Si se subió una foto nueva y ya existía una vieja, la borramos del disco local
@@ -525,9 +529,9 @@ app.put('/api/admin/products/:id', verificarAdmin, upload.single('image'), async
     } else {
       updateQuery = await pool.query(
         `UPDATE products 
-         SET name = $1, description = $2, price = $3, stock_quantity = $4, sizes = $5, color = $6 
-         WHERE id = $7 RETURNING *`,
-        [name, description, price, stock_quantity, sizes, color, productId]
+         SET name = $1, description = $2, price = $3, original_price = $4, stock_quantity = $5, sizes = $6, color = $7 
+         WHERE id = $8 RETURNING *`,
+        [name, description, price, original_price, stock_quantity, sizes, color, productId]
       );
     }
 
