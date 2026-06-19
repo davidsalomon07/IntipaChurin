@@ -94,16 +94,26 @@ const QuickViewModal = ({ isOpen, onClose, producto }) => {
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Talla</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {(producto.sizes && producto.sizes.length > 0 ? producto.sizes : ['S', 'M', 'L', 'XL']).map((talla) => (
-                <button
-                  key={talla}
-                  disabled={!producto.is_active}
-                  onClick={() => setTallaSeleccionada(talla)}
-                  className={`w-10 h-10 rounded-lg text-xs font-bold border transition-all duration-200 ${!producto.is_active ? 'border-zinc-100 text-zinc-300 dark:border-zinc-900 dark:text-zinc-800 cursor-not-allowed' : tallaSeleccionada === talla ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white shadow-md' : 'border-zinc-200 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500'}`}
-                >
-                  {talla}
-                </button>
-              ))}
+              {['S', 'M', 'L', 'XL'].map((talla) => {
+                const tieneStock = producto.sizes && producto.sizes.includes(talla);
+                const isAvailable = producto.is_active && tieneStock;
+                return (
+                  <button
+                    key={talla}
+                    disabled={!isAvailable}
+                    onClick={() => setTallaSeleccionada(talla)}
+                    title={!tieneStock ? 'Sin stock' : `Seleccionar talla ${talla}`}
+                    className={`relative w-10 h-10 rounded-lg text-xs font-bold border transition-all duration-200 overflow-hidden ${!isAvailable ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-600 bg-zinc-50 dark:bg-zinc-900/50 cursor-default' : tallaSeleccionada === talla ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white shadow-md' : 'border-zinc-200 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500'}`}
+                  >
+                    {talla}
+                    {!tieneStock && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-[140%] h-px bg-zinc-300 dark:bg-zinc-600 -rotate-45 transform origin-center"></div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
