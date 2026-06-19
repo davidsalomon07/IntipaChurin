@@ -40,6 +40,35 @@ const FilterCheckbox = ({ label, count, checked, onChange }) => (
   </label>
 );
 
+const checkPixelColor = (imageUrl, xPercent, yPercent) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const w = img.naturalWidth || img.width || 300;
+        const h = img.naturalHeight || img.height || 400;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const pixel = ctx.getImageData(Math.floor(xPercent * w), Math.floor(yPercent * h), 1, 1).data;
+        const r = pixel[0];
+        const g = pixel[1];
+        const b = pixel[2];
+        const a = pixel[3];
+        const isWhite = a < 50 || (r > 235 && g > 235 && b > 235);
+        resolve(isWhite);
+      } catch (err) {
+        resolve(true);
+      }
+    };
+    img.onerror = () => resolve(true);
+    img.src = imageUrl;
+  });
+};
+
 const Shop = () => {
   const { category } = useParams();
   const navigate = useNavigate();
@@ -62,6 +91,8 @@ const Shop = () => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(() => {
     return typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
   });
+  const [hoveredProductId, setHoveredProductId] = useState(null);
+  const [whiteBgProductIds, setWhiteBgProductIds] = useState(new Set());
 
   const sizesList = ['S', 'M', 'L', 'XL'];
   const colorsList = [
@@ -102,6 +133,14 @@ const Shop = () => {
     'Orange': 'Naranja'
   };
 
+  const getHoverBg = (colorName) => {
+    if (!colorName) return 'rgba(9, 9, 11, 0.4)';
+    if (colorName === 'White') return 'rgba(9, 9, 11, 0.6)';
+    const found = colorsList.find(c => c.name === colorName);
+    if (!found) return 'rgba(9, 9, 11, 0.4)';
+    return `${found.hex}66`;
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [category]);
@@ -124,6 +163,29 @@ const Shop = () => {
     };
     fetchProductos();
   }, []);
+
+  useEffect(() => {
+    if (productosDB.length === 0) return;
+    const checkAllImages = async () => {
+      const whiteIds = new Set();
+      await Promise.all(
+        productosDB.map(async (product) => {
+          if (!product.image_url) {
+            whiteIds.add(product.id);
+            return;
+          }
+          try {
+            const isWhite = await checkPixelColor(product.image_url, 0.92, 0.94);
+            if (isWhite) whiteIds.add(product.id);
+          } catch (e) {
+            whiteIds.add(product.id);
+          }
+        })
+      );
+      setWhiteBgProductIds(whiteIds);
+    };
+    checkAllImages();
+  }, [productosDB]);
 
   // Lógica de filtrado
   let productosFiltrados = [...productosDB];
@@ -371,6 +433,8 @@ const Shop = () => {
                   key={item.id}
                   className="group cursor-pointer flex flex-col"
                   onClick={() => navigate(`/shop/producto/${item.id}`)}
+                  onMouseEnter={() => setHoveredProductId(item.id)}
+                  onMouseLeave={() => setHoveredProductId(null)}
                 >
                   <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#151515] mb-4 relative transition-colors duration-300">
                     <img
@@ -404,7 +468,7 @@ const Shop = () => {
                     </div>
 
                     {/* Botón de Carrito (estilo bolsa) */}
-                    <div className="absolute bottom-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:translate-y-2">
+                    <div className="absolute bottom-3 right-3 z-10">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -418,7 +482,8 @@ const Shop = () => {
                           });
                         }}
                         title="Añadir al carrito"
-                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-150 active:scale-90 bg-zinc-950/40 backdrop-blur-md text-white hover:bg-zinc-950/60 border border-white/10"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
+                        style={{ backgroundColor: (hoveredProductId === item.id && !whiteBgProductIds.has(item.id)) ? getHoverBg(item.color) : 'rgba(9, 9, 11, 0.4)' }}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
