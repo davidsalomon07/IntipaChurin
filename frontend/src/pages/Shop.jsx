@@ -418,7 +418,7 @@ const Shop = () => {
                           });
                         }}
                         title="Añadir al carrito"
-                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-150 active:scale-90 bg-white/10 backdrop-blur-md text-zinc-900 dark:text-white hover:bg-white/30 border border-zinc-200/50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-150 active:scale-90 bg-zinc-950/40 backdrop-blur-md text-white hover:bg-zinc-950/60 border border-white/10"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
