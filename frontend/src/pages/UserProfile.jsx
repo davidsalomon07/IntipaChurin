@@ -529,7 +529,27 @@ const UserProfile = () => {
               <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Mis Pedidos</h1>
 
               {isLoadingPedidos ? (
-                <div className="text-center py-10 text-gray-400 dark:text-zinc-500 text-sm">Cargando tu historial...</div>
+                <div className="space-y-4 animate-pulse">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="border border-gray-100 dark:border-zinc-800 p-5 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="h-4 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-24"></div>
+                          <div className="h-4 bg-zinc-200 dark:bg-zinc-800/80 rounded-md w-16"></div>
+                        </div>
+                        <div className="h-3 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-32 mb-3"></div>
+                        <div className="flex gap-2 mt-3">
+                          <div className="w-10 h-10 rounded-lg bg-zinc-200 dark:bg-zinc-800/50"></div>
+                          <div className="w-10 h-10 rounded-lg bg-zinc-200 dark:bg-zinc-800/50"></div>
+                        </div>
+                      </div>
+                      <div className="sm:text-right flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto">
+                        <div className="h-5 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-16 mb-3"></div>
+                        <div className="h-3 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-28"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : pedidos.length > 0 ? (
                 <div className="space-y-4">
                   {pedidos.map((p) => {

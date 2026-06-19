@@ -44,11 +44,48 @@ const ProductDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col justify-between">
+      <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col transition-colors duration-300">
         <Navbar />
-        <div className="flex-grow flex items-center justify-center">
-          <svg className="animate-spin h-10 w-10 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        </div>
+        <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start animate-pulse">
+            <div className="flex flex-col-reverse md:flex-row gap-4 lg:gap-6 items-start w-full">
+              <div className="flex md:flex-col gap-3 overflow-hidden shrink-0 pb-2 md:pb-0 md:pr-2 md:w-20 lg:w-24">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <div key={idx} className="w-16 md:w-full aspect-[3/4] rounded-2xl bg-zinc-200 dark:bg-zinc-800/50"></div>
+                ))}
+              </div>
+              <div className="w-full aspect-[3/4] rounded-3xl bg-zinc-200 dark:bg-zinc-800/50 flex-grow"></div>
+            </div>
+            <div className="flex flex-col h-full justify-center w-full">
+              <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/4 mb-4"></div>
+              <div className="h-10 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4 mb-6"></div>
+              <div className="h-6 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-10"></div>
+              <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/6 mb-5"></div>
+                <div className="space-y-4">
+                  <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-full"></div>
+                  <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-5/6"></div>
+                  <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-4/5"></div>
+                </div>
+              </div>
+              <div className="mb-8">
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-5"></div>
+                <div className="flex gap-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={idx} className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-2/3"></div>
+                </div>
+                <div className="w-full h-14 rounded-xl bg-zinc-300 dark:bg-zinc-700/80"></div>
+              </div>
+            </div>
+          </div>
+        </main>
         <MiniFooter />
       </div>
     );

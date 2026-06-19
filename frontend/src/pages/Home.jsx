@@ -642,8 +642,19 @@ const Home = () => {
 
         <div className="overflow-hidden -my-24 py-24 -mx-6 px-6 md:-mx-12 md:px-12">
           {isLoading ? (
-            <div className="col-span-full py-12 flex justify-center text-zinc-400">
-              <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <div className="flex w-full gap-6 pointer-events-none">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="product-card-item flex flex-col animate-pulse bg-white dark:bg-[#0e1014] rounded-3xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+                  <div className="w-full aspect-[4/5] bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  <div className="p-5 flex justify-between items-end">
+                    <div className="w-3/4">
+                      <div className="h-3.5 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-2/3 mb-3"></div>
+                      <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/3"></div>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800/80 border border-zinc-200 dark:border-white/5"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : productosDestacados.length === 0 ? (
             <div className="col-span-full py-12 text-center text-zinc-500"><p>Próximamente nuevos ingresos.</p></div>
