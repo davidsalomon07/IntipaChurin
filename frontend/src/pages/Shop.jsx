@@ -59,16 +59,48 @@ const Shop = () => {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [priceRange, setPriceRange] = useState(300); // max value
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(() => {
+    return typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
+  });
 
-  // Opciones de mockup
   const sizesList = ['S', 'M', 'L', 'XL'];
   const colorsList = [
     { name: 'Black', hex: '#18181b' },
-    { name: 'Dark Gray', hex: '#3f3f46' },
-    { name: 'White', hex: '#f4f4f5' },
-    { name: 'Beige', hex: '#d4d4d8' },
+    { name: 'White', hex: '#ffffff' },
+    { name: 'Dark Gray', hex: '#52525b' },
+    { name: 'Light Gray', hex: '#e4e4e7' },
+    { name: 'Beige', hex: '#f5f5dc' },
+    { name: 'Navy', hex: '#1e3a8a' },
+    { name: 'Blue', hex: '#3b82f6' },
+    { name: 'Red', hex: '#ef4444' },
+    { name: 'Burgundy', hex: '#7f1d1d' },
+    { name: 'Green', hex: '#22c55e' },
+    { name: 'Olive', hex: '#556b2f' },
+    { name: 'Yellow', hex: '#eab308' },
+    { name: 'Pink', hex: '#ec4899' },
+    { name: 'Purple', hex: '#a855f7' },
+    { name: 'Brown', hex: '#5c4033' },
+    { name: 'Orange', hex: '#f97316' },
   ];
+
+  const colorNamesEs = {
+    'Black': 'Negro',
+    'White': 'Blanco',
+    'Dark Gray': 'Gris Oscuro',
+    'Light Gray': 'Gris Claro',
+    'Beige': 'Beige',
+    'Navy': 'Azul Marino',
+    'Blue': 'Azul',
+    'Red': 'Rojo',
+    'Burgundy': 'Vino',
+    'Green': 'Verde',
+    'Olive': 'Verde Oliva',
+    'Yellow': 'Amarillo',
+    'Pink': 'Rosa',
+    'Purple': 'Morado',
+    'Brown': 'Marrón',
+    'Orange': 'Naranja'
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -94,19 +126,17 @@ const Shop = () => {
   }, []);
 
   // Lógica de filtrado
-  let productosFiltrados = [];
+  let productosFiltrados = [...productosDB];
 
   if (category && category.toLowerCase() === 'nuevos') {
-    productosFiltrados = [...productosDB]
+    productosFiltrados = productosFiltrados
       .sort((a, b) => b.id - a.id)
       .slice(0, 10);
   } else if (category) {
-    productosFiltrados = productosDB.filter(p => p.category_name && p.category_name.toLowerCase() === category.toLowerCase());
-  } else {
-    productosFiltrados = productosDB;
+    productosFiltrados = productosFiltrados.filter(p => p.category_name && p.category_name.toLowerCase() === category.toLowerCase());
   }
 
-  // Filtrado 100% Funcional por atributos (Simulados / Reales)
+  // Filtrado por atributos
   if (selectedCategories.length > 0) {
     productosFiltrados = productosFiltrados.filter(p => selectedCategories.includes(p.category_name));
   }
@@ -118,6 +148,17 @@ const Shop = () => {
   }
   if (priceRange < 300) {
     productosFiltrados = productosFiltrados.filter(p => parseFloat(p.price) <= priceRange);
+  }
+
+  // Lógica de ordenamiento
+  if (sortOption === 'Precio: Menor a Mayor') {
+    productosFiltrados = [...productosFiltrados].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+  } else if (sortOption === 'Precio: Mayor a Menor') {
+    productosFiltrados = [...productosFiltrados].sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+  } else if (sortOption === 'Nuevos') {
+    productosFiltrados = [...productosFiltrados].sort((a, b) => b.id - a.id);
+  } else if (sortOption === 'Ordenar por: Destacados') {
+    productosFiltrados = [...productosFiltrados].sort((a, b) => a.id - b.id);
   }
 
   const toggleCategory = (catName) => {
@@ -132,15 +173,27 @@ const Shop = () => {
     );
   };
 
-  const tituloPagina = "Catálogo Completo";
+  let tituloPagina = "Catálogo Completo";
+  if (category) {
+    if (category.toLowerCase() === 'nuevos') {
+      tituloPagina = "Novedades";
+    } else {
+      tituloPagina = category.charAt(0).toUpperCase() + category.slice(1);
+    }
+  }
 
-  // Categorías estáticas para el sidebar (pueden ser dinámicas luego)
-  const categoriesList = [
-    { name: 'Hoodies', count: 12 },
-    { name: 'Camisetas', count: 10 },
-    { name: 'Pantalones', count: 6 },
-    { name: 'Accesorios', count: 4 },
-  ];
+  // Categorías dinámicas a partir de productosDB
+  const categoryCounts = productosDB.reduce((acc, p) => {
+    if (p.category_name) {
+      acc[p.category_name] = (acc[p.category_name] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const categoriesList = Object.keys(categoryCounts).map(name => ({
+    name,
+    count: categoryCounts[name]
+  })).sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 flex flex-col transition-colors duration-300">
@@ -150,7 +203,7 @@ const Shop = () => {
       <main className="max-w-[1600px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full flex flex-col lg:flex-row gap-12">
 
         {/* --- SIDEBAR IZQUIERDO (Filtros) --- */}
-        <aside className={`w-full lg:w-64 flex-shrink-0 ${isMobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
+        <aside className={`w-full lg:w-64 flex-shrink-0 transition-all duration-300 ${isMobileFiltersOpen ? 'block' : 'hidden'}`}>
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-800/50 lg:border-none lg:pb-0 lg:mb-6">
             <h2 className="text-xs font-bold tracking-widest text-zinc-900 dark:text-zinc-100">FILTRAR POR</h2>
             <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
@@ -186,7 +239,7 @@ const Shop = () => {
                 <button
                   key={color.name}
                   onClick={() => setSelectedColor(color.name === selectedColor ? null : color.name)}
-                  title={color.name}
+                  title={colorNamesEs[color.name] || color.name}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${selectedColor === color.name ? 'border border-zinc-400 dark:border-zinc-300 scale-110 shadow-sm' : 'border border-transparent hover:scale-110'}`}
                 >
                   <span className="w-6 h-6 rounded-full border border-zinc-200 dark:border-zinc-700 shadow-inner" style={{ backgroundColor: color.hex }}></span>
@@ -224,41 +277,43 @@ const Shop = () => {
 
               <div className="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
                 <span>{productosFiltrados.length} productos encontrados</span>
-
-                {/* Botón Filtros móvil */}
-                <button
-                  onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-                  className="lg:hidden flex items-center gap-2 text-zinc-900 dark:text-white font-medium border border-zinc-200 dark:border-zinc-700 px-4 py-1.5 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                  {isMobileFiltersOpen ? 'Ocultar Filtros' : 'Filtros'}
-                </button>
               </div>
             </div>
 
-            <div className="relative w-full lg:w-auto self-end lg:self-auto mt-auto lg:mb-2">
+            <div className="flex items-center gap-3 w-full lg:w-auto self-end lg:self-auto mt-auto lg:mb-2">
+              {/* Botón Filtros (Desktop/Mobile Toggle) */}
               <button
-                onClick={() => setIsSortOpen(!isSortOpen)}
-                onBlur={() => setTimeout(() => setIsSortOpen(false), 200)}
-                className="flex items-center justify-between gap-3 bg-transparent border border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 text-sm rounded-full px-5 py-2 hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors focus:outline-none w-full lg:w-auto lg:min-w-[210px]"
+                onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                className="flex items-center justify-center w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all duration-200 focus:outline-none shrink-0"
+                title={isMobileFiltersOpen ? "Ocultar filtros" : "Mostrar filtros"}
               >
-                <span>{sortOption}</span>
-                <svg className={`w-4 h-4 text-zinc-400 dark:text-zinc-500 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
               </button>
 
-              <div className={`absolute top-full right-0 mt-2 w-full lg:min-w-[210px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xl rounded-2xl py-2 z-20 origin-top-right transition-all duration-200 ${isSortOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
-                {sortOptions.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setSortOption(option);
-                      setIsSortOpen(false);
-                    }}
-                    className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${sortOption === option ? 'font-bold text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800/50' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white'}`}
-                  >
-                    {option}
-                  </button>
-                ))}
+              <div className="relative w-full lg:w-auto">
+                <button
+                  onClick={() => setIsSortOpen(!isSortOpen)}
+                  onBlur={() => setTimeout(() => setIsSortOpen(false), 200)}
+                  className="flex items-center justify-between gap-3 bg-transparent border border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 text-sm rounded-full px-5 py-2 hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors focus:outline-none w-full lg:w-auto lg:min-w-[210px]"
+                >
+                  <span>{sortOption}</span>
+                  <svg className={`w-4 h-4 text-zinc-400 dark:text-zinc-500 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <div className={`absolute top-full right-0 mt-2 w-full lg:min-w-[210px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xl rounded-2xl py-2 z-20 origin-top-right transition-all duration-200 ${isSortOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                  {sortOptions.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setSortOption(option);
+                        setIsSortOpen(false);
+                      }}
+                      className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${sortOption === option ? 'font-bold text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800/50' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white'}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -280,7 +335,7 @@ const Shop = () => {
               ))}
               {selectedColor && (
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
-                  Color: {selectedColor}
+                  Color: {colorNamesEs[selectedColor] || selectedColor}
                   <button onClick={() => setSelectedColor(null)} className="hover:text-zinc-900 dark:hover:text-white"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </span>
               )}
