@@ -1,108 +1,401 @@
-import React from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from '../context/WishlistContext';
 
-// Íconos SVG (sin cambios)
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
+// Íconos SVG
+const ShippingIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
 );
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
+const ExchangeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21v-5h5"></path></svg>
 );
-const CartIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-    <line x1="3" y1="6" x2="21" y2="6"></line>
-    <path d="M16 10a4 4 0 0 1-8 0"></path>
-  </svg>
+const LockIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+);
+const LeafIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+);
+const TargetIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+);
+const ShirtIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.38 3.46 16 2a8 8 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
+);
+const ArrowRightIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+);
+const BagIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+);
+const CheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
 );
 
-// =====================================================
-// [CAMBIO] Array de imágenes del carrusel hero.
-// Coloca tus imágenes en: frontend/public/images/
-// y nombra los archivos hero1.jpg, hero2.jpg, etc.
-// Para pruebas, los src apuntan a placeholders automáticamente
-// si la imagen no existe aún.
-// =====================================================
 const heroImages = [
   {
-    src: "/carrusel/heo1.jpg",
-    alt: "Colección Esencial 2026",
-    fallback: "https://placehold.co/1920x1080/9ca3af/ffffff?text=HERO+1"
+    src: "/carrusel/heo1.png",
+    alt: "Colección Esencial",
+    title: "HERO 1",
+    fallback: "https://placehold.co/1920x1080/1a1a1a/ffffff?text=HERO+1"
   },
   {
-    src: "/carrusel/heo2.jpg",
-    alt: "Modelos Diversos Unisex",
-    fallback: "https://placehold.co/1920x1080/6b7280/ffffff?text=HERO+2"
+    src: "/carrusel/heo2.png",
+    alt: "Modelos Diversos",
+    title: "HERO 2",
+    fallback: "https://placehold.co/1920x1080/111111/ffffff?text=HERO+2"
   },
   {
-    src: "/carrusel/heo3.jpg",
+    src: "/carrusel/heo3.png",
     alt: "Define tu estilo",
-    fallback: "https://placehold.co/1920x1080/4b5563/ffffff?text=HERO+3"
+    title: "HERO 3",
+    fallback: "https://placehold.co/1920x1080/0a0a0a/ffffff?text=HERO+3"
   },
 ];
+
+const testimonials = [
+  { text: "La calidad de las telas es increíble. Por fin una marca que entiende que el buen diseño no tiene género.", author: "Andrea V.", img: "https://placehold.co/100x100/1a1a1a/ffffff?text=AV" },
+  { text: "El calce de los pantalones es perfecto. La experiencia de compra y el empaque se sienten totalmente premium.", author: "Mateo R.", img: "https://placehold.co/100x100/1a1a1a/ffffff?text=MR" },
+  { text: "Piezas minimalistas que combinan con todo. Definitivamente mis nuevos básicos para el día a día.", author: "Sofía C.", img: "https://placehold.co/100x100/1a1a1a/ffffff?text=SC" },
+  { text: "Excelente atención al cliente y las prendas llegaron súper rápido. Volveré a comprar.", author: "Luis F.", img: "https://placehold.co/100x100/1a1a1a/ffffff?text=LF" },
+];
+const categoryImages = {
+  hoodies: "/categorias/hoodies.png",
+  camisetas: "/categorias/camisetas.png",
+  pantalones: "/categorias/pantalones.png",
+  shorts: "/categorias/shorts.png",
+
+  // Agrega aquí más categorías mapeándolas con su ruta en public
+};
 
 const Home = () => {
   const navigate = useNavigate();
   const { agregarAlCarrito } = useCart();
-
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const itemsPerView = 3;
+  const prodItemsPerView = 4;
 
-  // [CAMBIO] Estado para el slide actual del carrusel hero
-  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [imgErrors, setImgErrors] = useState({});
+  const [productosDestacados, setProductosDestacados] = useState([]);
+  const [categoriasDB, setCategoriasDB] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [catIndex, setCatIndex] = useState(0);
+  const [testiIndex, setTestiIndex] = useState(0);
+  const [prodIndex, setProdIndex] = useState(0);
+  const [hoveredProductId, setHoveredProductId] = useState(null);
 
-  // [CAMBIO] Estado para saber si una imagen local falló al cargar
-  // y debemos usar el fallback (el placeholder)
-  const [imgErrors, setImgErrors] = React.useState({});
+  const intervalRef = useRef(null);
 
-  const [productosDestacados, setProductosDestacados] = React.useState([]);
-  const [categoriasDB, setCategoriasDB] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [catIndex, setCatIndex] = React.useState(0);
+  // Lógica de arrastre y trackpad para carrusel de categorías
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartRef = useRef(null);
+  const containerRef = useRef(null);
+  const minSwipeDistance = 50;
 
-  // [CAMBIO] Auto-play del carrusel: cambia cada 15 segundos.
-  // Al hacer click en una flecha o punto se reinicia el intervalo.
-  const intervalRef = React.useRef(null);
+  const handleDragStart = (clientX) => {
+    touchStartRef.current = clientX;
+    setIsDragging(true);
+  };
 
-  const startAutoPlay = React.useCallback(() => {
+  const handleDragMove = (clientX) => {
+    if (!isDragging || touchStartRef.current === null) return;
+    let offset = clientX - touchStartRef.current;
+
+    const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, categoriasDB.length - itemsPerView);
+
+    // Bounds físicos reales del contenedor completo
+    const maxDragRight = catIndex * stepSize;
+    const maxDragLeft = -(limite - catIndex) * stepSize;
+
+    if (offset > maxDragRight) offset = maxDragRight;
+    if (offset < maxDragLeft) offset = maxDragLeft;
+
+    setDragOffset(offset);
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging || touchStartRef.current === null) return;
+    setIsDragging(false);
+
+    const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, categoriasDB.length - itemsPerView);
+
+    // Calcular cuántos pasos completos hemos arrastrado
+    let steps = Math.round(-dragOffset / stepSize);
+
+    // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
+    if (steps === 0) {
+      if (dragOffset < -minSwipeDistance) steps = 1;
+      if (dragOffset > minSwipeDistance) steps = -1;
+    }
+
+    setCatIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+    setDragOffset(0);
+    touchStartRef.current = null;
+  };
+
+  const onTouchStart = (e) => handleDragStart(e.targetTouches[0].clientX);
+  const onTouchMove = (e) => handleDragMove(e.targetTouches[0].clientX);
+  const onTouchEnd = () => handleDragEnd();
+
+  const onMouseDown = (e) => handleDragStart(e.clientX);
+  const onMouseMove = (e) => handleDragMove(e.clientX);
+  const onMouseUp = () => handleDragEnd();
+  const onMouseLeave = () => { if (isDragging) handleDragEnd(); };
+
+  const wheelAccumulator = useRef(0);
+  const wheelTimeout = useRef(null);
+
+  const onWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      setIsDragging(true);
+
+      let newOffset = wheelAccumulator.current - e.deltaX;
+
+      const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+      const limite = Math.max(0, categoriasDB.length - itemsPerView);
+
+      const maxDragRight = catIndex * stepSize;
+      const maxDragLeft = -(limite - catIndex) * stepSize;
+
+      if (newOffset > maxDragRight) newOffset = maxDragRight;
+      if (newOffset < maxDragLeft) newOffset = maxDragLeft;
+
+      wheelAccumulator.current = newOffset;
+      setDragOffset(wheelAccumulator.current);
+
+      if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
+
+      wheelTimeout.current = setTimeout(() => {
+        setIsDragging(false);
+        const distance = wheelAccumulator.current;
+        let steps = Math.round(-distance / stepSize);
+        if (steps === 0) {
+          if (distance < -minSwipeDistance) steps = 1;
+          if (distance > minSwipeDistance) steps = -1;
+        }
+        setCatIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+        setDragOffset(0);
+        wheelAccumulator.current = 0;
+      }, 600);
+    }
+  };
+
+  // Lógica de arrastre y trackpad para carrusel de testimonios
+  const [testiDragOffset, setTestiDragOffset] = useState(0);
+  const [isTestiDragging, setIsTestiDragging] = useState(false);
+  const testiTouchStartRef = useRef(null);
+  const testiContainerRef = useRef(null);
+
+  const handleTestiDragStart = (clientX) => {
+    testiTouchStartRef.current = clientX;
+    setIsTestiDragging(true);
+  };
+
+  const handleTestiDragMove = (clientX) => {
+    if (!isTestiDragging || testiTouchStartRef.current === null) return;
+    let offset = clientX - testiTouchStartRef.current;
+
+    const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, testimonials.length - itemsPerView);
+
+    // Bounds físicos reales del contenedor completo
+    const maxDragRight = testiIndex * stepSize;
+    const maxDragLeft = -(limite - testiIndex) * stepSize;
+
+    if (offset > maxDragRight) offset = maxDragRight;
+    if (offset < maxDragLeft) offset = maxDragLeft;
+
+    setTestiDragOffset(offset);
+  };
+
+  const handleTestiDragEnd = () => {
+    if (!isTestiDragging || testiTouchStartRef.current === null) return;
+    setIsTestiDragging(false);
+
+    const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+    const limite = Math.max(0, testimonials.length - itemsPerView);
+
+    // Calcular cuántos pasos completos hemos arrastrado
+    let steps = Math.round(-testiDragOffset / stepSize);
+
+    // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
+    if (steps === 0) {
+      if (testiDragOffset < -minSwipeDistance) steps = 1;
+      if (testiDragOffset > minSwipeDistance) steps = -1;
+    }
+
+    setTestiIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+    setTestiDragOffset(0);
+    testiTouchStartRef.current = null;
+  };
+
+  const onTestiTouchStart = (e) => handleTestiDragStart(e.targetTouches[0].clientX);
+  const onTestiTouchMove = (e) => handleTestiDragMove(e.targetTouches[0].clientX);
+  const onTestiTouchEnd = () => handleTestiDragEnd();
+
+  const onTestiMouseDown = (e) => handleTestiDragStart(e.clientX);
+  const onTestiMouseMove = (e) => handleTestiDragMove(e.clientX);
+  const onTestiMouseUp = () => handleTestiDragEnd();
+  const onTestiMouseLeave = () => { if (isTestiDragging) handleTestiDragEnd(); };
+
+  const testiWheelAccumulator = useRef(0);
+  const testiWheelTimeout = useRef(null);
+
+  const onTestiWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      setIsTestiDragging(true);
+
+      let newOffset = testiWheelAccumulator.current - e.deltaX;
+
+      const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+      const limite = Math.max(0, testimonials.length - itemsPerView);
+
+      const maxDragRight = testiIndex * stepSize;
+      const maxDragLeft = -(limite - testiIndex) * stepSize;
+
+      if (newOffset > maxDragRight) newOffset = maxDragRight;
+      if (newOffset < maxDragLeft) newOffset = maxDragLeft;
+
+      testiWheelAccumulator.current = newOffset;
+      setTestiDragOffset(testiWheelAccumulator.current);
+
+      if (testiWheelTimeout.current) clearTimeout(testiWheelTimeout.current);
+
+      testiWheelTimeout.current = setTimeout(() => {
+        setIsTestiDragging(false);
+        const distance = testiWheelAccumulator.current;
+        let steps = Math.round(-distance / stepSize);
+        if (steps === 0) {
+          if (distance < -minSwipeDistance) steps = 1;
+          if (distance > minSwipeDistance) steps = -1;
+        }
+        setTestiIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+        setTestiDragOffset(0);
+        testiWheelAccumulator.current = 0;
+      }, 600);
+    }
+  };
+
+  // Lógica de arrastre y trackpad para carrusel de productos (Nuevos Esenciales)
+  const [prodDragOffset, setProdDragOffset] = useState(0);
+  const [isProdDragging, setIsProdDragging] = useState(false);
+  const prodTouchStartRef = useRef(null);
+  const prodContainerRef = useRef(null);
+
+  const handleProdDragStart = (clientX) => {
+    prodTouchStartRef.current = clientX;
+    setIsProdDragging(true);
+  };
+
+  const handleProdDragMove = (clientX) => {
+    if (!isProdDragging || prodTouchStartRef.current === null) return;
+    let offset = clientX - prodTouchStartRef.current;
+
+    const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+    const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
+
+    // Bounds físicos reales del contenedor completo
+    const maxDragRight = prodIndex * stepSize;
+    const maxDragLeft = -(limite - prodIndex) * stepSize;
+
+    if (offset > maxDragRight) offset = maxDragRight;
+    if (offset < maxDragLeft) offset = maxDragLeft;
+
+    setProdDragOffset(offset);
+  };
+
+  const handleProdDragEnd = () => {
+    if (!isProdDragging || prodTouchStartRef.current === null) return;
+    setIsProdDragging(false);
+
+    const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+    const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
+
+    // Calcular cuántos pasos completos hemos arrastrado
+    let steps = Math.round(-prodDragOffset / stepSize);
+
+    // Si no alcanzó un paso completo pero superó el mínimo, forzar al menos 1
+    if (steps === 0) {
+      if (prodDragOffset < -minSwipeDistance) steps = 1;
+      if (prodDragOffset > minSwipeDistance) steps = -1;
+    }
+
+    setProdIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+    setProdDragOffset(0);
+    prodTouchStartRef.current = null;
+  };
+
+  const onProdTouchStart = (e) => handleProdDragStart(e.targetTouches[0].clientX);
+  const onProdTouchMove = (e) => handleProdDragMove(e.targetTouches[0].clientX);
+  const onProdTouchEnd = () => handleProdDragEnd();
+
+  const onProdMouseDown = (e) => handleProdDragStart(e.clientX);
+  const onProdMouseMove = (e) => handleProdDragMove(e.clientX);
+  const onProdMouseUp = () => handleProdDragEnd();
+  const onProdMouseLeave = () => { if (isProdDragging) handleProdDragEnd(); };
+
+  const prodWheelAccumulator = useRef(0);
+  const prodWheelTimeout = useRef(null);
+
+  const onProdWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      setIsProdDragging(true);
+
+      let newOffset = prodWheelAccumulator.current - e.deltaX;
+
+      const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+      const limite = Math.max(0, productosDestacados.length - prodItemsPerView);
+
+      const maxDragRight = prodIndex * stepSize;
+      const maxDragLeft = -(limite - prodIndex) * stepSize;
+
+      if (newOffset > maxDragRight) newOffset = maxDragRight;
+      if (newOffset < maxDragLeft) newOffset = maxDragLeft;
+
+      prodWheelAccumulator.current = newOffset;
+      setProdDragOffset(prodWheelAccumulator.current);
+
+      if (prodWheelTimeout.current) clearTimeout(prodWheelTimeout.current);
+
+      prodWheelTimeout.current = setTimeout(() => {
+        setIsProdDragging(false);
+        const distance = prodWheelAccumulator.current;
+        let steps = Math.round(-distance / stepSize);
+        if (steps === 0) {
+          if (distance < -minSwipeDistance) steps = 1;
+          if (distance > minSwipeDistance) steps = -1;
+        }
+        setProdIndex(prev => Math.min(Math.max(0, limite), prev + steps));
+        setProdDragOffset(0);
+        prodWheelAccumulator.current = 0;
+      }, 600);
+    }
+  };
+
+  const startAutoPlay = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
     }, 15000);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     startAutoPlay();
-    return () => clearInterval(intervalRef.current); // Limpia al desmontar
+    return () => clearInterval(intervalRef.current);
   }, [startAutoPlay]);
 
-  // [CAMBIO] Ir a un slide específico y reiniciar el intervalo
-  const goToSlide = React.useCallback((index) => {
+  const goToSlide = useCallback((index) => {
     setCurrentSlide(index);
     startAutoPlay();
   }, [startAutoPlay]);
 
-  // [CAMBIO] Slide anterior
-  const prevSlide = React.useCallback(() => {
-    goToSlide((currentSlide - 1 + heroImages.length) % heroImages.length);
-  }, [currentSlide, goToSlide]);
-
-  // [CAMBIO] Slide siguiente
-  const nextSlide = React.useCallback(() => {
-    goToSlide((currentSlide + 1) % heroImages.length);
-  }, [currentSlide, goToSlide]);
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [resProductos, resCategorias] = await Promise.all([
@@ -111,7 +404,7 @@ const Home = () => {
         ]);
         if (resProductos.ok) {
           const dataProductos = await resProductos.json();
-          setProductosDestacados(dataProductos.slice(0, 4));
+          setProductosDestacados(dataProductos.slice(0, 8));
         }
         if (resCategorias.ok) {
           const dataCategorias = await resCategorias.json();
@@ -126,107 +419,93 @@ const Home = () => {
     fetchData();
   }, []);
 
-  const scrollToTop = (e) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollTestimonialsLeft = () => {
+    setTestiIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const scrollTestimonialsRight = () => {
+    const limite = testimonials.length - itemsPerView;
+    setTestiIndex((prev) => Math.min(limite, prev + 1));
   };
 
   return (
-    <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 transition-colors duration-300 relative">
+    <div className="bg-[#FCFCFC] dark:bg-[#0a0a0a] min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 transition-colors duration-300 relative">
       <Navbar />
 
-      {/* =====================================================
-          HERO SECTION — CARRUSEL
-          [CAMBIO] Reemplaza la imagen estática por un carrusel
-          con fade, flechas y puntos de navegación.
-      ===================================================== */}
-      <section className="pt-28 pb-12 px-6 md:px-12 max-w-400 mx-auto">
-        <div className="relative w-full h-[75vh] md:h-[85vh] rounded-3xl overflow-hidden group shadow-sm">
+      {/* HERO SECTION - SPLIT LAYOUT */}
+      <section className="pt-28 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="relative w-full h-auto min-h-[75vh] md:h-[80vh] rounded-[2rem] overflow-hidden group border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0e1014] shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+          <div className="flex flex-col md:flex-row w-full h-full">
 
-          {/* [CAMBIO] Capas de imágenes apiladas — solo la activa tiene opacity-100 */}
-          {heroImages.map((image, index) => (
-            <img
-              key={index}
-              src={imgErrors[index] ? image.fallback : image.src}
-              alt={image.alt}
-              onError={() => setImgErrors((prev) => ({ ...prev, [index]: true }))}
-              className={`
-                absolute inset-0 w-full h-full object-cover
-                transition-opacity duration-1000 ease-in-out
-                ${index === currentSlide
-                  ? 'opacity-100 scale-100'
-                  : 'opacity-0'
-                }
-                ${index === currentSlide ? 'transition-transform duration-[15s] ease-linear scale-[1.05]' : ''}
-              `}
-            />
-          ))}
+            {/* Columna Izquierda - Texto */}
+            <div className="w-full md:w-[45%] h-full flex flex-col justify-center px-8 md:px-16 py-12 md:py-0 z-[2] order-2 md:order-1 relative">
+              <div className="w-full max-w-md mx-auto">
+                <span className="text-xs md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-zinc-500 dark:text-white/70 block">
+                  Colección Esencial 2026
+                </span>
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-zinc-900 dark:text-white leading-tight">
+                  Define tu estilo.
+                </h1>
+                <div className="w-16 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+                <p className="text-sm md:text-base font-light mb-10 text-zinc-600 dark:text-white/60 leading-relaxed">
+                  Siluetas modernas y versátiles. Diseñadas sin distinciones de
+                  género para una comodidad absoluta y expresión libre.
+                </p>
+                <div>
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center gap-3 bg-zinc-900 text-white dark:bg-white dark:text-black px-8 py-4 rounded-full text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-300"
+                  >
+                    Explorar colección <ArrowRightIcon />
+                  </Link>
+                </div>
 
-          {/* Overlay oscuro (igual que antes) */}
-          <div className="absolute inset-0 bg-black/35 dark:bg-black/45 transition-colors duration-300 z-[1]"></div>
+                {/* Beneficios en Hero */}
+                <div className="mt-16 pt-8 border-t border-zinc-200 dark:border-white/10 flex flex-col sm:flex-row gap-6 sm:gap-4 justify-between items-start sm:items-center">
+                  <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
+                    <ShippingIcon />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold">Envíos a todo Chile</span>
+                    </div>
+                  </div>
+                  <div className="hidden sm:block w-[1px] h-8 bg-zinc-200 dark:bg-white/10"></div>
+                  <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
+                    <ExchangeIcon />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold">Cambios y<br />devoluciones fáciles</span>
+                    </div>
+                  </div>
+                  <div className="hidden sm:block w-[1px] h-8 bg-zinc-200 dark:bg-white/10"></div>
+                  <div className="flex items-center gap-3 text-zinc-700 dark:text-white/80">
+                    <LockIcon />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold">Pago 100%<br />seguro</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          {/* Contenido de texto (sin cambios) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 z-[2]">
-            <span className="text-sm font-semibold tracking-[0.2em] uppercase mb-4 drop-shadow-md">
-              Colección Esencial 2026
-            </span>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 drop-shadow-lg">
-              Define tu estilo.
-            </h1>
-            <p className="text-base md:text-lg font-light mb-10 max-w-lg drop-shadow-md">
-              Siluetas modernas y versátiles. Diseñadas sin distinciones de
-              género para una comodidad absoluta y expresión libre.
-            </p>
-            <Link
-              to="/shop"
-              className="bg-white text-zinc-900 px-8 py-4 rounded-full text-sm font-semibold hover:bg-zinc-900 hover:text-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:bg-zinc-900 dark:text-white dark:border dark:border-zinc-700 dark:hover:bg-white dark:hover:text-zinc-900"
-            >
-              Explorar Colección
-            </Link>
+            {/* Columna Derecha - Imagen */}
+            <div className="w-full md:w-[55%] h-[50vh] md:h-full relative order-1 md:order-2 overflow-hidden flex items-center justify-center bg-zinc-50 dark:bg-[#0e1014]">
+              {heroImages.map((image, index) => (
+                <img
+                  key={index}
+                  src={imgErrors[index] ? image.fallback : image.src}
+                  alt={image.alt}
+                  onError={() => setImgErrors((prev) => ({ ...prev, [index]: true }))}
+                  className={`
+                    absolute object-contain z-[2] max-w-[115%] max-h-[115%]
+                    transition-all duration-1000 ease-in-out
+                    ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+                  `}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* [CAMBIO] Flecha IZQUIERDA — aparece al hacer hover sobre el hero */}
-          <button
-            onClick={prevSlide}
-            aria-label="Imagen anterior"
-            className="
-              absolute left-4 top-1/2 -translate-y-1/2 z-[3]
-              w-10 h-10 md:w-12 md:h-12 rounded-full
-              bg-white/15 hover:bg-white/30
-              backdrop-blur-sm border border-white/20
-              flex items-center justify-center text-white
-              transition-all duration-300
-              opacity-0 group-hover:opacity-100
-              -translate-x-2 group-hover:translate-x-0
-            "
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
-
-          {/* [CAMBIO] Flecha DERECHA */}
-          <button
-            onClick={nextSlide}
-            aria-label="Siguiente imagen"
-            className="
-              absolute right-4 top-1/2 -translate-y-1/2 z-[3]
-              w-10 h-10 md:w-12 md:h-12 rounded-full
-              bg-white/15 hover:bg-white/30
-              backdrop-blur-sm border border-white/20
-              flex items-center justify-center text-white
-              transition-all duration-300
-              opacity-0 group-hover:opacity-100
-              translate-x-2 group-hover:translate-x-0
-            "
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-
-          {/* [CAMBIO] Puntos indicadores en la parte inferior */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[3] flex items-center gap-2">
+          {/* Controles Carrusel */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[3] flex items-center gap-2">
             {heroImages.map((_, index) => (
               <button
                 key={index}
@@ -235,206 +514,409 @@ const Home = () => {
                 className={`
                   rounded-full transition-all duration-500 ease-in-out
                   ${index === currentSlide
-                    ? 'bg-white w-6 h-2'       // Punto activo: alargado
-                    : 'bg-white/50 w-2 h-2 hover:bg-white/80'  // Inactivo: círculo
+                    ? 'bg-zinc-900 dark:bg-white w-8 h-1.5'
+                    : 'bg-zinc-300 dark:bg-white/30 w-1.5 h-1.5 hover:bg-zinc-400 dark:hover:bg-white/60'
                   }
                 `}
               />
             ))}
           </div>
-
-          {/* [CAMBIO] Barra de progreso — muestra cuánto falta para el siguiente cambio */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-[3] overflow-hidden rounded-b-3xl">
-            <div
-              key={currentSlide} // Re-monta la animación en cada cambio
-              className="h-full bg-white/50 animate-progress-bar"
-              style={{ animationDuration: '15s' }}
-            />
-          </div>
-
         </div>
       </section>
-      {/* FIN HERO CARRUSEL */}
 
-      {/* --- CATEGORÍAS (sin cambios) --- */}
-      <section className="py-20 px-6 md:px-12 max-w-400 mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight dark:text-white text-center md:text-left">
-            Comprar por Categoría
-          </h2>
-          {categoriasDB.length > itemsPerView && (
-            <div className="flex gap-3">
-              <button
-                onClick={() => setCatIndex(prev => Math.max(0, prev - 1))}
-                disabled={catIndex === 0}
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 ${catIndex === 0 ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-700 cursor-not-allowed' : 'border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:scale-105 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-800 shadow-sm'}`}
-                aria-label="Categoría anterior"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              </button>
-              <button
-                onClick={() => { const limite = categoriasDB.length - itemsPerView; setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }}
-                disabled={catIndex >= Math.max(0, categoriasDB.length - itemsPerView)}
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all duration-300 ${catIndex >= Math.max(0, categoriasDB.length - itemsPerView) ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-700 cursor-not-allowed' : 'border-zinc-300 text-zinc-900 hover:bg-zinc-100 hover:scale-105 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-800 shadow-sm'}`}
-                aria-label="Siguiente categoría"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </button>
+      {/* --- CATEGORÍAS --- */}
+      <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-3 block">COMPRAR POR CATEGORÍA</span>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white mb-4">Encuentra tu estilo</h2>
+          </div>
+          <div className="hidden md:flex gap-2">
+            <button onClick={() => setCatIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+            <button onClick={() => { const limite = categoriasDB.length - itemsPerView; setCatIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
+          </div>
+        </div>
+
+        <div className="overflow-hidden -my-24 py-24 -mx-6 px-6 md:-mx-12 md:px-12">
+          {categoriasDB.length === 0 ? (
+            <div className="text-center text-zinc-500 py-10 w-full">
+              <p>Estamos preparando las colecciones para ti.</p>
+            </div>
+          ) : (
+            <div
+              ref={containerRef}
+              className={`flex w-full ${isDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`}
+              style={{ transform: `translateX(calc(-${catIndex} * (100% + 1.5rem) / ${itemsPerView} + ${dragOffset}px))` }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseLeave}
+              onWheel={onWheel}
+            >
+              {categoriasDB.map((cat, index) => {
+                const stepSize = containerRef.current ? (containerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+                const floatIndex = catIndex - (dragOffset / stepSize);
+
+                const distFromLeft = index - floatIndex;
+                const distFromRight = (floatIndex + itemsPerView - 1) - index;
+
+                let progress = 1;
+                if (distFromLeft < 0) {
+                  progress = 1 + distFromLeft;
+                } else if (distFromRight < 0) {
+                  progress = 1 + distFromRight;
+                }
+                progress = Math.min(1, Math.max(0, progress));
+
+                let opacityClass = "opacity-0 scale-95 pointer-events-none";
+                let dynamicStyle = {};
+
+                if (progress < 1 && progress > 0) {
+                  dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                } else if (progress === 1) {
+                  opacityClass = "opacity-100 scale-100";
+                  if (!(index >= catIndex && index < catIndex + itemsPerView)) {
+                    dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                  }
+                } else {
+                  if (index >= catIndex && index < catIndex + itemsPerView) {
+                    dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                  }
+                }
+
+                return (
+                  <div
+                    key={cat.id}
+                    style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
+                    className={`carousel-card-item relative shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-white dark:bg-[#0e1014] rounded-3xl border border-zinc-200 dark:border-white/10 overflow-hidden flex flex-col transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
+                  >
+                    <div className="p-8 pb-0 z-10 h-[320px] flex flex-col">
+                      <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4">{cat.name}</h3>
+                      <div className="w-8 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-[200px] mb-8 flex-grow">
+                        {cat.name.toLowerCase() === 'hoodies' ? 'Comodidad y estilo en cada detalle. Perfectos para cualquier ocasión.' :
+                          cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
+                            'Diseño, funcionalidad y comodidad para tu día a día.'}
+                      </p>
+                      <div className="pb-8">
+                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center gap-3 border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors">
+                          Ver {cat.name} <ArrowRightIcon />
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="absolute top-0 right-0 w-[60%] h-full flex items-center justify-end overflow-hidden pointer-events-none opacity-80">
+                      <img
+                        src={categoryImages[cat.name.toLowerCase()] || `https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`}
+                        className="w-full h-full object-cover translate-x-[10%]"
+                        alt={cat.name}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
-        <div className="overflow-hidden -mx-2 md:-mx-5">
-          {categoriasDB.length === 0 ? (
-            <div className="text-center text-zinc-500 py-10 w-full">
-              <p>Estamos preparando las colecciones para ti. ¡Vuelve pronto!</p>
+      </section>
+
+      {/* --- SELECCIÓN INICIAL --- */}
+      <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-3 block">SELECCIÓN INICIAL</span>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white mb-4">Nuevos esenciales.</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base max-w-xl">Piezas clave que definen tu estilo. Descubre lo más nuevo de la colección.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/shop" className="border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors flex items-center gap-2">
+              Ver catálogo completo <ArrowRightIcon />
+            </Link>
+            <div className="hidden md:flex gap-2">
+              <button onClick={() => setProdIndex(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+              <button onClick={() => { const limite = productosDestacados.length - prodItemsPerView; setProdIndex(prev => Math.min(Math.max(0, limite), prev + 1)); }} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
             </div>
-          ) : (
-            <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${catIndex * (100 / itemsPerView)}%)` }}>
-              {categoriasDB.map((cat) => (
-                <div key={cat.id} className="flex-shrink-0 px-2 md:px-5" style={{ width: `${100 / itemsPerView}%` }}>
-                  <Link to={`/shop/${cat.name.toLowerCase()}`} className="group cursor-pointer flex flex-col items-center">
-                    <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-2 md:mb-6 relative shadow-sm transition-colors duration-300">
-                      <img src={`https://placehold.co/600x800/f5f5f4/d6d3d1?text=${cat.name.toUpperCase()}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-95 dark:opacity-80" alt={cat.name} />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-black/30 transition-colors duration-500"></div>
+          </div>
+        </div>
+
+        <div className="overflow-hidden -my-24 py-24 -mx-6 px-6 md:-mx-12 md:px-12">
+          {isLoading ? (
+            <div className="flex w-full gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="product-card-item flex flex-col animate-pulse bg-white dark:bg-[#0e1014] rounded-3xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+                  <div className="w-full aspect-[4/5] bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  <div className="p-5 flex justify-between items-end">
+                    <div className="w-3/4">
+                      <div className="h-3.5 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-2/3 mb-3"></div>
+                      <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/3"></div>
                     </div>
-                    <h3 className="text-[11px] md:text-sm font-semibold uppercase tracking-wider dark:text-zinc-200 text-center leading-tight">{cat.name}</h3>
-                  </Link>
+                    <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800/80"></div>
+                  </div>
                 </div>
               ))}
             </div>
-          )}
-        </div>
-      </section>
-
-      {/* --- PRODUCTOS DESTACADOS (sin cambios) --- */}
-      <section className="py-20 px-6 md:px-12 max-w-400 mx-auto border-t border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
-        <div className="flex justify-between items-end mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight dark:text-white">Selección Inicial</h2>
-          <Link to="/shop" className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border-b border-transparent hover:border-zinc-900 dark:hover:border-white transition-all pb-1">Ver catálogo</Link>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-8">
-          {isLoading ? (
-            <div className="col-span-full py-12 flex justify-center text-zinc-400">
-              <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            </div>
           ) : productosDestacados.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-zinc-500 dark:text-zinc-400"><p>Próximamente nuevos ingresos. ¡Mantente atento!</p></div>
+            <div className="col-span-full py-12 text-center text-zinc-500"><p>Próximamente nuevos ingresos.</p></div>
           ) : (
-            productosDestacados.map((producto) => (
-              <div key={producto.id} className="group cursor-pointer" onClick={() => navigate(`/shop/producto/${producto.id}`)}>
-                <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-2 md:mb-5 relative transition-colors duration-300">
-                  <img src={producto.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 dark:opacity-80" alt={producto.name} />
+            <div
+              ref={prodContainerRef}
+              className={`flex w-full ${isProdDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`}
+              style={{ transform: `translateX(calc(-${prodIndex} * (100% + 1.5rem) / ${prodItemsPerView} + ${prodDragOffset}px))` }}
+              onTouchStart={onProdTouchStart}
+              onTouchMove={onProdTouchMove}
+              onTouchEnd={onProdTouchEnd}
+              onMouseDown={onProdMouseDown}
+              onMouseMove={onProdMouseMove}
+              onMouseUp={onProdMouseUp}
+              onMouseLeave={onProdMouseLeave}
+              onWheel={onProdWheel}
+            >
+              {productosDestacados.map((producto, index) => {
+                const stepSize = prodContainerRef.current ? (prodContainerRef.current.offsetWidth + 24) / prodItemsPerView : window.innerWidth / prodItemsPerView;
+                const floatIndex = prodIndex - (prodDragOffset / stepSize);
 
-                  {/* 👇 NUEVO BOTÓN DE WISHLIST (Esquina Superior Derecha) 👇 */}
-                  <div className="absolute top-2 right-2 md:top-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:-translate-y-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Evita que se abra la página del producto al dar clic al corazón
-                        toggleWishlist(producto);
-                      }}
-                      title={isInWishlist(producto.id) ? "Quitar de favoritos" : "Añadir a favoritos"}
-                      className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-md bg-white/90 backdrop-blur-sm hover:bg-white text-zinc-900 transition-all duration-300 hover:scale-110 dark:bg-zinc-900/90 dark:text-white dark:hover:bg-zinc-900"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18" height="18"
-                        viewBox="0 0 24 24"
-                        fill={isInWishlist(producto.id) ? "#ef4444" : "none"} // Relleno rojo si está en la lista
-                        stroke={isInWishlist(producto.id) ? "#ef4444" : "currentColor"} // Borde rojo o normal
-                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        className="transition-colors duration-300"
-                      >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                      </svg>
-                    </button>
-                  </div>
-                  {/*  FIN DEL BOTÓN DE WISHLIST  */}
+                const distFromLeft = index - floatIndex;
+                const distFromRight = (floatIndex + prodItemsPerView - 1) - index;
 
-                  {/* Botón de Carrito (Este ya lo tenías, se queda igual, esquina Inferior Derecha) */}
-                  <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:translate-y-2">
-                    <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url }); }} title="Añadir al carrito" className="w-7 h-7 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-2xl border transform transition-all duration-150 active:scale-90 active:shadow-md bg-zinc-950 text-white hover:bg-zinc-800 border-transparent dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    </button>
+                let progress = 1;
+                if (distFromLeft < 0) {
+                  progress = 1 + distFromLeft;
+                } else if (distFromRight < 0) {
+                  progress = 1 + distFromRight;
+                }
+                progress = Math.min(1, Math.max(0, progress));
+
+                let opacityClass = "opacity-0 scale-95 pointer-events-none";
+                let dynamicStyle = {};
+
+                if (progress < 1 && progress > 0) {
+                  dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+                } else if (progress === 1) {
+                  opacityClass = "opacity-100 scale-100";
+                  if (!(index >= prodIndex && index < prodIndex + prodItemsPerView)) {
+                    dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                  }
+                } else {
+                  if (index >= prodIndex && index < prodIndex + prodItemsPerView) {
+                    dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                  }
+                }
+
+                return (
+                  <div
+                    key={producto.id}
+                    style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
+                    className={`product-card-item group cursor-pointer flex flex-col bg-white dark:bg-[#0e1014] rounded-3xl overflow-hidden border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-300 hover:-translate-y-1'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''} shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]`}
+                    onClick={() => navigate(`/shop/producto/${producto.id}`)}
+                    onMouseEnter={() => setHoveredProductId(producto.id)}
+                    onMouseLeave={() => setHoveredProductId(null)}
+                  >
+                    <div className="w-full aspect-[4/5] relative bg-zinc-50 dark:bg-[#0e1014] overflow-hidden flex items-center justify-center">
+                      <img
+                        src={producto.image_url || `https://placehold.co/600x800/1a1a1a/ffffff?text=SIN+FOTO`}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-100"
+                        alt={producto.name}
+                      />
+                      {producto.image_url_2 && (
+                        <img
+                          src={producto.image_url_2}
+                          className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${hoveredProductId === producto.id ? 'opacity-100' : 'opacity-0'}`}
+                          alt={`${producto.name} vista trasera`}
+                        />
+                      )}
+
+                      {/* Etiqueta de Descuento */}
+                      {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (
+                        <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm z-10">
+                          -{Math.round((1 - parseFloat(producto.price) / parseFloat(producto.original_price)) * 100)}%
+                        </div>
+                      )}
+
+                      {/* Favoritos */}
+                      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleWishlist(producto); }}
+                          className="w-8 h-8 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-md text-white hover:bg-black/80 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={isInWishlist(producto.id) ? "white" : "none"} stroke="white" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-5 flex justify-between items-end">
+                      <div>
+                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1 truncate">{producto.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-zinc-900 dark:text-white font-bold">S/ {parseFloat(producto.price).toFixed(2)}</p>
+                          {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (
+                            <p className="text-xs text-zinc-400 dark:text-zinc-500 line-through">S/ {parseFloat(producto.original_price).toFixed(2)}</p>
+                          )}
+                        </div>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }} className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 flex items-center justify-center text-zinc-800 dark:text-white transition-colors border border-zinc-200 dark:border-white/5">
+                        <BagIcon />
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <h3 className="text-[11px] md:text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-0.5 md:mb-1 transition-colors duration-300 truncate leading-tight">{producto.name}</h3>
-                <p className="text-[11px] md:text-sm text-zinc-500 dark:text-zinc-400 font-semibold transition-colors duration-300">$ {parseFloat(producto.price).toFixed(2)}</p>
-              </div>
-            ))
+                );
+              })}
+            </div>
           )}
         </div>
       </section>
 
-      {/* --- NUEVA COLECCIÓN / DROP (sin cambios) --- */}
-      <section className="py-20 px-6 md:px-12 max-w-400 mx-auto">
-        <div className="bg-zinc-100 dark:bg-zinc-900 rounded-4xl overflow-hidden flex flex-col md:flex-row items-center transition-colors duration-300 dark:border dark:border-zinc-800">
-          <div className="w-full md:w-1/2 p-12 md:p-20 flex flex-col justify-center">
-            <span className="text-xs font-bold tracking-widest uppercase text-zinc-500 dark:text-zinc-400 mb-4 transition-colors duration-300">Lanzamiento Exclusivo</span>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight dark:text-white transition-colors duration-300">Trazabilidad <br /> & Minimalismo</h2>
-            <p className="text-zinc-600 dark:text-zinc-300 mb-10 leading-relaxed max-w-md transition-colors duration-300">Descubre nuestra primera línea de prendas estructuradas. Diseñadas en Quito, pensadas para adaptarse a cualquier estilo de vida sin perder la esencia.</p>
-            <div><Link to="/lookbook" className="border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white px-8 py-3 rounded-full text-sm font-semibold hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-900 transition-all duration-300 inline-block">Ver Lookbook</Link></div>
-          </div>
-          <div className="w-full md:w-1/2 h-full min-h-125 relative">
-            <img src="https://placehold.co/1000x1200/e7e5e4/a8a29e?text=IMAGEN+EDITORIAL" className="absolute inset-0 w-full h-full object-cover opacity-95 dark:opacity-80" alt="Lookbook" />
-          </div>
-        </div>
-      </section>
+      {/* --- LANZAMIENTO EXCLUSIVO --- */}
+      <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="bg-white dark:bg-[#0e1014] rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-zinc-200 dark:border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+          <div className="w-full md:w-[38%] pt-8 pb-8 pl-8 pr-4 md:py-16 md:pl-16 md:pr-8 flex flex-col justify-center order-2 md:order-1">
+            <div className="inline-flex items-center gap-2 border border-zinc-200 dark:border-white/10 px-4 py-1.5 rounded-full mb-8 self-start">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 dark:text-zinc-400">LANZAMIENTO EXCLUSIVO</span>
+            </div>
 
-      {/* --- BENEFICIOS (sin cambios) --- */}
-      <section className="py-24 px-6 md:px-12 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
-        <div className="max-w-400 mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-zinc-100 dark:divide-zinc-800">
-          <div className="flex flex-col items-center pt-8 md:pt-0">
-            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center mb-6 text-zinc-700 dark:text-zinc-300 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
-            <h3 className="text-base font-bold mb-2 dark:text-white transition-colors duration-300">Envío Gratis</h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs transition-colors duration-300">En todas las órdenes a nivel nacional superiores a $100.</p>
-          </div>
-          <div className="flex flex-col items-center pt-8 md:pt-0">
-            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center mb-6 text-zinc-700 dark:text-zinc-300 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
-            <h3 className="text-base font-bold mb-2 dark:text-white transition-colors duration-300">Devoluciones Fáciles</h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs transition-colors duration-300">Tienes 30 días para realizar cambios o devoluciones sin costo.</p>
-          </div>
-          <div className="flex flex-col items-center pt-8 md:pt-0">
-            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center mb-6 text-zinc-700 dark:text-zinc-300 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg></div>
-            <h3 className="text-base font-bold mb-2 dark:text-white transition-colors duration-300">Pago 100% Seguro</h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs transition-colors duration-300">Procesamos tus pagos con los más altos estándares de seguridad.</p>
-          </div>
-        </div>
-      </section>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight text-zinc-900 dark:text-white">Trazabilidad &<br />Minimalismo</h2>
+            <div className="w-12 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed max-w-md text-sm md:text-base">Descubre nuestra primera línea de prendas estructuradas. Diseñadas en Quito, pensadas para adaptarse a cualquier estilo de vida sin perder la esencia.</p>
 
-      {/* --- TESTIMONIOS (sin cambios) --- */}
-      <section className="py-24 px-6 md:px-12 bg-zinc-50 dark:bg-zinc-900/30 transition-colors duration-300 border-t border-zinc-100 dark:border-zinc-800">
-        <div className="max-w-400 mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-16 tracking-tight dark:text-white transition-colors duration-300">Lo que dice nuestra comunidad</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { text: "La calidad de las telas es increíble. Por fin una marca que entiende que el buen diseño no tiene género.", author: "Andrea V." },
-              { text: "El calce de los pantalones es perfecto. La experiencia de compra y el empaque se sienten totalmente premium.", author: "Mateo R." },
-              { text: "Piezas minimalistas que combinan con todo. Definitivamente mis nuevos básicos para el día a día.", author: "Sofía C." },
-            ].map((testimonial, i) => (
-              <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow text-left dark:border dark:border-zinc-800 duration-300">
-                <div className="flex text-zinc-800 dark:text-zinc-200 mb-4 transition-colors duration-300">
-                  {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>))}
-                </div>
-                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-6 transition-colors duration-300">"{testimonial.text}"</p>
-                <p className="text-sm font-bold text-zinc-900 dark:text-white transition-colors duration-300">{testimonial.author}</p>
+            <div className="mb-16">
+              <Link to="/lookbook" className="inline-flex items-center gap-3 bg-zinc-900 text-white dark:bg-white dark:text-black px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+                Ver Lookbook <ArrowRightIcon />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-zinc-200 dark:border-white/10">
+              <div className="flex items-start gap-3">
+                <div className="text-zinc-500 dark:text-zinc-400"><LeafIcon /></div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Materiales<br />premium</span>
               </div>
-            ))}
+              <div className="flex items-start gap-3">
+                <div className="text-zinc-500 dark:text-zinc-400"><TargetIcon /></div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Diseño<br />atemporal</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="text-zinc-500 dark:text-zinc-400"><ShirtIcon /></div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-tight">Hecho en<br />Chile</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full md:w-[62%] h-[50vh] md:h-auto order-1 md:order-2 bg-zinc-50 dark:bg-[#0e1014] flex items-center justify-center pt-8 pb-8 pl-4 pr-8 md:py-16 md:pl-8 md:pr-16 relative min-h-[400px] md:min-h-0">
+            <img src="/trazabilidad.png" className="w-full h-full max-h-[48vh] md:max-h-[70vh] object-contain rounded-2xl" alt="Lanzamiento" />
+          </div>
+        </div>
+      </section>
+
+      {/* --- COMUNIDAD --- */}
+      <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex justify-between items-end mb-16">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-3 block">COMUNIDAD</span>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white mb-4">Lo que dice nuestra comunidad</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base max-w-xl">Miles de personas ya forman parte de Intipa Churin. Esto es lo que opinan sobre nuestra calidad y diseño.</p>
+          </div>
+          <div className="hidden md:flex gap-2">
+            <button onClick={scrollTestimonialsLeft} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg></button>
+            <button onClick={scrollTestimonialsRight} className="w-10 h-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-[#2a2a2a] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg></button>
+          </div>
+        </div>
+
+        <div className="overflow-hidden -my-8 py-8 -mx-6 px-6 md:-mx-12 md:px-12">
+          <div
+            ref={testiContainerRef}
+            className={`flex w-full ${isTestiDragging ? '' : 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} gap-6`}
+            style={{ transform: `translateX(calc(-${testiIndex} * (100% + 1.5rem) / ${itemsPerView} + ${testiDragOffset}px))` }}
+            onTouchStart={onTestiTouchStart}
+            onTouchMove={onTestiTouchMove}
+            onTouchEnd={onTestiTouchEnd}
+            onMouseDown={onTestiMouseDown}
+            onMouseMove={onTestiMouseMove}
+            onMouseUp={onTestiMouseUp}
+            onMouseLeave={onTestiMouseLeave}
+            onWheel={onTestiWheel}
+          >
+            {testimonials.map((testimonial, i) => {
+              const stepSize = testiContainerRef.current ? (testiContainerRef.current.offsetWidth + 24) / itemsPerView : window.innerWidth / itemsPerView;
+              const floatIndex = testiIndex - (testiDragOffset / stepSize);
+
+              const distFromLeft = i - floatIndex;
+              const distFromRight = (floatIndex + itemsPerView - 1) - i;
+
+              let progress = 1;
+              if (distFromLeft < 0) {
+                progress = 1 + distFromLeft;
+              } else if (distFromRight < 0) {
+                progress = 1 + distFromRight;
+              }
+              progress = Math.min(1, Math.max(0, progress));
+
+              let opacityClass = "opacity-0 scale-95 pointer-events-none";
+              let dynamicStyle = {};
+
+              if (progress < 1 && progress > 0) {
+                dynamicStyle = { opacity: progress, transform: `scale(${0.95 + 0.05 * progress})`, pointerEvents: progress > 0.5 ? 'auto' : 'none' };
+              } else if (progress === 1) {
+                opacityClass = "opacity-100 scale-100";
+                if (!(i >= testiIndex && i < testiIndex + itemsPerView)) {
+                  dynamicStyle = { opacity: 1, transform: `scale(1)` };
+                }
+              } else {
+                if (i >= testiIndex && i < testiIndex + itemsPerView) {
+                  dynamicStyle = { opacity: 0, transform: `scale(0.95)`, pointerEvents: 'none' };
+                }
+              }
+
+              return (
+                <div
+                  key={i}
+                  style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
+                  className={`snap-start carousel-card-item bg-white dark:bg-white/[0.02] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-zinc-200 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden flex flex-col justify-between h-[280px] md:h-[260px] shrink-0 transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
+                >
+                  <div>
+                    <div className="flex text-amber-500 dark:text-white mb-6">
+                      {[1, 2, 3, 4, 5].map((star) => (<svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="mr-1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>))}
+                    </div>
+                    <p className="text-zinc-600 dark:text-zinc-300 text-sm md:text-base font-light leading-relaxed mb-8 line-clamp-4">"{testimonial.text}"</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <img src={testimonial.img} alt={testimonial.author} className="w-10 h-10 rounded-full object-cover grayscale opacity-80" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-zinc-900 dark:text-white">{testimonial.author}</span>
+                      <span className="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">Cliente verificado <CheckIcon /></span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* --- FOOTER (sin cambios) --- */}
-      <footer className="bg-white dark:bg-zinc-950 pt-20 pb-10 px-6 md:px-12 border-t border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
+      <footer className="bg-white dark:bg-zinc-950 pt-20 pb-0 px-6 md:px-12 border-t border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
         <div className="max-w-400 mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="md:col-span-1">
             <div className="text-xl font-bold tracking-widest uppercase mb-6 dark:text-white transition-colors duration-300">Intipa Churin</div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed transition-colors duration-300">Moda contemporánea, inclusiva y transparente. Diseñada para trascender temporadas.</p>
+            <div className="flex gap-4 mt-6">
+              <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100 transition-colors" aria-label="Instagram">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+              </a>
+              <a href="https://tiktok.com/@tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100 transition-colors" aria-label="TikTok">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5.5 5" /></svg>
+              </a>
+              <a href="mailto:contacto@intipachurin.com" className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100 transition-colors" aria-label="Email">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+              </a>
+            </div>
           </div>
           <div>
             <h4 className="text-sm font-bold mb-6 uppercase tracking-wider dark:text-white transition-colors duration-300">Enlaces</h4>
             <ul className="space-y-4 text-sm text-zinc-500 dark:text-zinc-400">
               <li><Link to="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Sobre la marca</Link></li>
-              <li><Link to="/faq" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Preguntas Frecuentes</Link></li>
+              <li><Link to="/faq" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Preguntas frecuentes</Link></li>
+              <li><Link to="/guide" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Guía de tallas</Link></li>
+              <li><Link to="/shipping" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Envíos y devoluciones</Link></li>
+              <li><Link to="/contact" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Contacto</Link></li>
             </ul>
           </div>
           <div>
@@ -443,6 +925,7 @@ const Home = () => {
               <li><Link to="/shipping" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Envíos y Devoluciones</Link></li>
               <li><Link to="/terms" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Términos de Servicio</Link></li>
               <li><Link to="/privacy" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Aviso de Privacidad</Link></li>
+              <li><Link to="/exchange" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Política de Cambios</Link></li>
             </ul>
           </div>
           <div>
@@ -450,15 +933,21 @@ const Home = () => {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 transition-colors duration-300">Únete para recibir noticias sobre nuevos drops y ofertas exclusivas.</p>
             <div className="flex gap-2">
               <input type="email" placeholder="Tu correo electrónico" className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-zinc-400 dark:focus:ring-zinc-500 transition-all dark:text-white dark:placeholder-zinc-500" />
-              <button className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm">Unirme</button>
+              <button className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm">Suscribirme</button>
             </div>
           </div>
         </div>
-        <div className="max-w-400 mx-auto border-t border-zinc-100 dark:border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300">
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium transition-colors duration-300">© 2026 Intipa Churin. Todos los derechos reservados.</p>
+        <div className="max-w-[1600px] mx-auto border-t border-zinc-100 dark:border-zinc-800 py-8 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300">
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium text-center md:text-left transition-colors duration-300">
+            © 2026 Intipa Churin. Todos los derechos reservados.
+          </p>
           <div className="flex gap-6 pr-0 md:pr-24">
-            <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">Instagram</a>
-            <a href="https://tiktok.com/@tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">Tiktok</a>
+            <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-300 text-xs font-bold uppercase tracking-wider">
+              Instagram
+            </a>
+            <a href="https://tiktok.com/@tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-300 text-xs font-bold uppercase tracking-wider">
+              Tiktok
+            </a>
           </div>
         </div>
       </footer>

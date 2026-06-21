@@ -44,11 +44,63 @@ const ProductDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col justify-between">
+      <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col justify-between transition-colors duration-300">
         <Navbar />
-        <div className="flex-grow flex items-center justify-center">
-          <svg className="animate-spin h-10 w-10 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        </div>
+        <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full animate-pulse">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            {/* Lado Izquierdo: Galería de Imágenes Esqueleto */}
+            <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
+              {/* Thumbnails */}
+              <div className="flex md:grid md:grid-rows-5 gap-3 overflow-hidden shrink-0 md:w-20 lg:w-24 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <div key={idx} className="w-16 md:w-full md:h-full aspect-[3/4] md:aspect-auto rounded-2xl bg-zinc-200 dark:bg-zinc-800/50"></div>
+                ))}
+              </div>
+              {/* Imagen Principal */}
+              <div className="w-full aspect-[3/4] rounded-3xl bg-zinc-200 dark:bg-zinc-800/50"></div>
+            </div>
+            
+            {/* Lado Derecho: Detalles Esqueleto */}
+            <div className="flex flex-col h-full justify-center w-full">
+              {/* Categoría */}
+              <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/4 mb-4"></div>
+              {/* Título */}
+              <div className="h-10 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4 mb-6"></div>
+              {/* Precio */}
+              <div className="h-6 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-10"></div>
+              
+              <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
+                {/* Descripción label */}
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/6 mb-4"></div>
+                {/* Descripción lineas */}
+                <div className="space-y-3">
+                  <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-full"></div>
+                  <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-5/6"></div>
+                  <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-4/5"></div>
+                </div>
+              </div>
+              
+              {/* Tallas label */}
+              <div className="mb-8">
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-4"></div>
+                <div className="flex gap-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={idx} className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Stock status y botón */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+                  <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-2/3"></div>
+                </div>
+                <div className="w-full h-14 rounded-xl bg-zinc-300 dark:bg-zinc-700/80"></div>
+              </div>
+            </div>
+          </div>
+        </main>
         <MiniFooter />
       </div>
     );
@@ -68,14 +120,22 @@ const ProductDetail = () => {
     );
   }
 
-  // Mock de imágenes secundarias para la galería
-  const imagenes = producto ? [
-    producto.image_url || `https://placehold.co/800x1060/f5f5f4/d6d3d1?text=VISTA+1`,
-    `https://placehold.co/800x1060/e5e5e5/a3a3a3?text=VISTA+2`,
-    `https://placehold.co/800x1060/d4d4d4/737373?text=VISTA+3`,
-    `https://placehold.co/800x1060/c4c4c4/525252?text=VISTA+4`,
-    `https://placehold.co/800x1060/a3a3a3/404040?text=VISTA+5`,
-  ] : [];
+  // Imágenes de la galería
+  const baseImagenes = producto ? [
+    producto.image_url,
+    producto.image_url_2,
+    producto.image_url_3,
+    producto.image_url_4,
+    producto.image_url_5,
+  ].filter(Boolean) : [];
+
+  // Garantizamos que siempre hayan 5 imágenes para mantener la alineación del diseño
+  const imagenes = Array.from({ length: 5 }).map((_, i) => {
+    if (baseImagenes.length > 0) {
+      return baseImagenes[i] || baseImagenes[0]; // Rellenar con la imagen principal si faltan
+    }
+    return `https://placehold.co/800x1060/f5f5f4/d6d3d1?text=SIN+FOTO`;
+  });
 
   return (
     <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans selection:bg-zinc-200 dark:selection:bg-zinc-800 flex flex-col transition-colors duration-300">
@@ -85,15 +145,15 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           
           {/* Lado Izquierdo: Galería de Imágenes */}
-          <div className="flex flex-col-reverse md:flex-row gap-4 lg:gap-6 items-start">
+          <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
             {/* Thumbnails */}
-            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto pb-2 md:pb-0 md:pr-2 md:w-20 lg:w-24 shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex md:grid md:grid-rows-5 gap-3 overflow-x-auto md:overflow-y-hidden pb-2 md:pb-0 md:w-20 lg:w-24 shrink-0 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {imagenes.map((img, idx) => (
                 <button 
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative block p-0 w-16 md:w-full aspect-[3/4] shrink-0 rounded-2xl overflow-hidden transition-all duration-300 outline-none ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                  className={`relative block p-0 w-16 md:w-full md:h-full aspect-[3/4] md:aspect-auto shrink-0 rounded-2xl overflow-hidden transition-all duration-300 outline-none ${selectedImage === idx ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                 >
                   <img src={img} className="absolute inset-0 w-full h-full object-cover rounded-2xl" alt={`${producto.name} vista ${idx + 1}`} />
                   <div className={`absolute inset-0 rounded-2xl border-2 pointer-events-none transition-colors duration-300 z-10 ${selectedImage === idx ? 'border-zinc-900 dark:border-white' : 'border-transparent'}`}></div>
@@ -149,9 +209,21 @@ const ProductDetail = () => {
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 dark:text-white leading-tight">
               {producto.name}
             </h1>
-            <p className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-8">
-              $ {parseFloat(producto.price).toFixed(2)}
-            </p>
+            <div className="flex items-center gap-4 mb-8">
+              <p className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+                S/ {parseFloat(producto.price).toFixed(2)}
+              </p>
+              {producto.original_price && parseFloat(producto.original_price) > parseFloat(producto.price) && (
+                <div className="flex items-center gap-3">
+                  <p className="text-lg md:text-xl text-zinc-400 dark:text-zinc-500 line-through">
+                    S/ {parseFloat(producto.original_price).toFixed(2)}
+                  </p>
+                  <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">
+                    -{Math.round((1 - parseFloat(producto.price) / parseFloat(producto.original_price)) * 100)}%
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
               <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Descripción</h2>
@@ -160,23 +232,33 @@ const ProductDetail = () => {
               </p>
             </div>
 
-            {/* Selector de Tallas Simulado */}
+            {/* Selector de Tallas */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Seleccionar Talla</h2>
                 <span className="text-xs text-zinc-400 font-medium">Calce Regular Unisex</span>
               </div>
               <div className="flex gap-3">
-                {['S', 'M', 'L', 'XL'].map((talla) => (
-                  <button
-                    key={talla}
-                    disabled={!producto.is_active}
-                    onClick={() => setTallaSeleccionada(talla)}
-                    className={`w-12 h-12 rounded-xl text-xs font-bold border transition-all duration-200 ${!producto.is_active ? 'border-zinc-100 text-zinc-300 dark:border-zinc-900 dark:text-zinc-800 cursor-not-allowed' : tallaSeleccionada === talla ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white shadow-md scale-105' : 'border-zinc-200 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500'}`}
-                  >
-                    {talla}
-                  </button>
-                ))}
+                {['S', 'M', 'L', 'XL'].map((talla) => {
+                  const tieneStock = producto.sizes && producto.sizes.includes(talla);
+                  const isAvailable = producto.is_active && tieneStock;
+                  return (
+                    <button
+                      key={talla}
+                      disabled={!isAvailable}
+                      onClick={() => setTallaSeleccionada(talla)}
+                      title={!tieneStock ? 'Sin stock' : `Seleccionar talla ${talla}`}
+                      className={`relative w-12 h-12 rounded-xl text-xs font-bold border transition-all duration-200 overflow-hidden ${!isAvailable ? 'border-zinc-200 text-zinc-300 dark:border-zinc-800 dark:text-zinc-600 bg-zinc-50 dark:bg-zinc-900/50 cursor-default' : tallaSeleccionada === talla ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white shadow-md scale-105' : 'border-zinc-200 text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500'}`}
+                    >
+                      {talla}
+                      {!tieneStock && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-[140%] h-px bg-zinc-300 dark:bg-zinc-600 -rotate-45 transform origin-center"></div>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -200,7 +282,8 @@ const ProductDetail = () => {
                   nombre: `${producto.name} (${tallaSeleccionada})`,
                   precio: parseFloat(producto.price),
                   categoria: producto.category_name,
-                  imagen: producto.image_url
+                  imagen: producto.image_url,
+                  stock_quantity: producto.stock_quantity
                 })}
                 className={`w-full py-4 rounded-xl text-sm font-bold shadow-sm transition-all duration-300 ${(!producto.is_active || producto.stock_quantity <= 0) ? 'bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-700 cursor-not-allowed' : 'bg-zinc-900 text-white hover:bg-zinc-800 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100'}`}
               >

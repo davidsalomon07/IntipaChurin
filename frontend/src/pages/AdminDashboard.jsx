@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from 'react-hot-toast'; // Importado para alertas de validación
 import {
   Search,
   Package,
@@ -14,7 +15,8 @@ import {
   PanelLeftOpen,
   Sun,
   Moon,
-  Store
+  Store,
+  Truck
 } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
 import Cropper from 'react-easy-crop';
@@ -76,6 +78,7 @@ const AdminDashboard = () => {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [pedidos, setPedidos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Control de Modales
@@ -86,8 +89,8 @@ const AdminDashboard = () => {
   const [previewProduct, setPreviewProduct] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
 
-  // Formularios completos (Agregamos image_file)
-  const estadoInicialProducto = { name: '', description: '', price: '', stock_quantity: '', category_id: '', image_file: null, is_active: true };
+  // Formularios completos (Agregamos image_file, sizes y color)
+  const estadoInicialProducto = { name: '', description: '', price: '', original_price: '', stock_quantity: '', category_id: '', sizes: [], color: '', image_file: null, image_file_2: null, image_file_3: null, image_file_4: null, image_file_5: null, remove_image_2: false, remove_image_3: false, remove_image_4: false, remove_image_5: false, is_active: true };
   const [productForm, setProductForm] = useState(estadoInicialProducto);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
 
@@ -132,7 +135,7 @@ const AdminDashboard = () => {
 
   const cargarDatos = async () => {
     setIsLoading(true);
-    await Promise.all([cargarProductos(), cargarCategorias(), cargarUsuarios()]);
+    await Promise.all([cargarProductos(), cargarCategorias(), cargarUsuarios(), cargarPedidos()]);
     setIsLoading(false);
   };
 
@@ -153,21 +156,66 @@ const AdminDashboard = () => {
     if (res.ok) setUsuarios(await res.json());
   };
 
+  const cargarPedidos = async () => {
+    const res = await fetch('http://localhost:3000/api/admin/pedidos', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) setPedidos(await res.json());
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/admin/pedidos/${orderId}/estado`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        toast.success("Estado de la orden actualizado.");
+        cargarPedidos();
+      } else {
+        toast.error("Error al actualizar la orden.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // --- LÓGICA CRUD PRODUCTOS ---
 
   // 1. Crear (Ahora enviamos FormData en lugar de JSON)
   const handleProductSubmit = async (e) => {
     e.preventDefault();
+    const priceVal = parseFloat(productForm.price);
+    const originalPriceVal = productForm.original_price ? parseFloat(productForm.original_price) : '';
+    const stockVal = parseInt(productForm.stock_quantity);
+
+    if (isNaN(priceVal) || priceVal < 0) {
+      toast.error("El precio no puede ser negativo ni estar vacío.");
+      return;
+    }
+    if (isNaN(stockVal) || stockVal < 0) {
+      toast.error("El stock no puede ser negativo ni estar vacío.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('name', productForm.name);
       formData.append('description', productForm.description);
-      formData.append('price', parseFloat(productForm.price));
-      formData.append('stock_quantity', parseInt(productForm.stock_quantity));
+      formData.append('price', priceVal);
+      if (originalPriceVal) formData.append('original_price', originalPriceVal);
+      formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
+      formData.append('sizes', JSON.stringify(productForm.sizes || []));
+      formData.append('color', productForm.color || '');
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
       }
+      if (productForm.image_file_2) formData.append('image_2', productForm.image_file_2);
+      if (productForm.image_file_3) formData.append('image_3', productForm.image_file_3);
+      if (productForm.image_file_4) formData.append('image_4', productForm.image_file_4);
+      if (productForm.image_file_5) formData.append('image_5', productForm.image_file_5);
 
       const response = await fetch('http://localhost:3000/api/admin/products', {
         method: 'POST',
@@ -190,9 +238,25 @@ const AdminDashboard = () => {
       name: p.name,
       description: p.description || '',
       price: p.price,
+      original_price: p.original_price || '',
       stock_quantity: p.stock_quantity,
       category_id: p.category_id || '',
+      sizes: p.sizes || [],
+      color: p.color || '',
+      image_url: p.image_url,
+      image_url_2: p.image_url_2,
+      image_url_3: p.image_url_3,
+      image_url_4: p.image_url_4,
+      image_url_5: p.image_url_5,
       image_file: null, // Reseteamos por si quiere subir una foto nueva
+      image_file_2: null,
+      image_file_3: null,
+      image_file_4: null,
+      image_file_5: null,
+      remove_image_2: false,
+      remove_image_3: false,
+      remove_image_4: false,
+      remove_image_5: false,
       is_active: p.is_active
     });
     setIsEditProductModalOpen(true);
@@ -201,16 +265,40 @@ const AdminDashboard = () => {
   // 3. Enviar Edición (FormData)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    const priceVal = parseFloat(productForm.price);
+    const originalPriceVal = productForm.original_price ? parseFloat(productForm.original_price) : '';
+    const stockVal = parseInt(productForm.stock_quantity);
+
+    if (isNaN(priceVal) || priceVal < 0) {
+      toast.error("El precio no puede ser negativo ni estar vacío.");
+      return;
+    }
+    if (isNaN(stockVal) || stockVal < 0) {
+      toast.error("El stock no puede ser negativo ni estar vacío.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('name', productForm.name);
       formData.append('description', productForm.description);
-      formData.append('price', parseFloat(productForm.price));
-      formData.append('stock_quantity', parseInt(productForm.stock_quantity));
+      formData.append('price', priceVal);
+      if (originalPriceVal) formData.append('original_price', originalPriceVal);
+      formData.append('stock_quantity', stockVal);
       formData.append('category_id', parseInt(productForm.category_id));
+      formData.append('sizes', JSON.stringify(productForm.sizes || []));
+      formData.append('color', productForm.color || '');
       if (productForm.image_file) {
         formData.append('image', productForm.image_file);
       }
+      if (productForm.image_file_2) formData.append('image_2', productForm.image_file_2);
+      if (productForm.image_file_3) formData.append('image_3', productForm.image_file_3);
+      if (productForm.image_file_4) formData.append('image_4', productForm.image_file_4);
+      if (productForm.image_file_5) formData.append('image_5', productForm.image_file_5);
+      if (productForm.remove_image_2) formData.append('remove_image_2', 'true');
+      if (productForm.remove_image_3) formData.append('remove_image_3', 'true');
+      if (productForm.remove_image_4) formData.append('remove_image_4', 'true');
+      if (productForm.remove_image_5) formData.append('remove_image_5', 'true');
 
       const response = await fetch(`http://localhost:3000/api/admin/products/${editingProductId}`, {
         method: 'PUT',
@@ -284,14 +372,15 @@ const AdminDashboard = () => {
   const filteredProductos = productos.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
   const filteredCategorias = categorias.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
   const filteredUsuarios = usuarios.filter(u => u.first_name.toLowerCase().includes(search.toLowerCase()) || u.last_name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+  const filteredPedidos = pedidos.filter(p => p.id.toString().includes(search) || p.first_name.toLowerCase().includes(search.toLowerCase()) || p.email.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
 
       {/* Sidebar Minimalista y Overlay para Móvil */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -321,6 +410,12 @@ const AdminDashboard = () => {
             className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'usuarios' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
           >
             <Users size={18} /> Cuentas Registradas
+          </div>
+          <div
+            onClick={() => setActiveTab('pedidos')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'pedidos' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+          >
+            <Truck size={18} /> Gestión de Pedidos
           </div>
         </nav>
 
@@ -354,6 +449,7 @@ const AdminDashboard = () => {
                 {activeTab === 'productos' && 'Productos'}
                 {activeTab === 'categorias' && 'Categorías'}
                 {activeTab === 'usuarios' && 'Usuarios'}
+                {activeTab === 'pedidos' && 'Gestión de Pedidos'}
               </h1>
             </div>
           </div>
@@ -397,9 +493,34 @@ const AdminDashboard = () => {
 
           <div className="bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden flex flex-col">
             {isLoading ? (
-              <div className="p-20 text-center text-zinc-500 font-medium flex flex-col items-center">
-                <svg className="animate-spin h-8 w-8 mb-4 text-zinc-900 dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Cargando información...
+              <div className="w-full">
+                {/* Skeleton Header de tabla */}
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 flex justify-between animate-pulse">
+                  <div className="h-3 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-1/6"></div>
+                  <div className="h-3 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-1/4"></div>
+                  <div className="h-3 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-1/6"></div>
+                </div>
+                {/* Skeleton Filas */}
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+                  {Array.from({ length: 6 }).map((_, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-4 px-6 animate-pulse">
+                      <div className="flex items-center gap-4 w-1/2">
+                        <div className="w-10 h-10 rounded-lg bg-zinc-200 dark:bg-zinc-800/80 shrink-0"></div>
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="h-3.5 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4"></div>
+                          <div className="h-2.5 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/3"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end gap-4 w-1/2">
+                        <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/4"></div>
+                        <div className="flex gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800/80"></div>
+                          <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800/80"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="overflow-x-auto w-full min-w-0">
@@ -552,6 +673,58 @@ const AdminDashboard = () => {
                       </tbody>
                     </>
                   )}
+
+                  {/* === PEDIDOS === */}
+                  {activeTab === 'pedidos' && (
+                    <>
+                      <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                        <tr className="w-full">
+                          <th className="w-[10%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Orden</th>
+                          <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Cliente</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha</th>
+                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Total</th>
+                          <th className="w-[25%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Gestión Logística</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+                        {filteredPedidos.length === 0 ? (
+                          <tr><td colSpan="5" className="py-16 text-center text-zinc-500 text-sm">No hay pedidos registrados en el sistema.</td></tr>
+                        ) : (
+                          filteredPedidos.map((p) => (
+                            <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                              <td className="py-4 px-6 font-bold text-zinc-900 dark:text-white">#{p.id}</td>
+                              <td className="py-4 px-6">
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-semibold text-zinc-900 dark:text-white">{p.first_name} {p.last_name}</span>
+                                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{p.email}</span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400">
+                                {new Date(p.created_at).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </td>
+                              <td className="py-4 px-6 font-bold text-zinc-900 dark:text-white">
+                                ${parseFloat(p.total_amount).toFixed(2)}
+                              </td>
+                              <td className="py-4 px-6 text-center">
+                                <select
+                                  value={p.status}
+                                  onChange={(e) => handleStatusChange(p.id, e.target.value)}
+                                  className={`text-xs font-bold px-3 py-2 rounded-xl outline-none cursor-pointer transition-colors border shadow-sm ${p.status === 'PAGADO' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50' :
+                                      p.status === 'ENVIADO' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/50' :
+                                        'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50'
+                                    }`}
+                                >
+                                  <option value="PAGADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">PAGADO (Pendiente)</option>
+                                  <option value="ENVIADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">ENVIADO (En tránsito)</option>
+                                  <option value="ENTREGADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">ENTREGADO (Finalizado)</option>
+                                </select>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </>
+                  )}
                 </table>
               </div>
             )}
@@ -595,11 +768,59 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio Anterior (Opcional $)</label>
+                    <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
+                    <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
+                      <option value="">Selecciona un color...</option>
+                      <option value="Black">Negro (Black)</option>
+                      <option value="White">Blanco (White)</option>
+                      <option value="Dark Gray">Gris Oscuro (Dark Gray)</option>
+                      <option value="Light Gray">Gris Claro (Light Gray)</option>
+                      <option value="Beige">Beige</option>
+                      <option value="Navy">Azul Marino (Navy)</option>
+                      <option value="Blue">Azul (Blue)</option>
+                      <option value="Red">Rojo (Red)</option>
+                      <option value="Burgundy">Vino (Burgundy)</option>
+                      <option value="Green">Verde (Green)</option>
+                      <option value="Olive">Verde Oliva (Olive)</option>
+                      <option value="Yellow">Amarillo (Yellow)</option>
+                      <option value="Pink">Rosa (Pink)</option>
+                      <option value="Purple">Morado (Purple)</option>
+                      <option value="Brown">Marrón (Brown)</option>
+                      <option value="Orange">Naranja (Orange)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Tallas Disponibles</label>
+                    <div className="flex gap-4 pt-2">
+                      {['S', 'M', 'L', 'XL'].map(talla => (
+                        <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-white text-sm font-bold">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 accent-zinc-900 dark:accent-white cursor-pointer"
+                            checked={(productForm.sizes || []).includes(talla)} 
+                            onChange={() => {
+                              const currentSizes = productForm.sizes || [];
+                              setProductForm({ 
+                                ...productForm, 
+                                sizes: currentSizes.includes(talla) ? currentSizes.filter(s => s !== talla) : [...currentSizes, talla] 
+                              });
+                            }}
+                          />
+                          {talla}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -625,6 +846,29 @@ const AdminDashboard = () => {
                       <input type="file" accept="image/*" onChange={handleFileSelect} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" />
                     </div>
                   )}
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imágenes Secundarias (Opcionales, 4 máx)</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[2, 3, 4, 5].map(num => (
+                      <div key={num} className="flex flex-col gap-2">
+                        <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
+                          {productForm[`image_file_${num}`] ? (
+                            <>
+                              <img src={URL.createObjectURL(productForm[`image_file_${num}`])} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
+                              <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+                              <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                              <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
+                              <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0] }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
@@ -661,11 +905,59 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio Anterior (Opcional $)</label>
+                    <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                    <input type="number" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                    <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
+                    <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm">
+                      <option value="">Selecciona un color...</option>
+                      <option value="Black">Negro (Black)</option>
+                      <option value="White">Blanco (White)</option>
+                      <option value="Dark Gray">Gris Oscuro (Dark Gray)</option>
+                      <option value="Light Gray">Gris Claro (Light Gray)</option>
+                      <option value="Beige">Beige</option>
+                      <option value="Navy">Azul Marino (Navy)</option>
+                      <option value="Blue">Azul (Blue)</option>
+                      <option value="Red">Rojo (Red)</option>
+                      <option value="Burgundy">Vino (Burgundy)</option>
+                      <option value="Green">Verde (Green)</option>
+                      <option value="Olive">Verde Oliva (Olive)</option>
+                      <option value="Yellow">Amarillo (Yellow)</option>
+                      <option value="Pink">Rosa (Pink)</option>
+                      <option value="Purple">Morado (Purple)</option>
+                      <option value="Brown">Marrón (Brown)</option>
+                      <option value="Orange">Naranja (Orange)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Tallas Disponibles</label>
+                    <div className="flex gap-4 pt-2">
+                      {['S', 'M', 'L', 'XL'].map(talla => (
+                        <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-white text-sm font-bold">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 accent-zinc-900 dark:accent-white cursor-pointer"
+                            checked={(productForm.sizes || []).includes(talla)} 
+                            onChange={() => {
+                              const currentSizes = productForm.sizes || [];
+                              setProductForm({ 
+                                ...productForm, 
+                                sizes: currentSizes.includes(talla) ? currentSizes.filter(s => s !== talla) : [...currentSizes, talla] 
+                              });
+                            }}
+                          />
+                          {talla}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -690,6 +982,29 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   )}
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imágenes Secundarias (Opcionales, 4 máx)</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[2, 3, 4, 5].map(num => (
+                      <div key={num} className="flex flex-col gap-2">
+                        <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
+                          {(productForm[`image_url_${num}`] && !productForm[`remove_image_${num}`]) || productForm[`image_file_${num}`] ? (
+                            <>
+                              <img src={productForm[`image_file_${num}`] ? URL.createObjectURL(productForm[`image_file_${num}`]) : productForm[`image_url_${num}`]} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
+                              <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null, [`remove_image_${num}`]: true })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+                              <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                              <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
+                              <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0], [`remove_image_${num}`]: false }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
@@ -844,19 +1159,19 @@ const AdminDashboard = () => {
                 {confirmAction.type === 'delete' ? 'Eliminar Producto' : 'Desactivar Producto'}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8">
-                {confirmAction.type === 'delete' 
+                {confirmAction.type === 'delete'
                   ? `¿Estás seguro de que deseas eliminar permanentemente el producto "${confirmAction.product.name}"? Esta acción no se puede deshacer.`
                   : `¿Estás seguro de que deseas desactivar el producto "${confirmAction.product.name}"? No será visible para los clientes.`}
               </p>
-              
+
               <div className="flex gap-4">
-                <button 
+                <button
                   onClick={() => setConfirmAction(null)}
                   className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     if (confirmAction.type === 'delete') {
                       executeDeleteProduct(confirmAction.product.id);

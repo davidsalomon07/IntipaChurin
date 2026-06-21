@@ -116,7 +116,7 @@ const Navbar = ({ backButton = false }) => {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 h-20 transition-colors duration-300">
+      <nav className="fixed top-0 w-full z-50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 h-20 transition-colors duration-300">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex justify-between items-center relative">
 
           {/* ── LADO IZQUIERDO ── */}

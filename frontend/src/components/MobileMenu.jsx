@@ -31,7 +31,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
 
       {/* ── Drawer lateral ── */}
       <div
-        className={`fixed top-0 left-0 h-full w-[280px] z-[120] bg-white dark:bg-zinc-900
+        className={`fixed top-0 left-0 h-full w-[280px] z-[120] bg-white dark:bg-zinc-950
           border-r border-zinc-100 dark:border-zinc-800 flex flex-col
           transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}

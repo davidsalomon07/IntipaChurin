@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import toast from 'react-hot-toast';
 
 export const CartContext = createContext();
 
@@ -6,18 +7,52 @@ export const CartProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
 
   const agregarAlCarrito = (producto) => {
-    setCarrito((prev) => {
-      const existe = prev.find((item) => item.id === producto.id);
-      if (existe) {
-        return prev.map((item) =>
-          item.id === producto.id
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
+    const existe = carrito.find((item) => item.id === producto.id);
+
+    if (existe) {
+      if (producto.stock_quantity !== undefined && existe.cantidad >= producto.stock_quantity) {
+        toast.error("Límite de stock alcanzado para este producto.", { id: `stock-limit-${producto.id}` });
+        return;
       }
-      return [...prev, { ...producto, cantidad: 1 }];
-    });
+      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.id}` });
+      setCarrito((prev) => {
+        const itemExistente = prev.find((item) => item.id === producto.id);
+        if (itemExistente) {
+          if (producto.stock_quantity !== undefined && itemExistente.cantidad >= producto.stock_quantity) {
+            return prev;
+          }
+          return prev.map((item) =>
+            item.id === producto.id
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          );
+        }
+        return [...prev, { ...producto, cantidad: 1 }];
+      });
+    } else {
+      if (producto.stock_quantity !== undefined && producto.stock_quantity <= 0) {
+        toast.error("Este producto está agotado.", { id: `out-of-stock-${producto.id}` });
+        return;
+      }
+      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.id}` });
+      setCarrito((prev) => {
+        const itemExistente = prev.find((item) => item.id === producto.id);
+        if (itemExistente) {
+          if (producto.stock_quantity !== undefined && itemExistente.cantidad >= producto.stock_quantity) {
+            return prev;
+          }
+          return prev.map((item) =>
+            item.id === producto.id
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          );
+        }
+        return [...prev, { ...producto, cantidad: 1 }];
+      });
+    }
   };
+
+  const vaciarCarrito = () => setCarrito([]);
 
   const eliminarDelCarrito = (id) => {
     setCarrito((prev) => prev.filter((item) => item.id !== id));
@@ -42,7 +77,7 @@ export const CartProvider = ({ children }) => {
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
 
   return (
-    <CartContext.Provider value={{ carrito, agregarAlCarrito, eliminarDelCarrito, restarCantidadDelCarrito, totalItems, totalPrecio }}>
+    <CartContext.Provider value={{ carrito, agregarAlCarrito, eliminarDelCarrito, restarCantidadDelCarrito, vaciarCarrito, totalItems, totalPrecio }}>
       {children}
     </CartContext.Provider>
   );
