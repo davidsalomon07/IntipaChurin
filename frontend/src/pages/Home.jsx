@@ -910,12 +910,11 @@ const Home = () => {
             </div>
           </div>
           <div>
-            <h4 className="text-sm font-bold mb-6 uppercase tracking-wider dark:text-white transition-colors duration-300">Enlaces</h4>
+            <h4 className="text-sm font-bold mb-6 uppercase tracking-wider dark:text-white transition-colors duration-300">Ayuda</h4>
             <ul className="space-y-4 text-sm text-zinc-500 dark:text-zinc-400">
               <li><Link to="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Sobre la marca</Link></li>
               <li><Link to="/faq" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Preguntas frecuentes</Link></li>
               <li><Link to="/guide" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Guía de tallas</Link></li>
-              <li><Link to="/shipping" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Envíos y devoluciones</Link></li>
               <li><Link to="/contact" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Contacto</Link></li>
             </ul>
           </div>
@@ -925,7 +924,6 @@ const Home = () => {
               <li><Link to="/shipping" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Envíos y Devoluciones</Link></li>
               <li><Link to="/terms" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Términos de Servicio</Link></li>
               <li><Link to="/privacy" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Aviso de Privacidad</Link></li>
-              <li><Link to="/exchange" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Política de Cambios</Link></li>
             </ul>
           </div>
           <div>

@@ -21,6 +21,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProductDetail from './pages/ProductDetail';
 import Success from './pages/Success';
 import Cancel from './pages/Cancel';
+import Guide from './pages/Guide';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -81,6 +83,8 @@ function App() {
                   <Route path="/shop/producto/:id" element={<ProductDetail />} />
                   <Route path="/success" element={<Success />} />
                   <Route path="/cancel" element={<Cancel />} />
+                  <Route path="/guide" element={<Guide />} />
+                  <Route path="/contact" element={<Contact />} />
                 </Routes>
                 <WhatsAppButton />
               </div>
