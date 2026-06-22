@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const pool = require('./db');
 
 async function generarAdmins() {
@@ -15,10 +15,10 @@ async function generarAdmins() {
         // === AQUÍ COLOCAS LOS CORREOS REALES ===
         const admins = [
             {
-                email: '', // <-- CAMBIA ESTO POR SU CORREO REAL
-                password: '',           // <-- Puedes cambiar la contraseña inicial
-                first_name: '',
-                last_name: ''                        // <-- Cambia esto por su apellido
+                email: 'jecruzz@puce.edu.ec', // <-- CAMBIA ESTO POR SU CORREO REAL
+                password: 'peruanoGEI123',           // <-- Puedes cambiar la contraseña inicial
+                first_name: 'Josue',
+                last_name: 'Cruz'                        // <-- Cambia esto por su apellido
             },
             {
                 email: 'ldsalomon@puce.edu.ec',        // <-- CAMBIA ESTO POR TU CORREO REAL

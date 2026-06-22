@@ -3,3 +3,4 @@ node_modules/
 backend/uploads/
 .vscode/
 backend/stripe.exe
+docker-compose.yml
