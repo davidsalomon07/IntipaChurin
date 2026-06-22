@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const { carrito, eliminarDelCarrito, restarCantidadDelCarrito, totalPrecio } = useCart();
-  const [deletingItemId, setDeletingItemId] = useState(null);
+  const [deletingItemNombre, setDeletingItemNombre] = useState(null);
   const [cantidadAEliminar, setCantidadAEliminar] = useState(1);
   const [isCargandoPago, setIsCargandoPago] = useState(false);
 
@@ -84,7 +84,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
             </div>
           ) : (
             carrito.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl transition-colors duration-300">
+              <div key={item.nombre} className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl transition-colors duration-300">
                 <div className="w-14 h-14 bg-zinc-200 dark:bg-zinc-800 rounded-xl overflow-hidden shrink-0 transition-colors duration-300">
                   <img
                     src={item.imagen || `https://placehold.co/200x200/f5f5f4/d6d3d1?text=${(item.categoria || 'PRENDA').toUpperCase()}`}
@@ -93,7 +93,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  {deletingItemId === item.id ? (
+                  {deletingItemNombre === item.nombre ? (
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">¿Cuántos deseas eliminar?</span>
                       <div className="flex items-center gap-1.5">
@@ -114,8 +114,8 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         </select>
                         <button
                           onClick={() => {
-                            restarCantidadDelCarrito(item.id, cantidadAEliminar);
-                            setDeletingItemId(null);
+                            restarCantidadDelCarrito(item.nombre, cantidadAEliminar);
+                            setDeletingItemNombre(null);
                           }}
                           className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
                           title="Confirmar"
@@ -123,7 +123,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </button>
                         <button
-                          onClick={() => setDeletingItemId(null)}
+                          onClick={() => setDeletingItemNombre(null)}
                           className="w-7 h-7 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-lg flex items-center justify-center transition-colors"
                           title="Cancelar"
                         >
@@ -139,14 +139,14 @@ const CartDrawer = ({ isOpen, onClose }) => {
                     </>
                   )}
                 </div>
-                {deletingItemId !== item.id && (
+                {deletingItemNombre !== item.nombre && (
                   <button
                     onClick={() => {
                       if (item.cantidad > 1) {
-                        setDeletingItemId(item.id);
+                        setDeletingItemNombre(item.nombre);
                         setCantidadAEliminar(1);
                       } else {
-                        eliminarDelCarrito(item.id);
+                        eliminarDelCarrito(item.nombre);
                       }
                     }}
                     className="text-zinc-350 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-450 transition-colors shrink-0 p-1"

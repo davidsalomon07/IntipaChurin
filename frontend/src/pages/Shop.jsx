@@ -113,6 +113,7 @@ const Shop = () => {
   const [soloOfertas, setSoloOfertas] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const ITEMS_POR_PAGINA = 12;
+  const [selectedSizeProductId, setSelectedSizeProductId] = useState(null);
 
   const handleMinChange = (valStr) => {
     if (valStr === "") {
@@ -698,11 +699,69 @@ const Shop = () => {
                         </button>
                       </div>
 
-                      {/* Botón de Carrito (estilo bolsa) */}
-                      <div className="absolute bottom-3 right-3 z-10">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                    {/* Indicadores de Talla en Hover (Fase 2) */}
+                    {item.sizes && item.sizes.length > 0 && (
+                      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/70 dark:bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex gap-1.5 transition-all duration-300 z-10 ${hoveredProductId === item.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+                        {['S', 'M', 'L', 'XL'].map((tallaDefault) => {
+                          const disponible = item.sizes.includes(tallaDefault);
+                          return (
+                            <span
+                              key={tallaDefault}
+                              className={`text-[9px] font-extrabold tracking-wider w-4 h-4 rounded flex items-center justify-center transition-opacity ${disponible ? 'text-zinc-900 dark:text-white' : 'text-zinc-400/40 dark:text-zinc-600/40 line-through'}`}
+                            >
+                              {tallaDefault}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Botón de Carrito con Selector de Talla Rápido (Fase 1) */}
+                    <div className="absolute bottom-3 right-3 z-10">
+                      {selectedSizeProductId === item.id && item.sizes && item.sizes.length > 0 ? (
+                        <div 
+                          className="absolute bottom-full right-0 mb-2 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200/80 dark:border-white/10 rounded-2xl p-2 shadow-xl flex gap-1.5 backdrop-blur-md animate-fade-in-up z-20 shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {item.sizes.map((talla) => (
+                            <button
+                              key={talla}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                agregarAlCarrito({
+                                  id: item.id,
+                                  nombre: `${item.name} (${talla})`,
+                                  precio: parseFloat(item.price),
+                                  categoria: item.category_name,
+                                  imagen: item.image_url,
+                                  stock_quantity: item.stock_quantity
+                                });
+                                setSelectedSizeProductId(null);
+                              }}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-950 hover:text-white dark:hover:bg-white dark:hover:text-zinc-950 transition-colors"
+                            >
+                              {talla}
+                            </button>
+                          ))}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedSizeProductId(null);
+                            }}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center border border-transparent text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                            title="Cancelar"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        </div>
+                      ) : null}
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (item.sizes && item.sizes.length > 0) {
+                            setSelectedSizeProductId(item.id);
+                          } else {
                             agregarAlCarrito({
                               id: item.id,
                               nombre: item.name,
@@ -711,19 +770,20 @@ const Shop = () => {
                               imagen: item.image_url,
                               stock_quantity: item.stock_quantity
                             });
-                          }}
-                          title="Añadir al carrito"
-                          className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
-                          style={{ backgroundColor: (hoveredProductId === item.id && !whiteBgProductIds.has(item.id)) ? getHoverBg(item.color) : 'rgba(9, 9, 11, 0.4)' }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <path d="M16 10a4 4 0 0 1-8 0"></path>
-                          </svg>
-                        </button>
-                      </div>
+                          }
+                        }}
+                        title="Añadir al carrito"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
+                        style={{ backgroundColor: (hoveredProductId === item.id && !whiteBgProductIds.has(item.id)) ? getHoverBg(item.color) : 'rgba(9, 9, 11, 0.4)' }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                          <line x1="3" y1="6" x2="21" y2="6"></line>
+                          <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                      </button>
                     </div>
+                  </div>
 
                     <div className="mt-auto px-1">
                       <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mb-1.5">{item.category_name || 'PRENDA'}</p>
