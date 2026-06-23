@@ -938,24 +938,49 @@ const Home = () => {
                     style={Object.keys(dynamicStyle).length > 0 ? dynamicStyle : undefined}
                     className={`carousel-card-item relative shadow-[0_24px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.6)] bg-white dark:bg-[#0e1014] rounded-2xl md:rounded-3xl border border-zinc-200 dark:border-white/10 overflow-hidden flex flex-col transition-all ${Object.keys(dynamicStyle).length > 0 ? 'duration-0' : 'duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'} ${Object.keys(dynamicStyle).length === 0 ? opacityClass : ''}`}
                   >
-                    <div className="p-4 md:p-8 pb-0 z-10 h-[220px] md:h-[320px] flex flex-col pointer-events-none">
-                      <h3 className="text-xl md:text-3xl font-bold text-zinc-900 dark:text-white mb-2 md:mb-4">{cat.name}</h3>
-                      <div className="w-6 md:w-8 h-[2px] bg-zinc-200 dark:bg-white/20 mb-3 md:mb-6"></div>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-[200px] mb-8 flex-grow hidden md:block">
+                    {/* Contenido en móvil (apilado: título -> imagen -> botón) */}
+                    <div className="flex md:hidden flex-col items-center justify-between p-4 h-[260px] w-full text-center">
+                      <div className="flex flex-col items-center">
+                        <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1.5">{cat.name}</h3>
+                        <div className="w-6 h-[2px] bg-zinc-200 dark:bg-white/20"></div>
+                      </div>
+                      
+                      <div className="w-full h-[145px] flex items-center justify-center overflow-hidden pointer-events-none my-1">
+                        <img
+                          src={categoryImages[cat.name.toLowerCase()] || `https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`}
+                          className="max-w-full max-h-full object-contain"
+                          alt={cat.name}
+                        />
+                      </div>
+
+                      <div className="w-full flex justify-center">
+                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center justify-center w-auto whitespace-nowrap gap-1.5 border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-4 py-2 rounded-full text-[11px] font-medium bg-white/80 dark:bg-transparent backdrop-blur-md hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors">
+                          Ver {cat.name}
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Contenido en escritorio (diseño clásico side-by-side) */}
+                    <div className="hidden md:flex p-8 pb-0 z-10 h-[320px] flex-col pointer-events-none">
+                      <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4">{cat.name}</h3>
+                      <div className="w-8 h-[2px] bg-zinc-200 dark:bg-white/20 mb-6"></div>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-[200px] mb-8 flex-grow">
                         {cat.name.toLowerCase() === 'hoodies' ? 'Comodidad y estilo en cada detail. Perfectos para cualquier ocasión.' :
                           cat.name.toLowerCase() === 'camisetas' ? 'Diseños únicos en algodón premium. Ligereza y estilo que se sienten bien.' :
                             'Diseño, funcionalidad y comodidad para tu día a día.'}
                       </p>
-                      <div className="pb-4 md:pb-8 mt-auto md:mt-0 pointer-events-auto relative z-20">
-                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center justify-center w-full md:w-auto gap-2 md:gap-3 border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium bg-white/80 dark:bg-transparent backdrop-blur-md hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors">
-                          Ver {cat.name} <span className="hidden md:inline"><ArrowRightIcon /></span>
+                      <div className="pb-8 pointer-events-auto relative z-20 flex justify-start">
+                        <Link to={`/shop/${cat.name.toLowerCase()}`} className="inline-flex items-center justify-center w-auto gap-3 border border-zinc-200 dark:border-white/20 text-zinc-800 dark:text-white px-6 py-2.5 rounded-full text-sm font-medium bg-white/80 dark:bg-transparent backdrop-blur-md hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors">
+                          Ver {cat.name} <span className="inline-flex"><ArrowRightIcon /></span>
                         </Link>
                       </div>
                     </div>
-                    <div className="absolute bottom-[-10%] md:top-0 right-[-15%] md:right-0 w-[120%] md:w-[60%] h-[70%] md:h-full flex items-center justify-center md:justify-end overflow-hidden pointer-events-none opacity-90 md:opacity-80">
+                    
+                    {/* Imagen de escritorio */}
+                    <div className="hidden md:flex absolute top-0 right-0 w-[60%] h-full items-end justify-end overflow-hidden pointer-events-none opacity-80">
                       <img
                         src={categoryImages[cat.name.toLowerCase()] || `https://placehold.co/800x1000/1a1a1a/ffffff?text=${cat.name.toUpperCase()}`}
-                        className="w-full h-full object-contain md:object-cover translate-x-0 md:translate-x-[10%]"
+                        className="w-full h-full object-cover translate-x-[10%]"
                         alt={cat.name}
                       />
                     </div>
@@ -1148,8 +1173,8 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="w-full md:w-[62%] h-[40vh] md:h-auto order-1 md:order-2 bg-zinc-50 dark:bg-[#0e1014] flex items-center justify-center p-6 md:py-16 md:pl-8 md:pr-16 relative min-h-[300px] md:min-h-0">
-            <img src="/trazabilidad.png" className="w-full h-full max-h-[38vh] md:max-h-[70vh] object-contain rounded-2xl" alt="Lanzamiento" />
+          <div className="w-full md:w-[62%] h-[28vh] min-h-[220px] md:h-auto order-1 md:order-2 bg-zinc-50 dark:bg-[#0e1014] flex items-center justify-center p-4 md:p-6 md:py-16 md:pl-8 md:pr-16 relative md:min-h-0">
+            <img src="/trazabilidad.png" className="w-full h-full max-h-[26vh] md:max-h-[70vh] object-contain rounded-2xl" alt="Lanzamiento" />
           </div>
         </div>
       </section>
@@ -1238,8 +1263,8 @@ const Home = () => {
 
       {/* --- FOOTER (sin cambios) --- */}
       <footer className="bg-white dark:bg-zinc-950 pt-20 pb-0 px-6 md:px-12 border-t border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
-        <div className="max-w-400 mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          <div className="md:col-span-1">
+        <div className="max-w-[1600px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 mb-16">
+          <div className="col-span-2 md:col-span-1">
             <div className="text-xl font-bold tracking-widest uppercase mb-6 dark:text-white transition-colors duration-300">Intipa Churin</div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed transition-colors duration-300">Moda contemporánea, inclusiva y transparente. Diseñada para trascender temporadas.</p>
             <div className="flex gap-4 mt-6">
@@ -1254,7 +1279,7 @@ const Home = () => {
               </a>
             </div>
           </div>
-          <div>
+          <div className="col-span-1">
             <h4 className="text-sm font-bold mb-6 uppercase tracking-wider dark:text-white transition-colors duration-300">Ayuda</h4>
             <ul className="space-y-4 text-sm text-zinc-500 dark:text-zinc-400">
               <li><Link to="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Sobre la marca</Link></li>
@@ -1263,7 +1288,7 @@ const Home = () => {
               <li><Link to="/contact" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Contacto</Link></li>
             </ul>
           </div>
-          <div>
+          <div className="col-span-1">
             <h4 className="text-sm font-bold mb-6 uppercase tracking-wider dark:text-white transition-colors duration-300">Políticas</h4>
             <ul className="space-y-4 text-sm text-zinc-500 dark:text-zinc-400">
               <li><Link to="/shipping" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Envíos y Devoluciones</Link></li>
@@ -1271,12 +1296,12 @@ const Home = () => {
               <li><Link to="/privacy" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Aviso de Privacidad</Link></li>
             </ul>
           </div>
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="text-sm font-bold mb-6 uppercase tracking-wider dark:text-white transition-colors duration-300">Newsletter</h4>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 transition-colors duration-300">Únete para recibir noticias sobre nuevos drops y ofertas exclusivas.</p>
             <div className="flex gap-2">
               <input type="email" placeholder="Tu correo electrónico" className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-zinc-400 dark:focus:ring-zinc-500 transition-all dark:text-white dark:placeholder-zinc-500" />
-              <button className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm">Suscribirme</button>
+              <button className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm w-auto whitespace-nowrap">Suscribirme</button>
             </div>
           </div>
         </div>
