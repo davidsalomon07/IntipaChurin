@@ -20,7 +20,14 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 
 ## 🌟 Funcionalidades Clave
 
-* **Catálogo Dinámico**: Filtrado en tiempo real por categoría, precio, color y talla. Búsqueda global sincronizada.
+* **Catálogo Dinámico**: Filtrado en tiempo real por categoría, precio, ofertas/descuentos, color y talla. Búsqueda global sincronizada.
+* **Paginación Numérica Premium**: Navegación de 12 prendas por página (se activa a partir de la prenda 13) con scroll superior automático y animaciones de entrada fluidas (*fade-in-up*).
+* **Selector Rápido de Tallas**: Menú emergente al pulsar el botón de carrito que permite elegir la talla directamente en el catálogo sin redirecciones.
+* **Indicadores de Talla en Hover**: Visualización minimalista del stock de tallas (S, M, L, XL) directamente sobre la imagen al pasar el cursor.
+* **Navegación Móvil por Gestos**: Soporte completo para deslizamiento táctil (swipe), arrastre con el ratón (drag) y scroll horizontal del trackpad en los carruseles de categorías, productos y testimonios.
+* **Hero Interactivo en Bucle**: Diapositivas de imágenes en el Hero navegables mediante gestos e infinitas (bucle continuo) con transiciones suaves de traducción lateral (slide-fade-zoom) y bloqueo de cambio consecutivo para evitar saltos bruscos.
+* **Diseño Responsivo Refinado**: Centrado automático de textos y botones en móviles, reducción y balanceo del espaciado entre secciones en responsive y prevención de desbordes de texto.
+* **Notificaciones de Alto Contraste (Toasts)**: Alertas premium para interacciones con favoritos y errores de carrito/checkout usando `react-hot-toast` en lugar de diálogos nativos del navegador.
 * **Sistema de Carga Premium**: Esqueletos (Shimmer effects) globales en toda la tienda para evitar tiempos muertos visuales.
 * **Gestión de Carrito y Favoritos**: Funcionalidad completa de e-commerce con panel lateral (Drawer) optimizado.
 * **Integración de Pagos con Stripe**: Proceso de checkout asegurado.

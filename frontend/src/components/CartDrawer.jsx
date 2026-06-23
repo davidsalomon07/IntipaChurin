@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { jwtDecode } from "jwt-decode";
+import toast from 'react-hot-toast';
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const { carrito, eliminarDelCarrito, restarCantidadDelCarrito, totalPrecio } = useCart();
@@ -26,7 +27,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
       }
 
       if (!userId) {
-        alert("Debes iniciar sesión para poder comprar.");
+        toast.error("Debes iniciar sesión para poder comprar.", { id: 'checkout-login-error' });
         setIsCargandoPago(false);
         return;
       }
@@ -45,7 +46,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Hubo un problema al generar el enlace de pago.");
+        toast.error(data.error || "Hubo un problema al generar el enlace de pago.", { id: 'checkout-payment-error' });
         setIsCargandoPago(false);
       }
     } catch (error) {

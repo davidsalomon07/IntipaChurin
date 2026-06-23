@@ -21,3 +21,13 @@ Este documento registra las decisiones técnicas y operativas críticas del proy
 * **Contexto**: El proyecto necesita una portada clara (`README.md`) para entender su alcance sin ensuciarse con archivos internos de documentación.
 * **Decisión**: El archivo `README.md` no incluirá información sobre la estructura de conocimiento orgánico gestionado por el agente (carpetas `docs/`, `skills/`, `tasks/`, `knowledge/`, `checklists/`, `examples/`).
 * **Proceso**: El agente **actualizará de forma automática el `README.md`** cada vez que se complete de forma exitosa una característica y el usuario haga push, o cuando se transicione a una planificación de una nueva fase de desarrollo.
+
+## D-005: Mantenimiento de Historias de Usuario
+* **Contexto**: Las historias de usuario deben mantenerse al día y enfocarse únicamente en el trabajo actual por hacer para evitar ruido y acumulación de datos históricos obsoletos.
+* **Decisión**: Cuando el usuario pida nuevas historias de usuario para planificar una fase de desarrollo, esto implicará que las historias de usuario anteriores ya fueron completadas y entregadas.
+* **Proceso**: El agente **borrará automáticamente las historias de usuario anteriores** del registro interno `user_stories.md` y agregará las nuevas correspondientes al siguiente paso de la planificación, de modo que siempre se visualice solo el trabajo activo.
+* **Regra de Características Opcionales**: Las características de prueba u opcionales no llevarán historias de usuario durante su fase de desarrollo y prueba. Únicamente cuando el usuario confirme que le gustaron los cambios, decida conservarlos y haga `git push` a su respectivo commit, el agente generará e insertará las historias de usuario correspondientes en [user_stories.md](file:///C:/Users/david/.gemini/antigravity-ide/brain/48a96229-9b01-4474-bc0a-b57852807db6/user_stories.md), reemplazando las anteriores.
+* **Regla de Código Exacto**: Si se incluye código en una subtarea de historia de usuario, debe ser un fragmento **muy corto y literal** (ej. nombres de variables o estados). Si el fragmento es largo (como condicionales complejos o clases CSS largas), **no se debe incluir el código en la subtarea**, sino describir con claridad lo que hace la tarea en lenguaje natural.
+
+
+

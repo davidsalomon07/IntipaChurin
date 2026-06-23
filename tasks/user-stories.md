@@ -16,3 +16,7 @@ Al finalizar la implementación de una **NUEVA FUNCIONALIDAD MAYOR** (ej. un nue
 * **Subtareas:** (Opcional, solo si aplica para desglosar el cambio)
   - [Subtarea 1]
   - [Subtarea 2]
+
+## Regla de Extractos de Código
+* **Código Corto y Literal:** Si se requiere incluir código en una subtarea, debe ser un fragmento **extremadamente corto y literal** (ej. nombre de un estado, variable o función simple).
+* **Evitar Código Largo:** Si el extracto que se quiere poner es largo (como operadores ternarios complejos, clases CSS extensas, o lógica anidada), **está prohibido poner el extracto de código**. En su lugar, se debe escribir únicamente una subtarea descriptiva que defina claramente el comportamiento en lenguaje natural.

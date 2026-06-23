@@ -43,7 +43,7 @@ body::before {
 
 html.dark body::before {
   background-image: url("/modo oscuro.png") !important;
-  opacity: 0.00 !important;
+  opacity: 0.05 !important;
   /* Habilita la imagen de fondo en modo oscuro */
 }
 
@@ -144,8 +144,8 @@ picture {
 
 /* Item del carrusel con ancho responsivo y alineación simétrica perfecta */
 .carousel-card-item {
-  width: 85vw;
-  min-width: 85vw;
+  width: calc((100% - 1.5rem) / 2);
+  min-width: calc((100% - 1.5rem) / 2);
   flex-shrink: 0;
 }
 
@@ -156,10 +156,10 @@ picture {
   }
 }
 
-/* Item de productos destacado con 4 columnas en desktop */
+/* Item de productos destacado con 4 columnas */
 .product-card-item {
-  width: 85vw;
-  min-width: 85vw;
+  width: calc((100% - 1.5rem) / 2);
+  min-width: calc((100% - 1.5rem) / 2);
   flex-shrink: 0;
 }
 
@@ -220,6 +220,7 @@ picture {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -228,4 +229,4 @@ picture {
 
 .animate-fade-in-up {
   animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+}
