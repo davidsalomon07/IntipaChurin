@@ -1115,7 +1115,7 @@ const Home = () => {
                       <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 z-20">
                         <button
                           onClick={(e) => { e.stopPropagation(); agregarAlCarrito({ id: producto.id, nombre: producto.name, precio: parseFloat(producto.price), categoria: producto.category_name, imagen: producto.image_url, stock_quantity: producto.stock_quantity }); }}
-                          className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-zinc-900/40 dark:bg-white/10 backdrop-blur-md hover:bg-zinc-900/60 dark:hover:bg-white/20 flex items-center justify-center text-white dark:text-white transition-colors border border-white/20 shadow-lg"
+                          className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-zinc-950/40 backdrop-blur-md hover:bg-zinc-950/60 flex items-center justify-center text-white transition-colors border border-white/10 shadow-lg"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="md:w-[20px] md:h-[20px]"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         </button>
