@@ -14,6 +14,8 @@ const ProductDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [tallaSeleccionada, setTallaSeleccionada] = useState('M'); // Talla por defecto
   const [selectedImage, setSelectedImage] = useState(0);
+  const [productosSimilares, setProductosSimilares] = useState([]);
+  const [completaElLook, setCompletaElLook] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -41,6 +43,31 @@ const ProductDetail = () => {
 
     return () => clearInterval(interval);
   }, [id]);
+
+  useEffect(() => {
+    // Fetch para productos relacionados
+    if (producto && producto.category_name) {
+      const fetchRelacionados = async () => {
+        try {
+          const res = await fetch(`http://localhost:3000/api/products`);
+          if (res.ok) {
+            const data = await res.json();
+            
+            // Misma categoría (Productos Similares)
+            const similares = data.filter(p => p.category_name === producto.category_name && p.id !== producto.id).slice(0, 4);
+            setProductosSimilares(similares);
+
+            // Diferente categoría (Completa el look)
+            const diferentes = data.filter(p => p.category_name !== producto.category_name && p.is_active).slice(0, 4);
+            setCompletaElLook(diferentes);
+          }
+        } catch (error) {
+          console.error("Error cargando relacionados:", error);
+        }
+      };
+      fetchRelacionados();
+    }
+  }, [producto?.category_name, producto?.id]);
 
   if (isLoading) {
     return (
@@ -293,6 +320,70 @@ const ProductDetail = () => {
 
           </div>
         </div>
+
+      {/* Sección de Completa el look */}
+      {completaElLook.length > 0 && (
+        <div className="mt-24 pt-16 border-t border-zinc-200 dark:border-zinc-800/50">
+          <h3 className="text-2xl font-bold tracking-tight mb-8 text-center text-zinc-900 dark:text-white">Completa el look</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {completaElLook.map(rel => (
+              <Link key={rel.id} to={`/shop/producto/${rel.id}`} className="group block">
+                <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-4 relative">
+                  <img 
+                    src={rel.image_url} 
+                    alt={rel.name} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {!rel.is_active && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
+                      <span className="text-white text-[10px] font-bold px-2 py-1 bg-red-600 rounded">AGOTADO</span>
+                    </div>
+                  )}
+                </div>
+                <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 truncate">{rel.name}</h4>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">S/ {parseFloat(rel.price).toFixed(2)}</p>
+                  {rel.original_price && parseFloat(rel.original_price) > parseFloat(rel.price) && (
+                    <p className="text-xs text-zinc-400 line-through">S/ {parseFloat(rel.original_price).toFixed(2)}</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sección de Productos Similares */}
+      {productosSimilares.length > 0 && (
+        <div className="mt-16 pt-16 border-t border-zinc-200 dark:border-zinc-800/50">
+          <h3 className="text-2xl font-bold tracking-tight mb-8 text-center text-zinc-900 dark:text-white">Productos Similares</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {productosSimilares.map(rel => (
+              <Link key={rel.id} to={`/shop/producto/${rel.id}`} className="group block">
+                <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-4 relative">
+                  <img 
+                    src={rel.image_url} 
+                    alt={rel.name} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {!rel.is_active && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
+                      <span className="text-white text-[10px] font-bold px-2 py-1 bg-red-600 rounded">AGOTADO</span>
+                    </div>
+                  )}
+                </div>
+                <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 truncate">{rel.name}</h4>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">S/ {parseFloat(rel.price).toFixed(2)}</p>
+                  {rel.original_price && parseFloat(rel.original_price) > parseFloat(rel.price) && (
+                    <p className="text-xs text-zinc-400 line-through">S/ {parseFloat(rel.original_price).toFixed(2)}</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
       </main>
 
       <MiniFooter />
