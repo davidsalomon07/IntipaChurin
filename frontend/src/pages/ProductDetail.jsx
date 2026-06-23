@@ -171,7 +171,7 @@ const ProductDetail = () => {
         <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full animate-pulse">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {/* Lado Izquierdo: Galería de Imágenes Esqueleto */}
-            <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
+            <div className="relative flex flex-col-reverse gap-4 md:gap-0 md:block w-full md:pl-24 lg:pl-30">
               {/* Thumbnails */}
               <div className="flex md:grid md:grid-rows-5 gap-3 overflow-hidden shrink-0 md:w-20 lg:w-24 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full">
                 {Array.from({ length: 5 }).map((_, idx) => (
@@ -267,7 +267,7 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
           {/* Lado Izquierdo: Galería de Imágenes */}
-          <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
+          <div className="relative flex flex-col-reverse gap-4 md:gap-0 md:block w-full md:pl-24 lg:pl-30">
             {/* Thumbnails */}
             <div className="flex md:grid md:grid-rows-5 gap-3 overflow-x-auto md:overflow-y-hidden pb-2 md:pb-0 md:w-20 lg:w-24 shrink-0 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {imagenes.map((img, idx) => (
