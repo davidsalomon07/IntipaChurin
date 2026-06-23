@@ -118,6 +118,7 @@ const ProductDetail = () => {
 
   // Double Click / Double Tap to Zoom (Desktop & Mobile)
   const handleClick = (e) => {
+    if (window.innerWidth >= 768) return; // Solo móvil/responsive para evitar conflictos con el hover
     const currentTime = new Date().getTime();
     const timeSinceLastClick = currentTime - lastClickTime;
     
@@ -137,13 +138,26 @@ const ProductDetail = () => {
     setLastClickTime(currentTime);
   };
 
-  // Mouse pan for trackpads/mice while zoomed
-  const handlePointerMove = (e) => {
-    if (e.pointerType !== 'mouse' || !zoomProps.isZooming) return;
+  // Manejadores de zoom en Hover (Solo Escritorio)
+  const handleMouseEnter = (e) => {
+    if (window.innerWidth < 768) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
-    setZoomProps(prev => ({ ...prev, x, y }));
+    setZoomProps({ isZooming: true, x, y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (window.innerWidth < 768) return;
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomProps({ isZooming: true, x, y });
+  };
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth < 768) return;
+    setZoomProps({ isZooming: false, x: 50, y: 50 });
   };
 
   // Manejador de Share
@@ -285,18 +299,22 @@ const ProductDetail = () => {
 
             {/* Imagen Principal */}
             <div
-              className={`w-full aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm relative flex-grow md:cursor-crosshair group ${zoomProps.isZooming ? 'touch-none' : 'touch-pan-y'}`}
-              onPointerMove={handlePointerMove}
+              className={`w-full aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm relative flex-grow md:cursor-crosshair group select-none ${zoomProps.isZooming ? 'touch-none' : 'touch-pan-y'}`}
+              onMouseEnter={handleMouseEnter}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
               onClick={handleClick}
+              onDoubleClick={(e) => e.preventDefault()}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
             >
               <img
                 src={imagenes[selectedImage]}
-                className={`absolute inset-0 w-full h-full transition-transform duration-300 md:duration-100 pointer-events-none ${zoomProps.isZooming ? 'scale-[2.5]' : 'scale-100 object-cover group-hover:scale-105'}`}
+                className={`absolute inset-0 w-full h-full transition-transform duration-300 md:duration-100 pointer-events-none select-none ${zoomProps.isZooming ? 'scale-[2.5]' : 'scale-100 object-cover group-hover:scale-105'}`}
                 style={zoomProps.isZooming ? { transformOrigin: `${zoomProps.x}% ${zoomProps.y}%` } : {}}
                 alt={producto.name}
+                draggable="false"
               />
 
               {/* 👇 BOTÓN DE WISHLIST Y SHARE 👇 */}
