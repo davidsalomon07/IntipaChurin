@@ -629,6 +629,7 @@ const Home = () => {
     let startX = 0;
     let startY = 0;
     let isDraggingHero = false;
+    let hasSignalled = false; // Closure variable to track slide change per scroll gesture
 
     const onTouchStart = (e) => {
       startX = e.touches[0].clientX;
@@ -689,16 +690,29 @@ const Home = () => {
     const onWheel = (e) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         e.preventDefault();
+
+        // If we already changed slide in this scroll gesture, ignore further events
+        if (hasSignalled) {
+          if (wheelTimeout) clearTimeout(wheelTimeout);
+          wheelTimeout = setTimeout(() => {
+            wheelAccumulator = 0;
+            hasSignalled = false;
+          }, 150);
+          return;
+        }
+
         wheelAccumulator += e.deltaX;
 
         if (wheelTimeout) clearTimeout(wheelTimeout);
         wheelTimeout = setTimeout(() => {
           wheelAccumulator = 0;
+          hasSignalled = false;
         }, 150);
 
         if (Math.abs(wheelAccumulator) > 50) {
           const right = wheelAccumulator > 0;
           wheelAccumulator = 0;
+          hasSignalled = true; // Mark as signalled for this gesture
           if (right) {
             handleHeroNext();
           } else {
