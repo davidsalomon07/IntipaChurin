@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { useLoadScript, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
 import MiniFooter from '../components/MiniFooter';
 import Navbar from '../components/Navbar';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Configuraciones de Google Maps
 const libraries = ['places'];
@@ -311,7 +312,15 @@ const UserProfile = () => {
             Volver
           </button>
 
-          {/* VISTA: DATOS PERSONALES */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+            >
+              {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
             <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
 
@@ -609,6 +618,8 @@ const UserProfile = () => {
               )}
             </div>
           )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
 
