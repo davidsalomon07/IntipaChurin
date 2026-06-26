@@ -6,6 +6,7 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 
 ### Frontend
 - **React 19** + **Vite**: Desarrollo ágil y renderizado optimizado.
+- **Framer Motion**: Animaciones fluidas, transiciones de vistas y micro-interacciones premium.
 - **Tailwind CSS 4**: Estilos utilitarios rápidos y diseños premium (*glassmorphism*, dark mode, animaciones).
 - **React Router DOM**: Enrutamiento del lado del cliente.
 - **Lucide React**: Iconografía moderna.
@@ -27,6 +28,8 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 * **Navegación Móvil por Gestos**: Soporte completo para deslizamiento táctil (swipe), arrastre con el ratón (drag) y scroll horizontal del trackpad en los carruseles de categorías, productos y testimonios.
 * **Hero Interactivo en Bucle**: Diapositivas de imágenes en el Hero navegables mediante gestos e infinitas (bucle continuo) con transiciones suaves de traducción lateral (slide-fade-zoom) y bloqueo de cambio consecutivo para evitar saltos bruscos.
 * **Diseño Responsivo Refinado**: Centrado automático de textos y botones en móviles, reducción y balanceo del espaciado entre secciones en responsive y prevención de desbordes de texto.
+* **Interacciones y Animaciones del Perfil**: Transiciones de pestañas fluidas con `framer-motion`, un indicador dinámico y deslizante de la sección activa en el menú lateral, focus glow rings en inputs y efectos de elevación hover en tarjetas.
+* **Estados Vacíos Diseñados (Empty States)**: Componentes premium con íconos vectoriales amplios y botones de llamada a la acción en secciones vacías del perfil para optimizar el flujo de navegación.
 * **Notificaciones de Alto Contraste (Toasts)**: Alertas premium para interacciones con favoritos y errores de carrito/checkout usando `react-hot-toast` en lugar de diálogos nativos del navegador.
 * **Sistema de Carga Premium**: Esqueletos (Shimmer effects) globales en toda la tienda para evitar tiempos muertos visuales.
 * **Gestión de Carrito y Favoritos**: Funcionalidad completa de e-commerce con panel lateral (Drawer) optimizado.
@@ -61,4 +64,5 @@ Para ejecutar el proyecto localmente, asegúrate de tener instalado Node.js (v18
    - Ejecuta la aplicación de React: `npm run dev`.
 
 ---
+*Fase de Desarrollo Actual: Refactorización Visual y Micro-interacciones Premium en el Perfil de Usuario y Panel de Administración.*
 *Este proyecto se encuentra en constante evolución para añadir nuevas características de personalización, suscripción y mejoras de interfaz, asegurando siempre una fidelidad visual excepcional.*
