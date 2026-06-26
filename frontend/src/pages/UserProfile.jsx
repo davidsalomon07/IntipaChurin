@@ -273,23 +273,40 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <nav className="flex flex-col gap-1">
-              <button onClick={() => { setActiveTab('datos'); setIsEditing(false); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'datos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                Datos Personales
-              </button>
-              <button onClick={() => { setActiveTab('direcciones'); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'direcciones' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                Direcciones
-              </button>
-              <button onClick={() => { setActiveTab('pedidos'); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'pedidos' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                Mis Pedidos
-              </button>
-              <button onClick={() => { setActiveTab('configuracion'); setIsMobileMenuVisible(false); }} className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-colors ${activeTab === 'configuracion' ? 'bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white'}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                Configuración
-              </button>
+            <nav className="flex flex-col gap-1 relative">
+              {[
+                { id: 'datos', label: 'Datos Personales', icon: <svg className="w-5 h-5 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> },
+                { id: 'direcciones', label: 'Direcciones', icon: <svg className="w-5 h-5 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> },
+                { id: 'pedidos', label: 'Mis Pedidos', icon: <svg className="w-5 h-5 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg> },
+                { id: 'configuracion', label: 'Configuración', icon: <svg className="w-5 h-5 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> }
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      if (tab.id === 'datos') setIsEditing(false);
+                      setIsMobileMenuVisible(false);
+                    }}
+                    className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-all duration-300 relative ${
+                      isActive
+                        ? 'text-zinc-900 dark:text-white'
+                        : 'text-gray-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:translate-x-1'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTabBackground"
+                        className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    {tab.icon}
+                    <span className="z-10">{tab.label}</span>
+                  </button>
+                );
+              })}
             </nav>
 
             <div className="mt-8 pt-4 border-t border-gray-100 dark:border-zinc-800">
