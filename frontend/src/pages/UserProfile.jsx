@@ -488,30 +488,65 @@ const UserProfile = () => {
                     <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({ ...addressFormData, title: e.target.value })} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
                   </div>
 
-                  {!showMap ? (
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                      <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Dirección</label>
-                      <div className="flex-1 flex flex-col sm:flex-row gap-3">
-                        <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })} placeholder="Calle Principal y Secundaria" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
-                        <button type="button" onClick={() => setShowMap(true)} className="w-full sm:w-auto px-4 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors shrink-0 text-center">📍 Mapa</button>
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
+                    <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300 pt-3">Dirección</label>
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3 w-full">
+                        {isLoaded ? (
+                          <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged} className="flex-1">
+                            <input
+                              type="text"
+                              required
+                              value={addressFormData.street_address}
+                              onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })}
+                              placeholder="Calle Principal y Secundaria o busca tu dirección..."
+                              className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300"
+                            />
+                          </Autocomplete>
+                        ) : (
+                          <input
+                            type="text"
+                            required
+                            value={addressFormData.street_address}
+                            onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })}
+                            placeholder="Calle Principal y Secundaria"
+                            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300"
+                          />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setShowMap(!showMap)}
+                          className={`w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 shrink-0 text-center cursor-pointer ${
+                            showMap
+                              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/10'
+                              : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                          }`}
+                        >
+                          📍 {showMap ? 'Ocultar Mapa' : 'Ver Mapa'}
+                        </button>
                       </div>
+
+                      <AnimatePresence>
+                        {showMap && isLoaded && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3, ease: 'easeInOut' }}
+                            className="overflow-hidden w-full"
+                          >
+                            <div className="pt-2">
+                              <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
+                                <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}>
+                                  <Marker position={mapCenter} />
+                                </GoogleMap>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  ) : (
-                    isLoaded ? (
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Buscar en mapa</label>
-                          <button type="button" onClick={() => setShowMap(false)} className="text-xs font-bold text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">Ocultar mapa</button>
-                        </div>
-                        <Autocomplete onLoad={(ref) => setAutocompleteRef(ref)} onPlaceChanged={handlePlaceChanged}>
-                          <input type="text" required value={addressFormData.street_address} onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })} placeholder="Busca tu dirección..." className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
-                        </Autocomplete>
-                        <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-700">
-                          <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={15}><Marker position={mapCenter} /></GoogleMap>
-                        </div>
-                      </div>
-                    ) : (<div className="p-4 text-sm text-gray-500 dark:text-zinc-400">Cargando mapa...</div>)
-                  )}
+                  </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Ciudad</label>

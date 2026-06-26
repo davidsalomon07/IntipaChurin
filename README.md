@@ -30,6 +30,7 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 * **Diseño Responsivo Refinado**: Centrado automático de textos y botones en móviles, reducción y balanceo del espaciado entre secciones en responsive y prevención de desbordes de texto.
 * **Interacciones y Animaciones del Perfil**: Transiciones de pestañas fluidas con `framer-motion`, un indicador dinámico y deslizante de la sección activa en el menú lateral, focus glow rings en inputs y efectos de elevación hover en tarjetas.
 * **Estados Vacíos Diseñados (Empty States)**: Componentes premium con íconos vectoriales amplios y botones de llamada a la acción en secciones vacías del perfil para optimizar el flujo de navegación.
+* **Buscador y Mapa de Google en Direcciones**: Campo de dirección con autocompletado en tiempo real (Google Places) y visor de mapa interactivo que se expande y colapsa de forma animada abajo de la dirección.
 * **Notificaciones de Alto Contraste (Toasts)**: Alertas premium para interacciones con favoritos y errores de carrito/checkout usando `react-hot-toast` en lugar de diálogos nativos del navegador.
 * **Sistema de Carga Premium**: Esqueletos (Shimmer effects) globales en toda la tienda para evitar tiempos muertos visuales.
 * **Gestión de Carrito y Favoritos**: Funcionalidad completa de e-commerce con panel lateral (Drawer) optimizado.
