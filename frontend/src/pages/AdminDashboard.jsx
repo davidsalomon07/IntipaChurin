@@ -800,10 +800,11 @@ const AdminDashboard = () => {
                                 <select
                                   value={p.status}
                                   onChange={(e) => handleStatusChange(p.id, e.target.value)}
-                                  className={`text-xs font-bold px-3 py-2 rounded-xl outline-none cursor-pointer transition-colors border shadow-sm ${p.status === 'PAGADO' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50' :
-                                      p.status === 'ENVIADO' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/50' :
-                                        'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50'
-                                    }`}
+                                  className={`text-xs font-bold px-3.5 py-1.5 rounded-full outline-none cursor-pointer transition-colors border shadow-sm ${
+                                    p.status === 'PAGADO' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20' :
+                                    p.status === 'ENVIADO' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20' :
+                                    'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20'
+                                  }`}
                                 >
                                   <option value="PAGADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">PAGADO (Pendiente)</option>
                                   <option value="ENVIADO" className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white">ENVIADO (En tránsito)</option>
