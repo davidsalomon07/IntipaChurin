@@ -36,7 +36,7 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 * **Gestión de Carrito y Favoritos**: Funcionalidad completa de e-commerce con panel lateral (Drawer) optimizado.
 * **Integración de Pagos con Stripe**: Proceso de checkout asegurado.
 * **Modelo de Suscripción (En desarrollo)**: Sistema de beneficios VIP (acceso anticipado y envíos gratis).
-* **Panel de Administración**: Gestión completa de inventario, incluyendo control de precios originales para mostrar descuentos y ofertas.
+* **Panel de Administración**: Gestión completa de inventario, incluyendo control de precios originales para mostrar descuentos y ofertas. Cuenta con tarjetas de métricas analíticas (Ingresos, Pedidos Pendientes, Clientes y Catálogo) animadas con sombras de profundidad e íconos de alto contraste.
 * **Atención al Cliente Integrada**: Centro de ayuda (FAQ) dinámico con contacto directo a WhatsApp y Email.
 
 ## 📦 Estructura del Proyecto

@@ -16,8 +16,12 @@ import {
   Sun,
   Moon,
   Store,
-  Truck
+  Truck,
+  DollarSign,
+  ShoppingCart,
+  TrendingUp
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { ThemeContext } from "../context/ThemeContext";
 import Cropper from 'react-easy-crop';
 
@@ -369,6 +373,11 @@ const AdminDashboard = () => {
     } catch (error) { console.error(error); }
   };
 
+  const totalIngresos = pedidos.reduce((acc, p) => acc + parseFloat(p.total_amount || 0), 0);
+  const pedidosPendientes = pedidos.filter(p => p.status === 'PAGADO').length;
+  const totalClientes = usuarios.length;
+  const totalProductos = productos.length;
+
   const filteredProductos = productos.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
   const filteredCategorias = categorias.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
   const filteredUsuarios = usuarios.filter(u => u.first_name.toLowerCase().includes(search.toLowerCase()) || u.last_name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
@@ -475,6 +484,88 @@ const AdminDashboard = () => {
         </header>
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-4 md:pt-0">
+          
+          {/* Tarjetas de Métricas de Negocio (Analytics Cards) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 mt-4">
+            {/* Card 1: Ingresos Totales */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Ingresos Totales</span>
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl">
+                  <DollarSign size={20} />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  ${totalIngresos.toLocaleString('es-EC', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span className="text-xs text-emerald-500 dark:text-emerald-400 font-semibold mt-1">✓ Transacciones procesadas</span>
+              </div>
+            </motion.div>
+
+            {/* Card 2: Pedidos Pendientes */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Pedidos Pendientes</span>
+                <div className="p-2.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl">
+                  <ShoppingCart size={20} />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-zinc-900 dark:text-white">{pedidosPendientes}</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 font-semibold mt-1">Por gestionar logística</span>
+              </div>
+            </motion.div>
+
+            {/* Card 3: Clientes Registrados */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.15 }}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Clientes</span>
+                <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl">
+                  <Users size={20} />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-zinc-900 dark:text-white">{totalClientes}</span>
+                <span className="text-xs text-blue-500 dark:text-blue-400 font-semibold mt-1">Cuentas registradas</span>
+              </div>
+            </motion.div>
+
+            {/* Card 4: Catálogo de Productos */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Productos</span>
+                <div className="p-2.5 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl">
+                  <Package size={20} />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-zinc-900 dark:text-white">{totalProductos}</span>
+                <span className="text-xs text-purple-500 dark:text-purple-400 font-semibold mt-1">Prendas en catálogo</span>
+              </div>
+            </motion.div>
+          </div>
+
           <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
             <button className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
               Descargar Reporte
