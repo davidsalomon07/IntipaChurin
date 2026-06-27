@@ -103,6 +103,36 @@ const AdminDashboard = () => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => setImageToCrop(reader.result));
+        reader.readAsDataURL(file);
+      } else {
+        toast.error("Por favor, sube un archivo de imagen válido.");
+      }
+    }
+  };
 
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -975,13 +1005,42 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-4">
-                        {productForm.image_url && (
-                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
-                            <img src={productForm.image_url} alt="Preview" className="w-full h-full object-cover" />
+                      <div 
+                        onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`relative w-full aspect-[16/9] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-4 transition-all ${
+                          isDragging 
+                            ? 'border-zinc-900 bg-zinc-100 dark:border-white dark:bg-zinc-800' 
+                            : 'border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50'
+                        }`}
+                      >
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleFileSelect} 
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                        />
+                        {productForm.image_url ? (
+                          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-2 bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden group">
+                            <img src={productForm.image_url} alt="Preview" className="h-full object-contain rounded-xl" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl z-25">
+                              <span className="text-white text-xs font-bold bg-zinc-900/80 px-3.5 py-1.5 rounded-full flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Reemplazar Foto
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-center pointer-events-none">
+                            <div className="p-3 bg-white dark:bg-zinc-800 rounded-full border border-zinc-100 dark:border-zinc-700 shadow-sm text-zinc-400 dark:text-zinc-500 mb-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Arrastra una imagen aquí</span>
+                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-semibold mt-1">o haz clic para explorar tus archivos</span>
                           </div>
                         )}
-                        <input type="file" accept="image/*" onChange={handleFileSelect} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" />
                       </div>
                     )}
                   </div>
@@ -991,18 +1050,33 @@ const AdminDashboard = () => {
                       {[2, 3, 4, 5].map(num => (
                         <div key={num} className="flex flex-col gap-2">
                           <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
-                            {productForm[`image_file_${num}`] ? (
-                              <>
-                                <img src={URL.createObjectURL(productForm[`image_file_${num}`])} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
-                                <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
-                              </>
-                            ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
-                                <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
-                                <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
-                                <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0] }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                              </div>
-                            )}
+                            <AnimatePresence mode="wait">
+                              {productForm[`image_file_${num}`] ? (
+                                <motion.div
+                                  key="preview"
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.9 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="w-full h-full relative"
+                                >
+                                  <img src={URL.createObjectURL(productForm[`image_file_${num}`])} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
+                                  <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="input"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                                >
+                                  <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                                  <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
+                                  <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0] }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
                       ))}
@@ -1120,7 +1194,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen Actual y Actualización (Opcional)</label>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Imagen del Producto (Recorte Interactivo)</label>
                     {imageToCrop ? (
                       <div className="space-y-3">
                         <div className="relative w-full h-64 bg-zinc-900 rounded-xl overflow-hidden">
@@ -1132,13 +1206,42 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
-                          <img src={productForm.image_url || `https://placehold.co/100x100/f5f5f4/d6d3d1?text=FOTO`} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1">
-                          <input type="file" accept="image/*" onChange={handleFileSelect} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer" />
-                        </div>
+                      <div 
+                        onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`relative w-full aspect-[16/9] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-4 transition-all ${
+                          isDragging 
+                            ? 'border-zinc-900 bg-zinc-100 dark:border-white dark:bg-zinc-800' 
+                            : 'border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50'
+                        }`}
+                      >
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleFileSelect} 
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                        />
+                        {productForm.image_url ? (
+                          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-2 bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden group">
+                            <img src={productForm.image_url} alt="Preview" className="h-full object-contain rounded-xl" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl z-25">
+                              <span className="text-white text-xs font-bold bg-zinc-900/80 px-3.5 py-1.5 rounded-full flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Reemplazar Foto
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-center pointer-events-none">
+                            <div className="p-3 bg-white dark:bg-zinc-800 rounded-full border border-zinc-100 dark:border-zinc-700 shadow-sm text-zinc-400 dark:text-zinc-500 mb-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Arrastra una imagen aquí</span>
+                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-semibold mt-1">o haz clic para explorar tus archivos</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1148,18 +1251,33 @@ const AdminDashboard = () => {
                       {[2, 3, 4, 5].map(num => (
                         <div key={num} className="flex flex-col gap-2">
                           <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
-                            {(productForm[`image_url_${num}`] && !productForm[`remove_image_${num}`]) || productForm[`image_file_${num}`] ? (
-                              <>
-                                <img src={productForm[`image_file_${num}`] ? URL.createObjectURL(productForm[`image_file_${num}`]) : productForm[`image_url_${num}`]} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
-                                <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null, [`remove_image_${num}`]: true })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
-                              </>
-                            ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
-                                <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
-                                <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
-                                <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0], [`remove_image_${num}`]: false }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                              </div>
-                            )}
+                            <AnimatePresence mode="wait">
+                              {(productForm[`image_url_${num}`] && !productForm[`remove_image_${num}`]) || productForm[`image_file_${num}`] ? (
+                                <motion.div
+                                  key="preview"
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.9 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="w-full h-full relative"
+                                >
+                                  <img src={productForm[`image_file_${num}`] ? URL.createObjectURL(productForm[`image_file_${num}`]) : productForm[`image_url_${num}`]} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
+                                  <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null, [`remove_image_${num}`]: true })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="input"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                                >
+                                  <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                                  <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
+                                  <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0], [`remove_image_${num}`]: false }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
                       ))}
