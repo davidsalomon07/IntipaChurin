@@ -393,7 +393,7 @@ const AdminDashboard = () => {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-none'} bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 transition-all duration-300 overflow-hidden shadow-2xl md:shadow-none`}>
+      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen ${isSidebarOpen ? 'translate-x-0 w-64 border-r border-zinc-200 dark:border-zinc-800' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-r border-transparent'} bg-white dark:bg-zinc-900 flex flex-col shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden shadow-2xl md:shadow-none`}>
         <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-200 dark:border-zinc-800 shrink-0 w-64">
           <span className="text-lg font-bold tracking-widest uppercase dark:text-white leading-none">Intipa Churin</span>
           <button onClick={() => setIsSidebarOpen(false)} className="flex items-center justify-center h-10 w-10 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
@@ -404,26 +404,54 @@ const AdminDashboard = () => {
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto w-64 shrink-0">
           <div
             onClick={() => setActiveTab('productos')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'productos' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'productos' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
+            {activeTab === 'productos' && (
+              <motion.div
+                layoutId="activeAdminTabBackground"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
             <Package size={18} /> Gestión de Productos
           </div>
           <div
             onClick={() => setActiveTab('categorias')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'categorias' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'categorias' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
+            {activeTab === 'categorias' && (
+              <motion.div
+                layoutId="activeAdminTabBackground"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
             <Grid size={18} /> Gestión de Categorías
           </div>
           <div
             onClick={() => setActiveTab('usuarios')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'usuarios' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'usuarios' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
+            {activeTab === 'usuarios' && (
+              <motion.div
+                layoutId="activeAdminTabBackground"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
             <Users size={18} /> Cuentas Registradas
           </div>
           <div
             onClick={() => setActiveTab('pedidos')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'pedidos' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'pedidos' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
+            {activeTab === 'pedidos' && (
+              <motion.div
+                layoutId="activeAdminTabBackground"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
             <Truck size={18} /> Gestión de Pedidos
           </div>
         </nav>
