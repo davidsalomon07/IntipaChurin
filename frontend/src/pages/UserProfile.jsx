@@ -785,8 +785,8 @@ const UserProfile = () => {
                       <p className="text-gray-500 dark:text-zinc-400 text-sm mt-1">Lleva tu experiencia urbana a otro nivel.</p>
                     </div>
                     <div className="text-left md:text-right shrink-0">
-                      <span className="text-2xl font-black text-gray-900 dark:text-white">$50.00</span>
-                      <span className="text-gray-500 dark:text-zinc-400 text-xs font-semibold block mt-0.5">Facturado anualmente</span>
+                      <span className="text-2xl font-black text-gray-900 dark:text-white">$5.00</span>
+                      <span className="text-gray-500 dark:text-zinc-400 text-xs font-semibold block mt-0.5">Facturado mensualmente</span>
                     </div>
                   </div>
 

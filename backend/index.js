@@ -45,10 +45,10 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (reque
         // a) UPDATE users SET is_vip = true WHERE id = $1
         await pool.query('UPDATE users SET is_vip = true WHERE id = $1', [userId]);
 
-        // b) INSERT INTO memberships (user_id, status, start_date, end_date, discount_rate) VALUES ($1, 'ACTIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 year', 15.00)
+        // b) INSERT INTO memberships (user_id, status, start_date, end_date, discount_rate) VALUES ($1, 'ACTIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 month', 15.00)
         await pool.query(
           `INSERT INTO memberships (user_id, status, start_date, end_date, discount_rate) 
-           VALUES ($1, 'ACTIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 year', 15.00)`,
+           VALUES ($1, 'ACTIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 month', 15.00)`,
           [userId]
         );
 
@@ -933,10 +933,10 @@ app.post('/api/checkout-membership', async (req, res) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Membresía VIP Anual',
+              name: 'Membresía VIP Mensual',
               description: 'Beneficios exclusivos de Intipa Churin: 15% de descuento en compras, envíos gratis y acceso anticipado.',
             },
-            unit_amount: 5000, // $50.00 en centavos
+            unit_amount: 500, // $5.00 en centavos
           },
           quantity: 1,
         },
