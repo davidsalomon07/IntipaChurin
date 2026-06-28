@@ -202,10 +202,21 @@ const Navbar = ({ backButton = false }) => {
                 className="relative hover:text-zinc-900 dark:hover:text-white transition-transform hover:scale-110"
                 aria-label="Mi cuenta"
               >
+                {user?.is_vip && (
+                  <span className="absolute -top-[18px] left-1/2 -translate-x-1/2 select-none pointer-events-none z-20 animate-pulse text-amber-500 dark:text-amber-400">
+                    <svg className="w-4 h-4 drop-shadow-[0_1.5px_2px_rgba(245,158,11,0.5)]" viewBox="0 0 100 100" fill="currentColor">
+                      <circle cx="15" cy="30" r="6" />
+                      <circle cx="50" cy="13" r="6" />
+                      <circle cx="85" cy="30" r="6" />
+                      <path d="M 22 70 C 20 70, 16 65, 15 57 L 11 44 C 10 40, 14 38, 17 41 L 30 50 C 32 51, 35 50, 36 48 L 47 28 C 48 25, 52 25, 53 28 L 64 48 C 65 50, 68 51, 70 50 L 83 41 C 86 38, 90 40, 89 44 L 85 57 C 84 65, 80 70, 78 70 Z" />
+                      <rect x="22" y="78" width="56" height="10" rx="5" />
+                    </svg>
+                  </span>
+                )}
                 {user ? (
                   // Si está logueado → muestra inicial del nombre
-                  <div className="w-7 h-7 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 text-[11px] font-bold uppercase">
-                    {user.first_name?.charAt(0) || 'U'}
+                  <div className={`w-7 h-7 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 text-[11px] font-bold uppercase leading-none select-none transition-all duration-300 ${user.is_vip ? 'ring-2 ring-amber-500 ring-offset-1 dark:ring-offset-zinc-950 scale-105' : ''}`}>
+                    <span className="flex items-center justify-center h-full w-full">{user.first_name?.charAt(0) || 'U'}</span>
                   </div>
                 ) : (
                   <UserIcon />
@@ -230,14 +241,21 @@ const Navbar = ({ backButton = false }) => {
                   <>
                     {/* Cabecera con info del usuario */}
                     <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 text-sm font-bold uppercase shrink-0">
-                        {user.first_name?.charAt(0) || 'U'}
+                      <div className="w-9 h-9 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 text-sm font-bold uppercase shrink-0 leading-none select-none">
+                        <span className="flex items-center justify-center h-full w-full">{user.first_name?.charAt(0) || 'U'}</span>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
-                          {user.first_name} {user.last_name}
-                        </p>
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">{user.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                            {user.first_name} {user.last_name}
+                          </p>
+                          {user.is_vip && (
+                            <span className="text-[9px] font-extrabold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0 select-none">
+                              VIP
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate mt-0.5">{user.email}</p>
                       </div>
                     </div>
 

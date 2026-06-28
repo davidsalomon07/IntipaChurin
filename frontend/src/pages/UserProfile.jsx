@@ -290,12 +290,21 @@ const UserProfile = () => {
         <aside className={`w-full md:w-80 flex-col gap-6 ${isMobileMenuVisible ? 'flex' : 'hidden md:flex'}`}>
           <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase transition-colors duration-300">
-                {userData.first_name ? userData.first_name.charAt(0) : 'U'}
+              <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase leading-none select-none transition-colors duration-300">
+                <span className="flex items-center justify-center h-full w-full">{userData.first_name ? userData.first_name.charAt(0) : 'U'}</span>
               </div>
-              <div>
-                <h2 className="font-semibold text-[15px] dark:text-white">{userData.first_name} {userData.last_name}</h2>
-                <p className="text-[13px] text-gray-500 dark:text-zinc-400">{userData.email}</p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <h2 className="font-semibold text-[15px] dark:text-white truncate">
+                    {userData.first_name} {userData.last_name}
+                  </h2>
+                  {userData.is_vip && (
+                    <span className="text-[9px] font-extrabold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0 select-none">
+                      VIP
+                    </span>
+                  )}
+                </div>
+                <p className="text-[13px] text-gray-500 dark:text-zinc-400 truncate mt-0.5">{userData.email}</p>
               </div>
             </div>
 
@@ -379,10 +388,17 @@ const UserProfile = () => {
               )}
 
               <div className="flex flex-col items-center mb-12">
-                <div className="w-20 h-20 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-3xl font-bold text-gray-500 dark:text-zinc-400 relative uppercase transition-colors duration-300">
-                  {userData.first_name ? userData.first_name.charAt(0) : 'U'}
+                <div className="w-20 h-20 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-3xl font-bold text-gray-500 dark:text-zinc-400 relative uppercase leading-none select-none transition-colors duration-300">
+                  <span className="flex items-center justify-center h-full w-full">{userData.first_name ? userData.first_name.charAt(0) : 'U'}</span>
                 </div>
-                <h2 className="text-xl font-medium mt-4 dark:text-white">{formData.first_name} {formData.last_name}</h2>
+                <div className="flex items-center gap-2 mt-4">
+                  <h2 className="text-xl font-medium dark:text-white">{formData.first_name} {formData.last_name}</h2>
+                  {userData.is_vip && (
+                    <span className="text-[10px] font-extrabold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 shrink-0 select-none">
+                      VIP
+                    </span>
+                  )}
+                </div>
                 <p className="text-gray-500 dark:text-zinc-400 text-sm">{formData.email}</p>
               </div>
 
