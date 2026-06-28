@@ -53,12 +53,9 @@ const Membership = () => {
         });
         if (res.ok) {
           const freshData = await res.json();
-          setUser(freshData);
+          setUser(freshData.user);
           // Actualizar localStorage para que todo el sitio refleje cambios de VIP de inmediato
-          localStorage.setItem('user', JSON.stringify({
-            ...JSON.parse(storedUser),
-            is_vip: freshData.is_vip
-          }));
+          localStorage.setItem('user', JSON.stringify(freshData.user));
         } else {
           // Si el token expiró o falló
           localStorage.removeItem('token');

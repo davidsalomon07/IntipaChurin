@@ -1,15 +1,39 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 
 const Success = () => {
     // Llamar a vaciarCarrito para limpiar la sesión después del pago
     const { vaciarCarrito } = useCart();
+    const [searchParams] = useSearchParams();
+    const tipo = searchParams.get('tipo');
 
     useEffect(() => {
       vaciarCarrito();
-    }, []);
+
+      const actualizarPerfilVip = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+          const res = await fetch('http://localhost:3000/api/usuarios/perfil', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('user', JSON.stringify(data.user));
+            // Desencadenar evento de almacenamiento local para forzar renderizados si aplica
+            window.dispatchEvent(new Event('storage'));
+          }
+        } catch (err) {
+          console.error("Error al actualizar el estado VIP del usuario:", err);
+        }
+      };
+
+      if (tipo === 'membresia') {
+        actualizarPerfilVip();
+      }
+    }, [tipo, vaciarCarrito]);
 
     return (
         <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 font-sans transition-colors duration-300">
