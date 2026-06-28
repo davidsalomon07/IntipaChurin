@@ -1,16 +1,20 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const WhatsAppButton = () => {
   const location = useLocation();
+  const { cartOpen } = useCart();
 
   // 1. Definimos las rutas donde el botón estorba y NO debe aparecer
   const rutasOcultas = ['/profile', '/checkout', '/login', '/register'];
 
-  // 2. Si la ruta actual coincide con la lista, o si empieza con '/admin', devolvemos 'null'
-  if (rutasOcultas.includes(location.pathname) || location.pathname.startsWith('/admin')) {
+  // 2. Si la ruta actual coincide con la lista, si empieza con '/admin', o si el carrito está abierto, devolvemos 'null'
+  if (rutasOcultas.includes(location.pathname) || location.pathname.startsWith('/admin') || cartOpen) {
     return null;
   }
+
+  console.log("Ruta activa para WhatsAppButton:", location.pathname);
 
   // 3. Si no está en una ruta oculta, mostramos el botón normalmente
   return (
@@ -18,7 +22,8 @@ const WhatsAppButton = () => {
       href="https://wa.me/593999999999?text=Hola,%20me%20gustaría%20obtener%20más%20información"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-[#25D366] text-white p-3 md:p-4 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-50 flex items-center justify-center dark:bg-[#1DA851]"
+      className="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-[#25D366] text-white p-3 md:p-4 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-[9999] flex items-center justify-center dark:bg-[#1DA851]"
+      style={{ zIndex: 99999 }}
       aria-label="Contactar por WhatsApp"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
