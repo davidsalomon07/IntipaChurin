@@ -629,7 +629,6 @@ const Home = () => {
     let startX = 0;
     let startY = 0;
     let isDraggingHero = false;
-    let hasSignalled = false; // Closure variable to track slide change per scroll gesture
 
     const onTouchStart = (e) => {
       startX = e.touches[0].clientX;
@@ -690,29 +689,16 @@ const Home = () => {
     const onWheel = (e) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         e.preventDefault();
-
-        // If we already changed slide in this scroll gesture, ignore further events
-        if (hasSignalled) {
-          if (wheelTimeout) clearTimeout(wheelTimeout);
-          wheelTimeout = setTimeout(() => {
-            wheelAccumulator = 0;
-            hasSignalled = false;
-          }, 150);
-          return;
-        }
-
         wheelAccumulator += e.deltaX;
 
         if (wheelTimeout) clearTimeout(wheelTimeout);
         wheelTimeout = setTimeout(() => {
           wheelAccumulator = 0;
-          hasSignalled = false;
         }, 150);
 
         if (Math.abs(wheelAccumulator) > 50) {
           const right = wheelAccumulator > 0;
           wheelAccumulator = 0;
-          hasSignalled = true; // Mark as signalled for this gesture
           if (right) {
             handleHeroNext();
           } else {
@@ -1191,6 +1177,76 @@ const Home = () => {
             <img src="/trazabilidad.png" className="w-full h-full max-h-[26vh] md:max-h-[70vh] object-contain rounded-2xl" alt="Lanzamiento" />
           </div>
         </div>
+      </section>
+
+      {/* --- SECCIÓN MEMBRESÍA VIP --- */}
+      <section className="py-12 md:py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <Link to="/membership" className="block group">
+          <div className="bg-gradient-to-br from-amber-500/10 via-zinc-50/50 to-amber-500/5 dark:from-amber-500/15 dark:via-zinc-950/40 dark:to-transparent rounded-[2rem] overflow-hidden flex flex-col md:flex-row border border-amber-500/20 dark:border-amber-500/30 shadow-[0_24px_60px_rgba(245,158,11,0.02)] transition-all duration-500 hover:border-amber-500/40 hover:shadow-[0_24px_60px_rgba(245,158,11,0.12)]">
+            {/* Columna Izquierda - Beneficios */}
+            <div className="w-full md:w-[50%] p-6 py-8 md:py-16 md:pl-16 md:pr-8 flex flex-col justify-center order-2 md:order-1">
+              <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-amber-600 dark:text-amber-400 mb-2 md:mb-3 block text-center md:text-left">
+                MEMBRESÍA EXCLUSIVA
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-zinc-900 dark:text-white leading-tight text-center md:text-left">
+                Únete al Club <span className="text-amber-500 font-extrabold">Intipa VIP</span>
+              </h2>
+              <div className="w-12 h-[2px] bg-amber-500/20 mb-6 mx-auto md:mx-0"></div>
+              <p className="text-zinc-600 dark:text-zinc-400 mb-8 max-w-md text-sm md:text-base text-center md:text-left mx-auto md:mx-0 leading-relaxed font-light">
+                Disfruta de beneficios diseñados para los amantes del estilo urbano. Descuento automático del 15% en tu carrito, envíos gratis a todo Chile sin montos mínimos y acceso prioritario a lanzamientos limitados.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-zinc-200 dark:border-white/10">
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left gap-1">
+                  <span className="text-lg font-bold text-amber-500">-15% OFF</span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400">En todas tus compras</span>
+                </div>
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left gap-1">
+                  <span className="text-lg font-bold text-amber-500">Envío Gratis</span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Sin mínimo de compra</span>
+                </div>
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left gap-1">
+                  <span className="text-lg font-bold text-amber-500">Acceso VIP</span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Drops exclusivos</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Columna Derecha - Ilustración Tarjeta VIP */}
+            <div className="w-full md:w-[50%] h-[30vh] min-h-[220px] md:h-auto order-1 md:order-2 bg-gradient-to-tr from-amber-500/5 to-amber-500/20 dark:from-zinc-950 dark:to-amber-500/10 flex items-center justify-center p-6 relative overflow-hidden">
+              {/* Brillo degradado decorativo */}
+              <div className="absolute w-64 h-64 bg-amber-500/20 rounded-full blur-3xl -top-12 -right-12 animate-pulse"></div>
+              
+              {/* Tarjeta de Membresía VIP */}
+              <div className="relative w-72 h-44 bg-zinc-900/90 dark:bg-[#0e1014]/90 rounded-2xl border border-amber-500/30 p-6 flex flex-col justify-between shadow-2xl hover:scale-105 transition-transform duration-500">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-[9px] tracking-widest text-amber-500 font-bold uppercase">Intipa Churin</p>
+                    <h3 className="text-lg font-black text-white uppercase tracking-wider mt-1">VIP MEMBER</h3>
+                  </div>
+                  {/* Icono Corona SVG */}
+                  <svg className="w-8 h-8 text-amber-500 animate-pulse" viewBox="0 0 100 100" fill="currentColor">
+                    <circle cx="15" cy="30" r="6" />
+                    <circle cx="50" cy="13" r="6" />
+                    <circle cx="85" cy="30" r="6" />
+                    <path d="M 22 70 C 20 70, 16 65, 15 57 L 11 44 C 10 40, 14 38, 17 41 L 30 50 C 32 51, 35 50, 36 48 L 47 28 C 48 25, 52 25, 53 28 L 64 48 C 65 50, 68 51, 70 50 L 83 41 C 86 38, 90 40, 89 44 L 85 57 C 84 65, 80 70, 78 70 Z" />
+                    <rect x="22" y="78" width="56" height="10" rx="5" />
+                  </svg>
+                </div>
+                
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Suscripción Mensual</p>
+                    <p className="text-sm font-bold text-white mt-0.5">$5.00 USD / mes</p>
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 uppercase tracking-wider group-hover:bg-amber-500 group-hover:text-black transition-colors duration-300">
+                    Suscribirse
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
       </section>
 
       {/* --- COMUNIDAD --- */}

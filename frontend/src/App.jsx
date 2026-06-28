@@ -23,6 +23,7 @@ import Success from './pages/Success';
 import Cancel from './pages/Cancel';
 import Guide from './pages/Guide';
 import Contact from './pages/Contact';
+import Membership from './pages/Membership';
 
 function App() {
   return (
@@ -85,6 +86,7 @@ function App() {
                   <Route path="/cancel" element={<Cancel />} />
                   <Route path="/guide" element={<Guide />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/membership" element={<Membership />} />
                 </Routes>
                 <WhatsAppButton />
               </div>

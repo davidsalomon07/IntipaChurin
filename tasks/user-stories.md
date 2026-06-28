@@ -3,14 +3,17 @@
 Esta tarea se ejecuta automáticamente cada vez que se realice una implementación importante o un cambio significativo en el proyecto.
 
 ## Funcionalidad Activa
-* **Nombre:** Motor de Suscripción VIP y Descuentos Dinámicos (Backend)
+* **Nombre:** Página Detallada de Membresía VIP y Checkout Integrado
 * **Descripción:** 
-  - **Como** usuario registrado, **quiero** poder adquirir una membresía VIP mediante Stripe, **para** obtener automáticamente descuentos en mis compras futuras, acceso anticipado y envíos gratis.
+  - **Como** usuario o visitante de la plataforma, **quiero** tener acceso a una sección descriptiva en el Home y una página dedicada de información de la membresía VIP, **para** entender todos los beneficios exclusivos (15% de descuento en el catálogo, envíos gratis y acceso anticipado) antes de suscribirme y poder pagar de forma segura con Stripe en un solo clic.
   - **Criterios de Aceptación:**
-    - El sistema debe contar con un endpoint para generar la sesión de pago de la membresía con `tipo_compra: membresia`.
-    - Al confirmarse el pago por webhook, el sistema debe actualizar el rol del usuario a VIP e insertar el registro correspondiente en la tabla de membresías.
-    - El checkout de productos debe detectar de forma autónoma si el usuario posee una membresía activa y recalcular los precios aplicando el porcentaje de descuento antes de enviar el cobro a Stripe.
+    - La página de inicio (Home) debe contener una sección dedicada de la Membresía VIP, completamente adaptativa (responsive) y visualmente atractiva, que enlace a la página de detalles de la membresía.
+    - La nueva página `/membership` debe renderizar con estilos de Glassmorphism acordes a la identidad visual de la marca y mostrar el precio de $5.00 USD/mes de la suscripción mensual.
+    - Si el usuario no está autenticado, la página debe invitarlo a iniciar sesión, redirigiendo a la pantalla de Login y volviendo de manera segura.
+    - Si el usuario está autenticado pero no es VIP, debe ver un botón de acción principal para suscribirse por $5.00 USD/mes, el cual llamará a la API `/api/checkout-membership` y lo redirigirá al checkout seguro de Stripe.
+    - Si el usuario ya posee un estatus VIP activo, el sistema debe desplegar un mensaje afirmativo de "¡Ya eres Socio VIP!" acompañado de las fechas exactas de inicio y término de su membresía.
 * **Subtareas:** 
-  - Crear ruta `POST /api/checkout-membership`.
-  - Agregar lógica bifurcada en `POST /api/webhook`.
-  - Crear bloque de validación y cálculo de `discountRate` en `POST /api/checkout`.
+  - Diseñar la sección responsiva de membresía VIP en `Home.jsx`.
+  - Crear el componente de página `Membership.jsx` con Glassmorphism y consumir `/api/usuarios/perfil` para validar y actualizar el estatus.
+  - Habilitar la integración del botón con la API `/api/checkout-membership` en `Membership.jsx`.
+  - Configurar la ruta `/membership` en `App.jsx`.
