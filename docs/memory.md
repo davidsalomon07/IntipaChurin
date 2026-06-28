@@ -26,3 +26,7 @@
   - El Agente crea el commit local (máx. 50 caracteres de título).
   - El Usuario realiza el `git push` manualmente.
   - Si el usuario requiere correcciones tras un commit, el Agente debe **actualizar/enmendar el commit previo** (ej. `git commit --amend`) en lugar de crear commits nuevos, manteniendo el historial limpio.
+  - El archivo `README.md` se debe modificar **antes de hacer los commits** de la característica, de modo que los cambios del README vayan dentro de la misma confirmación (commit) del código.
+* **Historias de Usuario**: Cada historia de usuario debe incluir de manera obligatoria criterios de aceptación específicos dentro de su descripción (con estructura Como/Quiero/Para). Al generar historias de usuario nuevas, estas deben registrarse en el archivo de historias de usuario (`user_stories.md`) reemplazando las anteriores por las nuevas (ya que tras cada push se asume que las anteriores ya fueron subidas y procesadas en Jira).
+* **Guía de Pruebas**: En cada entrega o reporte de cambios finalizados, el Agente debe incluir obligatoriamente una sección detallada explicando al usuario cómo probar de forma práctica y paso a paso que las nuevas funciones sirven y son estables en el entorno local.
+

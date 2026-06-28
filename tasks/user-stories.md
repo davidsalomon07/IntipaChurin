@@ -2,21 +2,15 @@
 
 Esta tarea se ejecuta automáticamente cada vez que se realice una implementación importante o un cambio significativo en el proyecto.
 
-## Flujo de Ejecución y Condición
-Al finalizar la implementación de una **NUEVA FUNCIONALIDAD MAYOR** (ej. un nuevo filtro, sistema de paginación, nuevo flujo de compra), el agente generará un documento que describa la funcionalidad implementada bajo el formato de Historia de Usuario.
-
-**EXCEPCIONES (NO crear historia de usuario):**
-* Correcciones de errores (Bugfixes).
-* Retoques visuales o modificaciones menores de UI (ej. cambiar colores del header, márgenes, textos).
-* Refactorización de código que no añade valor de negocio visible al usuario.
-
-## Formato Estricto Requerido
-* **Nombre:** [Nombre descriptivo de la funcionalidad]
-* **Descripción:** [Descripción detallada desde la perspectiva del usuario final o de negocio]
-* **Subtareas:** (Opcional, solo si aplica para desglosar el cambio)
-  - [Subtarea 1]
-  - [Subtarea 2]
-
-## Regla de Extractos de Código
-* **Código Corto y Literal:** Si se requiere incluir código en una subtarea, debe ser un fragmento **extremadamente corto y literal** (ej. nombre de un estado, variable o función simple).
-* **Evitar Código Largo:** Si el extracto que se quiere poner es largo (como operadores ternarios complejos, clases CSS extensas, o lógica anidada), **está prohibido poner el extracto de código**. En su lugar, se debe escribir únicamente una subtarea descriptiva que defina claramente el comportamiento en lenguaje natural.
+## Funcionalidad Activa
+* **Nombre:** Motor de Suscripción VIP y Descuentos Dinámicos (Backend)
+* **Descripción:** 
+  - **Como** usuario registrado, **quiero** poder adquirir una membresía VIP mediante Stripe, **para** obtener automáticamente descuentos en mis compras futuras, acceso anticipado y envíos gratis.
+  - **Criterios de Aceptación:**
+    - El sistema debe contar con un endpoint para generar la sesión de pago de la membresía con `tipo_compra: membresia`.
+    - Al confirmarse el pago por webhook, el sistema debe actualizar el rol del usuario a VIP e insertar el registro correspondiente en la tabla de membresías.
+    - El checkout de productos debe detectar de forma autónoma si el usuario posee una membresía activa y recalcular los precios aplicando el porcentaje de descuento antes de enviar el cobro a Stripe.
+* **Subtareas:** 
+  - Crear ruta `POST /api/checkout-membership`.
+  - Agregar lógica bifurcada en `POST /api/webhook`.
+  - Crear bloque de validación y cálculo de `discountRate` en `POST /api/checkout`.
