@@ -423,7 +423,7 @@ const AdminDashboard = () => {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen ${isSidebarOpen ? 'translate-x-0 w-64 border-r border-zinc-200 dark:border-zinc-800' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-r border-transparent'} bg-white dark:bg-zinc-900 flex flex-col shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden shadow-2xl md:shadow-none`}>
+      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen ${isSidebarOpen ? 'translate-x-0 w-64 border-r border-zinc-200 dark:border-white/[0.06]' : '-translate-x-full w-64 md:translate-x-0 md:w-0 border-r border-transparent'} bg-white dark:bg-zinc-900/90 flex flex-col shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden shadow-2xl md:shadow-none dark:backdrop-blur-md`}>
         <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-200 dark:border-zinc-800 shrink-0 w-64">
           <span className="text-lg font-bold tracking-widest uppercase dark:text-white leading-none">Intipa Churin</span>
           <button onClick={() => setIsSidebarOpen(false)} className="flex items-center justify-center h-10 w-10 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" title="Cerrar barra lateral">
@@ -434,12 +434,12 @@ const AdminDashboard = () => {
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto w-64 shrink-0">
           <div
             onClick={() => setActiveTab('productos')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'productos' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'productos' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'productos' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -447,12 +447,12 @@ const AdminDashboard = () => {
           </div>
           <div
             onClick={() => setActiveTab('categorias')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'categorias' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'categorias' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'categorias' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -460,12 +460,12 @@ const AdminDashboard = () => {
           </div>
           <div
             onClick={() => setActiveTab('usuarios')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'usuarios' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'usuarios' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'usuarios' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -473,12 +473,12 @@ const AdminDashboard = () => {
           </div>
           <div
             onClick={() => setActiveTab('pedidos')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'pedidos' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'pedidos' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'pedidos' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -550,7 +550,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.05 }}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Ingresos Totales</span>
@@ -571,7 +571,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Pedidos Pendientes</span>
@@ -590,7 +590,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.15 }}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Clientes</span>
@@ -609,7 +609,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:shadow-md dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Productos</span>
@@ -625,22 +625,22 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
-            <button className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+            <button className="bg-zinc-100 hover:bg-zinc-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm transition-colors">
               Descargar Reporte
             </button>
             {activeTab === 'productos' && (
-              <button onClick={() => { setProductForm(estadoInicialProducto); setIsProductModalOpen(true); }} className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-6 py-2.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition-transform flex items-center gap-2">
+              <button onClick={() => { setProductForm(estadoInicialProducto); setIsProductModalOpen(true); }} className="bg-zinc-900 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition-transform flex items-center gap-2 dark:hover:bg-white/[0.1]">
                 <span>+</span> Nuevo Producto
               </button>
             )}
             {activeTab === 'categorias' && (
-              <button onClick={() => setIsCategoryModalOpen(true)} className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-6 py-2.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition-transform flex items-center gap-2">
+              <button onClick={() => setIsCategoryModalOpen(true)} className="bg-zinc-900 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition-transform flex items-center gap-2 dark:hover:bg-white/[0.1]">
                 <span>+</span> Nueva Categoría
               </button>
             )}
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden flex flex-col">
+          <div className="bg-white dark:bg-zinc-900/80 shadow-sm dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-200 dark:border-white/[0.06] rounded-3xl overflow-hidden flex flex-col dark:backdrop-blur-md">
             {isLoading ? (
               <div className="w-full">
                 {/* Skeleton Header de tabla */}
@@ -678,7 +678,7 @@ const AdminDashboard = () => {
                   {/* === PRODUCTOS === */}
                   {activeTab === 'productos' && (
                     <>
-                      <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                      <thead className="bg-zinc-50 dark:bg-zinc-800/40 border-b border-zinc-200 dark:border-white/[0.05]">
                         <tr className="w-full">
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
                           <th className="w-[45%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</th>
@@ -740,7 +740,7 @@ const AdminDashboard = () => {
                   {/* === CATEGORÍAS === */}
                   {activeTab === 'categorias' && (
                     <>
-                      <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                      <thead className="bg-zinc-50 dark:bg-zinc-800/40 border-b border-zinc-200 dark:border-white/[0.05]">
                         <tr className="w-full">
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
                           <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</th>
@@ -787,7 +787,7 @@ const AdminDashboard = () => {
                   {/* === USUARIOS === */}
                   {activeTab === 'usuarios' && (
                     <>
-                      <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                      <thead className="bg-zinc-50 dark:bg-zinc-800/40 border-b border-zinc-200 dark:border-white/[0.05]">
                         <tr className="w-full">
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
                           <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
@@ -845,7 +845,7 @@ const AdminDashboard = () => {
                   {/* === PEDIDOS === */}
                   {activeTab === 'pedidos' && (
                     <>
-                      <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                      <thead className="bg-zinc-50 dark:bg-zinc-800/40 border-b border-zinc-200 dark:border-white/[0.05]">
                         <tr className="w-full">
                           <th className="w-[10%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Orden</th>
                           <th className="w-[30%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Cliente</th>
@@ -901,11 +901,11 @@ const AdminDashboard = () => {
             {/* Paginador */}
             {!isLoading && (
               <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50">
-                <button className="px-4 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 transition-colors">Anterior</button>
+                <button className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-zinc-200 dark:border-white/10 rounded-xl text-sm font-semibold text-zinc-600 dark:text-white transition-colors">Anterior</button>
                 <div className="flex gap-2">
-                  <span className="w-8 h-8 flex items-center justify-center bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-lg text-sm font-bold shadow-sm">1</span>
+                  <span className="w-8 h-8 flex items-center justify-center bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-xl text-sm font-bold shadow-sm">1</span>
                 </div>
-                <button className="px-4 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 transition-colors">Siguiente</button>
+                <button className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-zinc-200 dark:border-white/10 rounded-xl text-sm font-semibold text-zinc-600 dark:text-white transition-colors">Siguiente</button>
               </div>
             )}
           </div>
@@ -932,7 +932,7 @@ const AdminDashboard = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.55 }}
-              className="relative w-full max-w-xl md:max-w-2xl bg-white dark:bg-zinc-900 h-full shadow-2xl flex flex-col z-10 border-l border-zinc-200 dark:border-zinc-800 rounded-l-3xl overflow-hidden"
+              className="relative w-full max-w-xl md:max-w-2xl bg-white dark:bg-zinc-900/95 h-full shadow-2xl flex flex-col z-10 border-l border-zinc-200 dark:border-white/[0.06] rounded-l-3xl overflow-hidden dark:backdrop-blur-md"
             >
               <div className="px-8 py-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
                 <h2 className="text-xl font-bold dark:text-white">Nuevo Producto</h2>
@@ -945,30 +945,30 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Nombre del Producto</label>
-                      <input required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Categoría</label>
-                      <select required value={productForm.category_id} onChange={e => setProductForm({ ...productForm, category_id: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10">
+                      <select required value={productForm.category_id} onChange={e => setProductForm({ ...productForm, category_id: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10">
                         <option value="">Selecciona una categoría...</option>
                         {categorias.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                      <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio Anterior (Opcional $)</label>
-                      <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                      <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
-                      <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10">
+                      <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10">
                         <option value="">Selecciona un color...</option>
                         <option value="Black">Negro (Black)</option>
                         <option value="White">Blanco (White)</option>
@@ -992,10 +992,10 @@ const AdminDashboard = () => {
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Tallas Disponibles</label>
                       <div className="flex gap-4 pt-2">
                         {['S', 'M', 'L', 'XL'].map(talla => (
-                          <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-white text-sm font-bold">
+                          <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-zinc-950 text-sm font-bold">
                             <input 
                               type="checkbox" 
-                              className="w-4 h-4 accent-zinc-900 dark:accent-white cursor-pointer"
+                              className="w-4 h-4 accent-zinc-900 dark:accent-zinc-950 cursor-pointer"
                               checked={(productForm.sizes || []).includes(talla)} 
                               onChange={() => {
                                 const currentSizes = productForm.sizes || [];
@@ -1019,7 +1019,7 @@ const AdminDashboard = () => {
                           <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3 / 4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
                         </div>
                         <div className="flex gap-2">
-                          <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
+                          <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-200 text-zinc-700 dark:text-zinc-950 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-100 transition-colors">Cancelar</button>
                           <button type="button" onClick={procesarRecorte} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">Aplicar Recorte</button>
                         </div>
                       </div>
@@ -1032,7 +1032,7 @@ const AdminDashboard = () => {
                         className={`relative w-full aspect-[16/9] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-4 transition-all ${
                           isDragging 
                             ? 'border-zinc-900 bg-zinc-100 dark:border-white dark:bg-zinc-800' 
-                            : 'border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50'
+                            : 'border-zinc-200 hover:border-zinc-400 dark:border-zinc-300 dark:hover:border-zinc-400 bg-zinc-50 dark:bg-white'
                         }`}
                       >
                         <input 
@@ -1053,10 +1053,10 @@ const AdminDashboard = () => {
                           </div>
                         ) : (
                           <div className="flex flex-col items-center text-center pointer-events-none">
-                            <div className="p-3 bg-white dark:bg-zinc-800 rounded-full border border-zinc-100 dark:border-zinc-700 shadow-sm text-zinc-400 dark:text-zinc-500 mb-3">
+                            <div className="p-3 bg-white dark:bg-zinc-200 rounded-full border border-zinc-100 dark:border-zinc-300 shadow-sm text-zinc-400 dark:text-zinc-600 mb-3">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             </div>
-                            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Arrastra una imagen aquí</span>
+                            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-950">Arrastra una imagen aquí</span>
                             <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-semibold mt-1">o haz clic para explorar tus archivos</span>
                           </div>
                         )}
@@ -1068,7 +1068,7 @@ const AdminDashboard = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[2, 3, 4, 5].map(num => (
                         <div key={num} className="flex flex-col gap-2">
-                          <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
+                          <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl overflow-hidden relative group">
                             <AnimatePresence mode="wait">
                               {productForm[`image_file_${num}`] ? (
                                 <motion.div
@@ -1080,7 +1080,7 @@ const AdminDashboard = () => {
                                   className="w-full h-full relative"
                                 >
                                   <img src={URL.createObjectURL(productForm[`image_file_${num}`])} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
-                                  <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                                  <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-200/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-200 transition-colors shadow-sm">✕</button>
                                 </motion.div>
                               ) : (
                                 <motion.div
@@ -1088,9 +1088,9 @@ const AdminDashboard = () => {
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
-                                  className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                                  className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-100 transition-colors cursor-pointer"
                                 >
-                                  <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                                  <span className="text-3xl text-zinc-300 dark:text-zinc-400 mb-2">+</span>
                                   <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
                                   <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0] }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                 </motion.div>
@@ -1103,13 +1103,13 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
-                    <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none focus:ring-4 focus:ring-zinc-500/10"></textarea>
+                    <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm resize-none focus:ring-4 focus:ring-zinc-500/10"></textarea>
                   </div>
                 </form>
               </div>
               <div className="p-8 border-t border-zinc-100 dark:border-zinc-800 shrink-0 bg-zinc-50 dark:bg-zinc-900/50 flex gap-4">
-                <button type="button" onClick={() => setIsProductModalOpen(false)} className="flex-1 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 py-3.5 rounded-xl font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-sm">Cancelar</button>
-                <button type="submit" form="create-product-form" className="flex-1 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 py-3.5 rounded-xl font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shadow-sm text-sm">Crear Producto</button>
+                <button type="button" onClick={() => setIsProductModalOpen(false)} className="flex-1 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-400 bg-white dark:bg-white/[0.02] py-3.5 rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-white/[0.06] dark:hover:text-white transition-colors text-sm">Cancelar</button>
+                <button type="submit" form="create-product-form" className="flex-1 bg-zinc-900 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white py-3.5 rounded-xl font-bold hover:bg-zinc-800 dark:hover:bg-white/[0.1] transition-colors shadow-sm text-sm">Crear Producto</button>
               </div>
             </motion.div>
           </div>
@@ -1136,7 +1136,7 @@ const AdminDashboard = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.55 }}
-              className="relative w-full max-w-xl md:max-w-2xl bg-white dark:bg-zinc-900 h-full shadow-2xl flex flex-col z-10 border-l border-zinc-200 dark:border-zinc-800 rounded-l-3xl overflow-hidden"
+              className="relative w-full max-w-xl md:max-w-2xl bg-white dark:bg-zinc-900/95 h-full shadow-2xl flex flex-col z-10 border-l border-zinc-200 dark:border-white/[0.06] rounded-l-3xl overflow-hidden dark:backdrop-blur-md"
             >
               <div className="px-8 py-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
                 <h2 className="text-xl font-bold dark:text-white">Editar Producto</h2>
@@ -1149,7 +1149,7 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Nombre del Producto</label>
-                      <input required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Categoría</label>
@@ -1157,19 +1157,19 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio ($)</label>
-                      <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input type="number" step="0.01" min="0" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Precio Anterior (Opcional $)</label>
-                      <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input type="number" step="0.01" min="0" value={productForm.original_price || ''} onChange={e => setProductForm({ ...productForm, original_price: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Stock Total</label>
-                      <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
+                      <input type="number" min="0" required value={productForm.stock_quantity} onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value.replace(/^0+(?=\d)/, '') })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Color</label>
-                      <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm focus:ring-4 focus:ring-zinc-500/10">
+                      <select required value={productForm.color || ''} onChange={e => setProductForm({ ...productForm, color: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm focus:ring-4 focus:ring-zinc-500/10">
                         <option value="">Selecciona un color...</option>
                         <option value="Black">Negro (Black)</option>
                         <option value="White">Blanco (White)</option>
@@ -1193,10 +1193,10 @@ const AdminDashboard = () => {
                       <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Tallas Disponibles</label>
                       <div className="flex gap-4 pt-2">
                         {['S', 'M', 'L', 'XL'].map(talla => (
-                          <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-white text-sm font-bold">
+                          <label key={talla} className="flex items-center gap-2 cursor-pointer dark:text-zinc-950 text-sm font-bold">
                             <input 
                               type="checkbox" 
-                              className="w-4 h-4 accent-zinc-900 dark:accent-white cursor-pointer"
+                              className="w-4 h-4 accent-zinc-900 dark:accent-zinc-950 cursor-pointer"
                               checked={(productForm.sizes || []).includes(talla)} 
                               onChange={() => {
                                 const currentSizes = productForm.sizes || [];
@@ -1220,7 +1220,7 @@ const AdminDashboard = () => {
                           <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={3 / 4} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} objectFit="contain" />
                         </div>
                         <div className="flex gap-2">
-                          <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Cancelar</button>
+                          <button type="button" onClick={() => setImageToCrop(null)} className="flex-1 bg-zinc-200 dark:bg-zinc-200 text-zinc-700 dark:text-zinc-950 py-2 rounded-lg text-sm font-bold hover:bg-zinc-300 dark:hover:bg-zinc-100 transition-colors">Cancelar</button>
                           <button type="button" onClick={procesarRecorte} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">Aplicar Recorte</button>
                         </div>
                       </div>
@@ -1233,7 +1233,7 @@ const AdminDashboard = () => {
                         className={`relative w-full aspect-[16/9] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-4 transition-all ${
                           isDragging 
                             ? 'border-zinc-900 bg-zinc-100 dark:border-white dark:bg-zinc-800' 
-                            : 'border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50'
+                            : 'border-zinc-200 hover:border-zinc-400 dark:border-zinc-300 dark:hover:border-zinc-400 bg-zinc-50 dark:bg-white'
                         }`}
                       >
                         <input 
@@ -1254,10 +1254,10 @@ const AdminDashboard = () => {
                           </div>
                         ) : (
                           <div className="flex flex-col items-center text-center pointer-events-none">
-                            <div className="p-3 bg-white dark:bg-zinc-800 rounded-full border border-zinc-100 dark:border-zinc-700 shadow-sm text-zinc-400 dark:text-zinc-500 mb-3">
+                            <div className="p-3 bg-white dark:bg-zinc-200 rounded-full border border-zinc-100 dark:border-zinc-300 shadow-sm text-zinc-400 dark:text-zinc-600 mb-3">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             </div>
-                            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Arrastra una imagen aquí</span>
+                            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-950">Arrastra una imagen aquí</span>
                             <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-semibold mt-1">o haz clic para explorar tus archivos</span>
                           </div>
                         )}
@@ -1269,7 +1269,7 @@ const AdminDashboard = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[2, 3, 4, 5].map(num => (
                         <div key={num} className="flex flex-col gap-2">
-                          <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative group">
+                          <div className="w-full aspect-[3/4] bg-zinc-100 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl overflow-hidden relative group">
                             <AnimatePresence mode="wait">
                               {(productForm[`image_url_${num}`] && !productForm[`remove_image_${num}`]) || productForm[`image_file_${num}`] ? (
                                 <motion.div
@@ -1281,7 +1281,7 @@ const AdminDashboard = () => {
                                   className="w-full h-full relative"
                                 >
                                   <img src={productForm[`image_file_${num}`] ? URL.createObjectURL(productForm[`image_file_${num}`]) : productForm[`image_url_${num}`]} className="w-full h-full object-cover" alt={`Secundaria ${num}`} />
-                                  <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null, [`remove_image_${num}`]: true })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-900/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors shadow-sm">✕</button>
+                                  <button type="button" onClick={() => setProductForm({ ...productForm, [`image_file_${num}`]: null, [`remove_image_${num}`]: true })} className="absolute top-2 right-2 bg-white/80 dark:bg-zinc-200/80 text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-200 transition-colors shadow-sm">✕</button>
                                 </motion.div>
                               ) : (
                                 <motion.div
@@ -1289,9 +1289,9 @@ const AdminDashboard = () => {
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
-                                  className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                                  className="w-full h-full flex flex-col items-center justify-center relative hover:bg-zinc-200 dark:hover:bg-zinc-100 transition-colors cursor-pointer"
                                 >
-                                  <span className="text-3xl text-zinc-300 dark:text-zinc-600 mb-2">+</span>
+                                  <span className="text-3xl text-zinc-300 dark:text-zinc-400 mb-2">+</span>
                                   <span className="text-xs text-zinc-400 dark:text-zinc-500 font-bold">Foto {num}</span>
                                   <input type="file" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) setProductForm({ ...productForm, [`image_file_${num}`]: e.target.files[0], [`remove_image_${num}`]: false }); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                 </motion.div>
@@ -1304,13 +1304,13 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
-                    <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm resize-none focus:ring-4 focus:ring-zinc-500/10"></textarea>
+                    <textarea rows="3" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-300 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-zinc-950 transition-all text-sm resize-none focus:ring-4 focus:ring-zinc-500/10"></textarea>
                   </div>
                 </form>
               </div>
               <div className="p-8 border-t border-zinc-100 dark:border-zinc-800 shrink-0 bg-zinc-50 dark:bg-zinc-900/50 flex gap-4">
-                <button type="button" onClick={() => setIsEditProductModalOpen(false)} className="flex-1 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 py-3.5 rounded-xl font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-sm">Cancelar</button>
-                <button type="submit" form="edit-product-form" className="flex-1 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm text-sm">Actualizar Producto</button>
+                <button type="button" onClick={() => setIsEditProductModalOpen(false)} className="flex-1 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-400 bg-white dark:bg-white/[0.02] py-3.5 rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-white/[0.06] dark:hover:text-white transition-colors text-sm">Cancelar</button>
+                <button type="submit" form="edit-product-form" className="flex-1 bg-blue-600 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm text-sm">Actualizar Producto</button>
               </div>
             </motion.div>
           </div>
@@ -1321,7 +1321,7 @@ const AdminDashboard = () => {
       {isCategoryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsCategoryModalOpen(false)}></div>
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-lg z-10 overflow-hidden shadow-2xl">
+          <div className="bg-white dark:bg-zinc-900/95 dark:backdrop-blur-md rounded-3xl w-full max-w-lg z-10 overflow-hidden shadow-2xl border border-zinc-200 dark:border-white/[0.06]">
             <div className="px-8 py-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
               <h2 className="text-xl font-bold dark:text-white">Nueva Categoría</h2>
               <button onClick={() => setIsCategoryModalOpen(false)} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"><LogOut size={24} className="rotate-45" /></button>
@@ -1329,13 +1329,13 @@ const AdminDashboard = () => {
             <form onSubmit={handleCategorySubmit} className="p-8 space-y-5">
               <div>
                 <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Nombre de la Categoría</label>
-                <input required placeholder="Ej. Shorts" value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                <input required placeholder="Ej. Shorts" value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-white transition-all text-sm" />
               </div>
               <div>
                 <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase mb-2 block">Descripción</label>
-                <input placeholder="Opcional" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-400 dark:text-white transition-all text-sm" />
+                <input placeholder="Opcional" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 rounded-xl outline-none focus:border-zinc-900 dark:focus:border-zinc-500 dark:text-white transition-all text-sm" />
               </div>
-              <button type="submit" className="w-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 p-4 rounded-xl font-bold mt-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm text-sm">Crear Categoría</button>
+              <button type="submit" className="w-full bg-zinc-900 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white p-4 rounded-xl font-bold mt-2 hover:bg-zinc-800 dark:hover:bg-white/[0.1] transition-colors shadow-sm text-sm">Crear Categoría</button>
             </form>
           </div>
         </div>
@@ -1368,7 +1368,7 @@ const AdminDashboard = () => {
           ></div>
 
           {/* Contenedor principal del Modal con animación de entrada */}
-          <div className="bg-white dark:bg-zinc-950 rounded-3xl w-full max-w-4xl relative overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto z-10 animate-modal">
+          <div className="bg-white dark:bg-zinc-950 rounded-3xl w-full max-w-4xl relative overflow-hidden shadow-2xl border border-zinc-200 dark:border-white/[0.06] flex flex-col md:flex-row max-h-[90vh] overflow-y-auto z-10 animate-modal">
 
             {/* Botón de cerrar (X) */}
             <button
@@ -1420,11 +1420,11 @@ const AdminDashboard = () => {
 
               {/* Métricas técnicas para el Admin */}
               <div className="flex flex-wrap gap-4 mt-auto">
-                <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 flex-1 min-w-[120px]">
+                <div className="bg-zinc-100 dark:bg-zinc-900/60 px-4 py-3 rounded-xl border border-zinc-200 dark:border-white/[0.05] dark:backdrop-blur-sm flex-1 min-w-[120px]">
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Stock Actual</p>
                   <p className="font-bold text-zinc-900 dark:text-white">{previewProduct.stock_quantity} unidades</p>
                 </div>
-                <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 flex-1 min-w-[120px]">
+                <div className="bg-zinc-100 dark:bg-zinc-900/60 px-4 py-3 rounded-xl border border-zinc-200 dark:border-white/[0.05] dark:backdrop-blur-sm flex-1 min-w-[120px]">
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Estado</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={`w-2.5 h-2.5 rounded-full shadow-sm ${previewProduct.is_active ? 'bg-green-500' : 'bg-red-500'}`}></span>
@@ -1444,7 +1444,7 @@ const AdminDashboard = () => {
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)}></div>
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md z-10 overflow-hidden shadow-2xl animate-fade-in-up">
+          <div className="bg-white dark:bg-zinc-900/95 dark:backdrop-blur-md rounded-3xl w-full max-w-md z-10 overflow-hidden shadow-2xl border border-zinc-200 dark:border-white/[0.06] animate-fade-in-up">
             <div className="p-8 text-center">
               <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-6">
                 {confirmAction.type === 'delete' ? (
@@ -1465,7 +1465,7 @@ const AdminDashboard = () => {
               <div className="flex gap-4">
                 <button
                   onClick={() => setConfirmAction(null)}
-                  className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-400 bg-white dark:bg-white/[0.02] font-bold hover:bg-zinc-50 dark:hover:bg-white/[0.06] dark:hover:text-white transition-colors"
                 >
                   Cancelar
                 </button>
