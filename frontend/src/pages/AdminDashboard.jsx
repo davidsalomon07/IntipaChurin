@@ -625,7 +625,7 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
-            <button className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:hover:bg-white/[0.1] transition-colors">
+            <button className="bg-zinc-100 hover:bg-zinc-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm transition-colors">
               Descargar Reporte
             </button>
             {activeTab === 'productos' && (
@@ -901,11 +901,11 @@ const AdminDashboard = () => {
             {/* Paginador */}
             {!isLoading && (
               <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50">
-                <button className="px-4 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 transition-colors">Anterior</button>
+                <button className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-zinc-200 dark:border-white/10 rounded-xl text-sm font-semibold text-zinc-600 dark:text-white transition-colors">Anterior</button>
                 <div className="flex gap-2">
-                  <span className="w-8 h-8 flex items-center justify-center bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-lg text-sm font-bold shadow-sm">1</span>
+                  <span className="w-8 h-8 flex items-center justify-center bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-xl text-sm font-bold shadow-sm">1</span>
                 </div>
-                <button className="px-4 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 transition-colors">Siguiente</button>
+                <button className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-zinc-200 dark:border-white/10 rounded-xl text-sm font-semibold text-zinc-600 dark:text-white transition-colors">Siguiente</button>
               </div>
             )}
           </div>
