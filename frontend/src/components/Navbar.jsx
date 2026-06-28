@@ -21,7 +21,6 @@ const ProfileIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" hei
 const Navbar = ({ backButton = false }) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
-  const [cartOpen,      setCartOpen]      = useState(false);
   const [searchOpen,    setSearchOpen]    = useState(false);
   const [searchQuery,   setSearchQuery]   = useState('');
   const [mobileMenuOpen,setMobileMenuOpen]= useState(false);
@@ -31,7 +30,7 @@ const Navbar = ({ backButton = false }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
 
-  const { totalItems }                    = useCart();
+  const { totalItems, cartOpen, setCartOpen } = useCart();
   const { theme, setTheme }              = useContext(ThemeContext);
   const { wishlist, hasNewNotifications } = useWishlist();
   const location  = useLocation();

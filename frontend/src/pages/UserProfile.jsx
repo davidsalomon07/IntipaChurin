@@ -288,7 +288,7 @@ const UserProfile = () => {
 
         {/* SIDEBAR */}
         <aside className={`w-full md:w-80 flex-col gap-6 ${isMobileMenuVisible ? 'flex' : 'hidden md:flex'}`}>
-          <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-6 dark:border dark:border-zinc-800 transition-colors duration-300">
+          <div className="bg-white dark:bg-zinc-900/80 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-100 dark:border-white/[0.06] p-6 dark:backdrop-blur-md transition-colors duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-14 h-14 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-zinc-400 uppercase leading-none select-none transition-colors duration-300">
                 <span className="flex items-center justify-center h-full w-full">{userData.first_name ? userData.first_name.charAt(0) : 'U'}</span>
@@ -327,14 +327,14 @@ const UserProfile = () => {
                     }}
                     className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium transition-all duration-300 relative ${
                       isActive
-                        ? 'text-zinc-900 dark:text-white'
+                        ? 'text-zinc-900 dark:text-white font-semibold'
                         : 'text-gray-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:translate-x-1'
                     }`}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="activeTabBackground"
-                        className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl"
+                        className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl shadow-sm"
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
                     )}
@@ -375,7 +375,7 @@ const UserProfile = () => {
             >
               {/* VISTA: DATOS PERSONALES */}
           {activeTab === 'datos' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 relative dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900/80 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-100 dark:border-white/[0.06] p-10 relative dark:backdrop-blur-md transition-colors duration-300">
 
               {!isEditing ? (
                 <button onClick={() => setIsEditing(true)} className="absolute top-8 right-8 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
@@ -410,8 +410,8 @@ const UserProfile = () => {
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                     disabled={!isEditing}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm ${isEditing
-                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-white border-gray-200 dark:border-zinc-300 text-gray-900 dark:text-zinc-950'
                       : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
                       }`}
                   />
@@ -424,8 +424,8 @@ const UserProfile = () => {
                     value={formData.last_name}
                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                     disabled={!isEditing}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm ${isEditing
-                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-white border-gray-200 dark:border-zinc-300 text-gray-900 dark:text-zinc-950'
                       : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
                       }`}
                   />
@@ -438,8 +438,8 @@ const UserProfile = () => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     disabled={!isEditing}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm ${isEditing
-                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-white border-gray-200 dark:border-zinc-300 text-gray-900 dark:text-zinc-950'
                       : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
                       }`}
                   />
@@ -453,8 +453,8 @@ const UserProfile = () => {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     disabled={!isEditing}
                     placeholder={isEditing ? "Ingrese su número" : "Añadir número"}
-                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm ${isEditing
-                      ? 'bg-gray-50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white'
+                    className={`flex-1 px-4 py-3 border rounded-xl text-sm transition-all duration-300 focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm ${isEditing
+                      ? 'bg-gray-50 dark:bg-white border-gray-200 dark:border-zinc-300 text-gray-900 dark:text-zinc-950'
                       : 'bg-gray-100/30 dark:bg-zinc-800/10 border-gray-100 dark:border-zinc-800 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
                       }`}
                   />
@@ -462,7 +462,7 @@ const UserProfile = () => {
 
                 {isEditing && (
                   <div className="pt-8">
-                    <button onClick={handleSaveChanges} className="bg-[#2B80FF] hover:bg-blue-600 text-white px-8 py-3 rounded-xl text-[14px] font-medium transition-colors shadow-lg shadow-blue-500/20">
+                    <button onClick={handleSaveChanges} className="bg-zinc-900 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white dark:hover:bg-white/[0.12] dark:hover:border-white/20 px-8 py-3 rounded-xl text-[14px] font-medium transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-zinc-900/10 dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                       Guardar Cambios
                     </button>
                   </div>
@@ -473,7 +473,7 @@ const UserProfile = () => {
 
           {/* VISTA: CONFIGURACIÓN */}
           {activeTab === 'configuracion' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 max-w-xl dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900/80 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-100 dark:border-white/[0.06] p-10 max-w-xl dark:backdrop-blur-md transition-colors duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
                 <h2 className="text-xl font-medium dark:text-white">Configuración</h2>
               </div>
@@ -483,13 +483,13 @@ const UserProfile = () => {
                 <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
                   <span className="text-[15px] text-gray-700 dark:text-zinc-300">Tema</span>
                   <div className="relative">
-                    <button onClick={() => setIsThemeOpen(!isThemeOpen)} onBlur={() => setTimeout(() => setIsThemeOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-32.5">
+                    <button onClick={() => setIsThemeOpen(!isThemeOpen)} onBlur={() => setTimeout(() => setIsThemeOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-white/[0.04] backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:bg-white/[0.1] transition-colors focus:outline-none min-w-32.5 shadow-sm">
                       <span>{theme}</span>
                       <svg className={`w-4 h-4 text-gray-400 dark:text-zinc-500 transition-transform duration-300 ${isThemeOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div className={`absolute top-full right-0 mt-2 w-full min-w-32.5 bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isThemeOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                    <div className={`absolute top-full right-0 mt-2 w-full min-w-32.5 bg-white dark:bg-zinc-900/95 backdrop-blur-md border border-gray-100 dark:border-white/10 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isThemeOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                       {['Light', 'Dark'].map((opt) => (
-                        <button key={opt} onClick={() => { setTheme(opt); setIsThemeOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${theme === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
+                        <button key={opt} onClick={() => { setTheme(opt); setIsThemeOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${theme === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-white/[0.08]' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
                       ))}
                     </div>
                   </div>
@@ -499,13 +499,13 @@ const UserProfile = () => {
                 <div className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-zinc-800">
                   <span className="text-[15px] text-gray-700 dark:text-zinc-300">Idioma</span>
                   <div className="relative">
-                    <button onClick={() => setIsLanguageOpen(!isLanguageOpen)} onBlur={() => setTimeout(() => setIsLanguageOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors focus:outline-none min-w-32.5">
+                    <button onClick={() => setIsLanguageOpen(!isLanguageOpen)} onBlur={() => setTimeout(() => setIsLanguageOpen(false), 200)} className="flex items-center justify-between gap-3 bg-gray-50 dark:bg-white/[0.04] backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white text-sm rounded-xl px-4 py-2 hover:border-gray-300 dark:hover:bg-white/[0.1] transition-colors focus:outline-none min-w-32.5 shadow-sm">
                       <span>{language}</span>
                       <svg className={`w-4 h-4 text-gray-400 dark:text-zinc-500 transition-transform duration-300 ${isLanguageOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div className={`absolute top-full right-0 mt-2 w-full min-w-32.5 bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isLanguageOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+                    <div className={`absolute top-full right-0 mt-2 w-full min-w-32.5 bg-white dark:bg-zinc-900/95 backdrop-blur-md border border-gray-100 dark:border-white/10 shadow-xl rounded-xl py-2 z-20 origin-top-right transition-all duration-200 ${isLanguageOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                       {['Español', 'Inglés'].map((opt) => (
-                        <button key={opt} onClick={() => { setLanguage(opt); setIsLanguageOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${language === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
+                        <button key={opt} onClick={() => { setLanguage(opt); setIsLanguageOpen(false); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${language === opt ? 'font-medium text-[#2B80FF] bg-blue-50 dark:bg-white/[0.08]' : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white'}`}>{opt}</button>
                       ))}
                     </div>
                   </div>
@@ -516,11 +516,11 @@ const UserProfile = () => {
 
           {/* VISTA: DIRECCIONES */}
           {activeTab === 'direcciones' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900/80 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-100 dark:border-white/[0.06] p-10 dark:backdrop-blur-md transition-colors duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">
                 <h1 className="text-xl font-medium dark:text-white">Direcciones</h1>
                 {!showAddressForm && (
-                  <button onClick={openNewAddressForm} className="text-sm font-medium text-[#2B80FF] hover:text-blue-700 transition-colors">+ Añadir Nueva</button>
+                  <button onClick={openNewAddressForm} className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">+ Añadir Nueva</button>
                 )}
               </div>
 
@@ -528,7 +528,7 @@ const UserProfile = () => {
                 <form onSubmit={handleSaveAddress} className="space-y-5 max-w-2xl">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Título</label>
-                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({ ...addressFormData, title: e.target.value })} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
+                    <input type="text" required value={addressFormData.title} onChange={(e) => setAddressFormData({ ...addressFormData, title: e.target.value })} placeholder="Ej. Casa, Oficina" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-sm dark:text-white focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
@@ -543,7 +543,7 @@ const UserProfile = () => {
                               value={addressFormData.street_address}
                               onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })}
                               placeholder="Calle Principal y Secundaria o busca tu dirección..."
-                              className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300"
+                              className="w-full px-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-sm dark:text-white focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300"
                             />
                           </Autocomplete>
                         ) : (
@@ -553,7 +553,7 @@ const UserProfile = () => {
                             value={addressFormData.street_address}
                             onChange={(e) => setAddressFormData({ ...addressFormData, street_address: e.target.value })}
                             placeholder="Calle Principal y Secundaria"
-                            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300"
+                            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-sm dark:text-white focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300"
                           />
                         )}
                         <button
@@ -561,8 +561,8 @@ const UserProfile = () => {
                           onClick={() => setShowMap(!showMap)}
                           className={`w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 shrink-0 text-center cursor-pointer ${
                             showMap
-                              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/10'
-                              : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                              ? 'bg-zinc-900 text-white shadow-md shadow-zinc-900/10 dark:bg-white/[0.08] dark:border dark:border-white/20'
+                              : 'bg-gray-100 dark:bg-white/[0.04] dark:border dark:border-white/10 text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-white/[0.1]'
                           }`}
                         >
                           📍 {showMap ? 'Ocultar Mapa' : 'Ver Mapa'}
@@ -593,24 +593,24 @@ const UserProfile = () => {
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Ciudad</label>
-                    <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value })} placeholder="Ej. Quito" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
+                    <input type="text" required value={addressFormData.city} onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value })} placeholder="Ej. Quito" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-sm dark:text-white focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                     <label className="w-48 text-sm font-semibold text-gray-700 dark:text-zinc-300">Código Postal</label>
-                    <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({ ...addressFormData, postal_code: e.target.value })} placeholder="Opcional" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm dark:text-white focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
+                    <input type="text" value={addressFormData.postal_code} onChange={(e) => setAddressFormData({ ...addressFormData, postal_code: e.target.value })} placeholder="Opcional" className="flex-1 px-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-sm dark:text-white focus:outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 dark:focus:ring-zinc-500/20 shadow-sm placeholder-gray-400 dark:placeholder-zinc-500 transition-all duration-300" />
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <button type="submit" className="bg-[#2B80FF] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl text-[14px] font-medium shadow-md shadow-blue-500/20 transition-colors">Guardar</button>
-                    <button type="button" onClick={closeAddressForm} className="bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-300 px-6 py-2.5 rounded-xl text-[14px] font-medium transition-colors">Cancelar</button>
+                    <button type="submit" className="bg-zinc-900 text-white dark:bg-white/[0.04] dark:border dark:border-white/10 dark:text-white dark:hover:bg-white/[0.12] dark:hover:border-white/20 px-6 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-zinc-900/10 dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]">Guardar</button>
+                    <button type="button" onClick={closeAddressForm} className="bg-gray-100 dark:bg-white/[0.02] dark:border dark:border-white/5 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-white px-6 py-2.5 rounded-xl text-[14px] font-medium transition-colors">Cancelar</button>
                   </div>
                 </form>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {addresses.length > 0 ? (
                     addresses.map((address) => (
-                      <div key={address.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/80 p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:border-blue-500/30 dark:hover:border-blue-500/20 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                      <div key={address.id} className="bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:border-zinc-300 dark:hover:border-white/20 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden dark:backdrop-blur-sm">
                         <h3 className="font-semibold text-[15px] dark:text-white mb-1">{address.title}</h3>
                         <p className="text-[13px] text-gray-500 dark:text-zinc-400 mb-4">{address.street_address}, {address.city}</p>
                         <div className="flex gap-4">
@@ -643,7 +643,7 @@ const UserProfile = () => {
 
           {/* VISTA: PEDIDOS */}
           {activeTab === 'pedidos' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900/80 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-100 dark:border-white/[0.06] p-10 dark:backdrop-blur-md transition-colors duration-300">
               <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Mis Pedidos</h1>
 
               {isLoadingPedidos ? (
@@ -686,7 +686,7 @@ const UserProfile = () => {
                         : 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400';
 
                     return (
-                      <div key={p.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/80 p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:border-blue-500/30 dark:hover:border-blue-500/20 hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                      <div key={p.id} className="bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:border-zinc-300 dark:hover:border-white/20 hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row justify-between sm:items-center gap-4 dark:backdrop-blur-sm">
                         <div>
                           <div className="flex items-center gap-3 mb-2">
                             <span className="font-bold text-[15px] dark:text-white">Orden #{p.id}</span>
@@ -740,12 +740,12 @@ const UserProfile = () => {
 
           {/* VISTA: MEMBRESÍA VIP */}
           {activeTab === 'membresia' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 p-10 dark:border dark:border-zinc-800 transition-colors duration-300">
+            <div className="bg-white dark:bg-zinc-900/80 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] border border-zinc-100 dark:border-white/[0.06] p-10 dark:backdrop-blur-md transition-colors duration-300">
               <h1 className="text-xl font-medium dark:text-white mb-8 border-b border-gray-100 dark:border-zinc-800 pb-4">Membresía VIP</h1>
 
               {userData.is_vip ? (
                 /* USUARIO ES VIP - TARJETA PREMIUM */
-                <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-yellow-600/5 to-transparent dark:from-amber-500/10 dark:via-zinc-900 dark:to-zinc-900 border border-amber-500/20 dark:border-amber-500/30 rounded-3xl p-8 max-w-2xl">
+                <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-yellow-600/5 to-transparent dark:from-amber-500/10 dark:via-zinc-900/60 dark:to-zinc-900/40 border border-amber-500/20 dark:border-amber-500/30 rounded-3xl p-8 max-w-2xl dark:shadow-[0_15px_30px_rgba(0,0,0,0.3)] dark:backdrop-blur-sm">
                   {/* Decoración premium sutil */}
                   <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 

@@ -35,9 +35,10 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 * **Sistema de Carga Premium**: Esqueletos (Shimmer effects) globales en toda la tienda para evitar tiempos muertos visuales.
 * **Gestión de Carrito y Favoritos**: Funcionalidad completa de e-commerce con panel lateral (Drawer) optimizado.
 * **Integración de Pagos con Stripe**: Proceso de checkout asegurado.
-* **Modelo de Suscripción VIP**: Sistema de beneficios (acceso anticipado y envíos gratis) con facturación mensual. Integrada la lógica de backend para cobros y descuentos, la interfaz de membresía VIP en el perfil del usuario (Glassmorphism) con visualización de vigencia en una tarjeta centrada con grilla simétrica y alineación optimizada, desglose detallado de descuentos VIP en el carrito de compras (Cart Drawer), e indicadores visuales distintivos para los socios VIP (corona dorada animada de tres puntos con halo en el botón principal del Navbar, y badges de texto 'VIP' de alto contraste junto al nombre en el dropdown de cuenta, menú móvil y perfil). Incluye una sección promocional en el Home con diseño responsivo adaptado, y una página dedicada (`/membership` / `Membership.jsx`) que integra el desglose completo de ventajas, preguntas frecuentes (FAQ) y pasarela de pago segura con Stripe.
-* **Panel de Administración**: Gestión completa de inventario, incluyendo control de precios originales para mostrar descuentos y ofertas. Cuenta con tarjetas de métricas analíticas animadas, un panel lateral deslizante (Slide-over Drawer) responsivo para productos, estados de gestión de pedidos con selectores tipo botón-badge de alto contraste, una barra lateral (Sidebar) colapsable con transiciones de ancho ultra-suaves y deslizador dinámico de pestañas, un área de carga de imágenes interactiva (Drag & Drop Dropzone) con carrusel de miniaturas animadas, e historial y vigencia detallada de membresías VIP (fechas de inicio y caducidad) en la sección de clientes.
-* **Atención al Cliente Integrada**: Centro de ayuda (FAQ) dinámico con contacto directo a WhatsApp y Email.
+* **Modelo de Suscripción VIP**: Sistema de beneficios (acceso anticipado y envíos gratis) con facturación mensual. Integrada la lógica de backend para cobros y descuentos, la interfaz de membresía VIP en el perfil del usuario (Glassmorphism) con visualización de vigencia en una tarjeta centrada con grilla simétrica y alineación optimizada, desglose detallado de descuentos VIP en el carrito de compras (Cart Drawer), e indicadores visuales distintivos para los socios VIP (corona dorada animada de tres puntos con halo en el botón principal del Navbar, y badges de texto 'VIP' de alto contraste junto al nombre en el dropdown de cuenta, menú móvil y perfil, contando con un rediseño de profundidad, contraste y elevación visual en modo oscuro). Incluye una sección promocional en el Home con diseño responsivo adaptado, una página dedicada (`/membership` / `Membership.jsx`) que integra el desglose completo de ventajas, preguntas frecuentes (FAQ) y pasarela de pago segura con Stripe, con sincronización de estado VIP en tiempo real (`localStorage`) al visitar la página de membresía o al retornar con éxito del checkout de Stripe.
+* **Panel de Administración**: Gestión completa de inventario, incluyendo control de precios originales para mostrar descuentos y ofertas. Cuenta con tarjetas de métricas analíticas animadas, un panel lateral deslizante (Slide-over Drawer) responsivo para productos, estados de gestión de pedidos con selectores tipo botón-badge de alto contraste, una barra lateral (Sidebar) colapsable con transiciones de ancho ultra-suaves y deslizador dinámico de pestañas, un área de carga de imágenes interactiva (Drag & Drop Dropzone) con carrusel de miniaturas animadas, e historial y vigencia detallada de membresías VIP (fechas de inicio y caducidad) en la sección de clientes, todo adaptado a un sistema premium de profundidad visual en modo oscuro mediante elevación de capas, bordes ultra-finos semi-transparentes (`border-white/[0.06]`), sombras de dispersión profunda, barra de pestañas activas e indicadores con fondos translúcidos en gris vidrio (`dark:bg-white/[0.04]` y `dark:border-white/10`), tarjetas analíticas superiores y botones de descarga de reporte y paginación con estilos gris vidrio permanentes.
+* **Atención al Cliente Integrada**: Centro de ayuda (FAQ) dinámico con contacto directo a WhatsApp y Email, y un botón flotante de WhatsApp global con prioridad de capa de estilo en línea (`zIndex: 99999`) y diagnóstico en consola optimizado para permanecer siempre accesible y visible en dispositivos móviles de la misma forma que en escritorio, ocultándose automáticamente en perfiles, paneles de administración, procesos de pago y al abrir el carrito de compras en cualquier sección de la web.
+* **Perfil de Usuario**: Cuenta con vista unificada para datos personales, historial de compras y gestión de direcciones de envío en tarjetas con elevación premium, incluyendo un rediseño de contraste de tarjetas de direcciones y pedidos en modo claro (`bg-zinc-100/80` y `border-zinc-200`) y modo oscuro (gris vidrio `dark:bg-white/[0.04]` y `dark:border-white/10`) para una estandarización perfecta, y botones principales de guardado con micro-interacciones de escalado táctil (`hover:scale-[1.02] active:scale-95`) y transiciones de color optimizadas.
 
 ## 📦 Estructura del Proyecto
 
@@ -47,6 +48,7 @@ El proyecto sigue una arquitectura cliente-servidor clásica dividida en dos apl
 /
 ├── backend/            # API en Node.js/Express, configuración de BD y rutas.
 ├── frontend/           # Aplicación React/Vite con componentes y páginas UI.
+├── tasks/              # Contiene reglas de historias de usuario, historias de usuario activas y cambios de BD.
 └── README.md           # Documentación principal del proyecto.
 ```
 
@@ -54,11 +56,14 @@ El proyecto sigue una arquitectura cliente-servidor clásica dividida en dos apl
 
 Para ejecutar el proyecto localmente, asegúrate de tener instalado Node.js (v18+) y PostgreSQL.
 
-1. **Clonar y configurar Backend**:
-   - Accede a `/backend`, ejecuta `npm install`.
+1. **Configurar y Ejecutar Backend (Requiere abrir 2 consolas/servicios del backend)**:
+   - Accede a `/backend` y ejecuta `npm install`.
    - Configura las variables de entorno (`.env`) para PostgreSQL y Stripe.
-   - Ejecuta el servidor: `npm run dev` (por defecto en el puerto 3000).
-   - *Nota: Si vas a probar pagos, ejecuta el CLI de Stripe para los webhooks.*
+   - **Servidor API (Backend 1)**: En la primera consola de backend, ejecuta el servidor principal: `npm run dev` (por defecto en el puerto 3000).
+   - **Escucha de Webhooks de Stripe (Backend 2)**: Para que los pagos y el webhook de Stripe se sincronicen localmente, abre una segunda consola en `/backend` y ejecuta el reenvío de webhooks:
+     ```powershell
+     ./stripe.exe listen --forward-to localhost:3000/api/webhook
+     ```
 
 2. **Clonar y configurar Frontend**:
    - Accede a `/frontend`, ejecuta `npm install`.

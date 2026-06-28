@@ -76,8 +76,20 @@ export const CartProvider = ({ children }) => {
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const totalPrecio = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
 
+  const [cartOpen, setCartOpen] = useState(false);
+
   return (
-    <CartContext.Provider value={{ carrito, agregarAlCarrito, eliminarDelCarrito, restarCantidadDelCarrito, vaciarCarrito, totalItems, totalPrecio }}>
+    <CartContext.Provider value={{ 
+      carrito, 
+      agregarAlCarrito, 
+      eliminarDelCarrito, 
+      restarCantidadDelCarrito, 
+      vaciarCarrito, 
+      totalItems, 
+      totalPrecio,
+      cartOpen,
+      setCartOpen
+    }}>
       {children}
     </CartContext.Provider>
   );
