@@ -22,7 +22,7 @@ const Wishlist = () => {
 
             <main className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto min-h-[80vh]">
                 <div className="mb-10 flex items-center justify-between">
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight dark:text-white">Lista de Deseos</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight dark:text-white">Favoritos</h1>
                     <span className="text-sm font-semibold bg-zinc-100 dark:bg-zinc-900 px-4 py-2 rounded-full text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800">
                         {wishlist.length} {wishlist.length === 1 ? 'artículo' : 'artículos'}
                     </span>
@@ -86,9 +86,9 @@ const Wishlist = () => {
                                             nombre: producto.name,
                                             precio: parseFloat(producto.price),
                                             categoria: producto.category_name || 'General',
-                                            imagen: producto.image_url
+                                            imagen: producto.image_url,
+                                            stock_quantity: producto.stock_quantity
                                         });
-                                        toast.success(`¡${producto.name} añadido al carrito!`);
                                     }}
                                     className="mt-auto w-full py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border-2 border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white transition-colors dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-zinc-900"
                                 >
@@ -103,13 +103,13 @@ const Wishlist = () => {
             {/* MiniFooter transparente */}
             <footer className="pt-10 pb-10 px-6 md:px-12 border-t border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                    
+
                     {/* Copyright */}
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium text-center md:text-left transition-colors duration-300">
                         © 2026 Intipa Churin. Todos los derechos reservados.
                     </p>
-                    
-                    {/* Enlaces de Redes Sociales */}
+
+                    {/* Enlaces de Redes Sociales, conservando el espaciado para WhatsApp en desktop */}
                     <div className="flex gap-6 pr-0 md:pr-24">
                         <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener noreferrer" className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-300 text-xs font-bold uppercase tracking-wider">
                             Instagram

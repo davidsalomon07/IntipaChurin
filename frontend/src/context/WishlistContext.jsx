@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import toast from 'react-hot-toast';
 
 // 1. Creamos el contexto
 const WishlistContext = createContext();
@@ -67,7 +68,7 @@ export const WishlistProvider = ({ children }) => {
     const toggleWishlist = async (product) => {
         const token = localStorage.getItem('token');
         if (!token) {
-            alert("Debes iniciar sesión para agregar a favoritos.");
+            toast.error("Debes iniciar sesión para agregar a favoritos.", { id: 'wishlist-login-error' });
             return;
         }
 
@@ -76,6 +77,7 @@ export const WishlistProvider = ({ children }) => {
         // Optimistic UI: Actualizamos el estado visualmente al instante para que no haya lag
         if (isSaved) {
             setWishlist(prev => prev.filter(item => item.id !== product.id));
+            toast.success("Eliminado de favoritos", { id: `fav-${product.id}` });
             // Petición real al backend para eliminar
             try {
                 await fetch(`http://localhost:3000/api/wishlist/${product.id}`, {
@@ -91,6 +93,7 @@ export const WishlistProvider = ({ children }) => {
             setWishlist(prev => [...prev, product]);
             setHasNewNotifications(true);
             localStorage.setItem('wishlist_has_new', 'true');
+            toast.success("Agregado a favoritos", { id: `fav-${product.id}` });
             // Petición real al backend para agregar
             try {
                 await fetch('http://localhost:3000/api/wishlist', {

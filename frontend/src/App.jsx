@@ -19,6 +19,11 @@ import Wishlist from './pages/Wishlist'; // Agregado
 import WhatsAppButton from './components/WhatsAppButton';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductDetail from './pages/ProductDetail';
+import Success from './pages/Success';
+import Cancel from './pages/Cancel';
+import Guide from './pages/Guide';
+import Contact from './pages/Contact';
+import Membership from './pages/Membership';
 
 function App() {
   return (
@@ -34,8 +39,8 @@ function App() {
                   toastOptions={{
                     style: {
                       background: '#ffffff',
-                      color: '#1c1917',
-                      border: '1px solid #e7e5e4',
+                      color: '#0e1014',
+                      border: '1px solid #e5e7eb',
                       borderRadius: '1rem',
                       fontSize: '14px',
                       fontWeight: '500',
@@ -44,7 +49,7 @@ function App() {
                     },
                     success: {
                       iconTheme: {
-                        primary: '#1c1917',
+                        primary: '#0e1014',
                         secondary: '#ffffff',
                       },
                     },
@@ -77,6 +82,11 @@ function App() {
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/shop/producto/:id" element={<ProductDetail />} />
+                  <Route path="/success" element={<Success />} />
+                  <Route path="/cancel" element={<Cancel />} />
+                  <Route path="/guide" element={<Guide />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/membership" element={<Membership />} />
                 </Routes>
                 <WhatsAppButton />
               </div>
