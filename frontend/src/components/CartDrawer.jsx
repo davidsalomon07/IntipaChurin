@@ -9,6 +9,10 @@ const CartDrawer = ({ isOpen, onClose }) => {
   const [cantidadAEliminar, setCantidadAEliminar] = useState(1);
   const [isCargandoPago, setIsCargandoPago] = useState(false);
 
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const isVip = user ? user.is_vip : false;
+
   // NUEVA FUNCION: Llama al backend para ir a Stripe mandando el user_id
   const handleCheckout = async () => {
     try {
@@ -164,9 +168,22 @@ const CartDrawer = ({ isOpen, onClose }) => {
         {/* Pie con total y botón */}
         {carrito.length > 0 && (
           <div className="px-6 py-5 border-t border-zinc-100 dark:border-zinc-800 space-y-4 transition-colors duration-300">
+            {isVip && (
+              <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-400 p-3.5 rounded-xl flex items-center justify-between text-xs font-semibold gap-2">
+                <div className="flex items-center gap-2">
+                  <span>👑</span>
+                  <span>Descuento VIP (15%)</span>
+                </div>
+                <span>-${(totalPrecio * 0.15).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center">
-              <span className="text-sm text-zinc-500 dark:text-zinc-400 transition-colors duration-300">Total</span>
-              <span className="text-lg font-bold text-zinc-900 dark:text-white transition-colors duration-300">$ {totalPrecio.toFixed(2)}</span>
+              <span className="text-sm text-zinc-500 dark:text-zinc-400 transition-colors duration-300">
+                {isVip ? 'Total Estimado' : 'Total'}
+              </span>
+              <span className="text-lg font-bold text-zinc-900 dark:text-white transition-colors duration-300">
+                $ {(isVip ? totalPrecio * 0.85 : totalPrecio).toFixed(2)}
+              </span>
             </div>
             <button
               onClick={handleCheckout}
