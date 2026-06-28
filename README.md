@@ -35,7 +35,7 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 * **Sistema de Carga Premium**: Esqueletos (Shimmer effects) globales en toda la tienda para evitar tiempos muertos visuales.
 * **Gestión de Carrito y Favoritos**: Funcionalidad completa de e-commerce con panel lateral (Drawer) optimizado.
 * **Integración de Pagos con Stripe**: Proceso de checkout asegurado.
-* **Modelo de Suscripción (En desarrollo)**: Sistema de beneficios VIP (acceso anticipado y envíos gratis). Se ha integrado toda la lógica de backend para procesar el pago de membresías y el motor dinámico de descuentos en el carrito de compras.
+* **Modelo de Suscripción (En desarrollo)**: Sistema de beneficios VIP (acceso anticipado y envíos gratis). Integrada la lógica de backend para cobros y descuentos, y la interfaz de membresía VIP en el perfil del usuario (Glassmorphism).
 * **Panel de Administración**: Gestión completa de inventario, incluyendo control de precios originales para mostrar descuentos y ofertas. Cuenta con tarjetas de métricas analíticas animadas, un panel lateral deslizante (Slide-over Drawer) responsivo para productos, estados de gestión de pedidos con selectores tipo botón-badge de alto contraste, una barra lateral (Sidebar) colapsable con transiciones de ancho ultra-suaves y deslizador dinámico de pestañas, y un área de carga de imágenes interactiva (Drag & Drop Dropzone) con carrusel de miniaturas animadas.
 * **Atención al Cliente Integrada**: Centro de ayuda (FAQ) dinámico con contacto directo a WhatsApp y Email.
 
