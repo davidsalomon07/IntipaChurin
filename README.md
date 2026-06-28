@@ -16,7 +16,7 @@ Bienvenido al repositorio oficial de **Intipa Churin**, una plataforma de comerc
 - **Node.js** + **Express**: API RESTful robusta y escalable.
 - **PostgreSQL** + **pg**: Base de datos relacional para garantizar la integridad de productos, usuarios y pedidos.
 - **Stripe**: Pasarela de pagos segura e integración mediante Webhooks.
-- **JWT (JSON Web Tokens)** + **Bcrypt**: Autenticación y encriptación de contraseñas.
+- **JWT (JSON Web Tokens)** + **Bcrypt**: Autenticación y encriptación de contraseñas. Redireccionamiento inteligente tras inicio de sesión (clientes al Home para comprar y administradores al Dashboard de control).
 - **Multer**: Gestión de carga de archivos e imágenes.
 
 ## 🌟 Funcionalidades Clave

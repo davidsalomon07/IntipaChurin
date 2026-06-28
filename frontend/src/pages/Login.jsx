@@ -47,9 +47,9 @@ const Login = () => {
       // Si no, lo mandamos a su perfil normal.
       // Nota: Ajusta el número 1 si el ID de ADMIN en tu BD es diferente.
       if (data.user.role_id === 1) {
-        navigate('/admin'); // <-- Luego crearemos esta ruta
+        navigate('/admin');
       } else {
-        navigate('/profile');
+        navigate('/');
       }
 
     } catch (err) {
