@@ -229,7 +229,19 @@ app.get('/api/usuarios/perfil', async (req, res) => {
     const userId = decoded.id;
 
     const userQuery = await pool.query(
-      'SELECT id, email, first_name, last_name, phone, role_id, is_vip FROM users WHERE id = $1',
+      `SELECT 
+        u.id, 
+        u.email, 
+        u.first_name, 
+        u.last_name, 
+        u.phone, 
+        u.role_id, 
+        u.is_vip,
+        m.start_date AS membership_start,
+        m.end_date AS membership_end
+       FROM users u
+       LEFT JOIN memberships m ON u.id = m.user_id AND m.status = 'ACTIVA'
+       WHERE u.id = $1`,
       [userId]
     );
 
@@ -734,7 +746,19 @@ app.post('/api/admin/categories', verificarAdmin, async (req, res) => {
 app.get('/api/admin/users', verificarAdmin, async (req, res) => {
   try {
     const users = await pool.query(
-      "SELECT id, first_name, last_name, email, created_at FROM users WHERE role_id = (SELECT id FROM roles WHERE name = 'CLIENTE') ORDER BY created_at DESC"
+      `SELECT 
+        u.id, 
+        u.first_name, 
+        u.last_name, 
+        u.email, 
+        u.created_at, 
+        u.is_vip,
+        m.start_date AS membership_start,
+        m.end_date AS membership_end
+       FROM users u
+       LEFT JOIN memberships m ON u.id = m.user_id AND m.status = 'ACTIVA'
+       WHERE u.role_id = (SELECT id FROM roles WHERE name = 'CLIENTE') 
+       ORDER BY u.created_at DESC`
     );
     res.json(users.rows);
   } catch (error) {

@@ -750,9 +750,26 @@ const UserProfile = () => {
                     </span>
                   </div>
 
-                  <p className="text-[14px] text-gray-600 dark:text-zinc-300 mb-8 leading-relaxed">
+                  <p className="text-[14px] text-gray-600 dark:text-zinc-300 mb-6 leading-relaxed">
                     ¡Felicidades, <strong>{userData.first_name}</strong>! Eres parte del exclusivo grupo VIP de Intipa Churin. Tus privilegios están activos y listos para ser disfrutados.
                   </p>
+
+                  {userData.membership_start && userData.membership_end && (
+                    <div className="bg-amber-500/5 dark:bg-zinc-950/40 border border-amber-500/20 rounded-2xl p-5 mb-8 grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-lg mx-auto relative z-10 transition-colors duration-300">
+                      <div className="flex flex-col gap-1 text-center sm:pr-5">
+                        <span className="text-zinc-400 dark:text-zinc-500 text-[10px] uppercase tracking-wider font-semibold">Fecha de registro</span>
+                        <span className="text-gray-900 dark:text-white text-[14px] font-bold">
+                          {new Date(userData.membership_start).toLocaleDateString('es-EC', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1 text-center border-t sm:border-t-0 sm:border-l border-zinc-200/50 dark:border-zinc-800/80 pt-4 sm:pt-0 sm:pl-5">
+                        <span className="text-zinc-400 dark:text-zinc-500 text-[10px] uppercase tracking-wider font-semibold">Fecha de caducidad</span>
+                        <span className="text-gray-900 dark:text-white text-[14px] font-bold">
+                          {new Date(userData.membership_end).toLocaleDateString('es-EC', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-4 border-t border-zinc-200/50 dark:border-zinc-800/80 pt-6">
                     <h3 className="text-[14px] font-semibold text-gray-900 dark:text-white mb-3">Tus Beneficios VIP Activos:</h3>

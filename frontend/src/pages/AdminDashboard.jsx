@@ -790,15 +790,16 @@ const AdminDashboard = () => {
                       <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                         <tr className="w-full">
                           <th className="w-[5%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nº</th>
-                          <th className="w-[25%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
-                          <th className="w-[35%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Correo Electrónico</th>
-                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha de Registro</th>
-                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Estado</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Cliente</th>
+                          <th className="w-[25%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Correo Electrónico</th>
+                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha de Registro</th>
+                          <th className="w-[15%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Membresía</th>
+                          <th className="w-[20%] py-4 px-6 text-xs font-bold uppercase tracking-wider text-zinc-500 text-center">Vigencia VIP</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
                         {filteredUsuarios.length === 0 ? (
-                          <tr><td colSpan="5" className="py-16 text-center text-zinc-500 text-sm">No hay clientes registrados.</td></tr>
+                          <tr><td colSpan="6" className="py-16 text-center text-zinc-500 text-sm">No hay clientes registrados.</td></tr>
                         ) : (
                           filteredUsuarios.map((u, index) => (
                             <tr key={u.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
@@ -814,7 +815,25 @@ const AdminDashboard = () => {
                               <td className="py-4 px-6 text-sm text-zinc-600 dark:text-zinc-400 truncate">{u.email}</td>
                               <td className="py-4 px-6 text-sm text-zinc-500 dark:text-zinc-500 truncate">{new Date(u.created_at).toLocaleDateString('es-EC')}</td>
                               <td className="py-4 px-6 text-center">
-                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400">Activo</span>
+                                {u.is_vip ? (
+                                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
+                                    Socio VIP
+                                  </span>
+                                ) : (
+                                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                                    General
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-4 px-6 text-center text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                {u.is_vip && u.membership_start && u.membership_end ? (
+                                  <div className="flex flex-col gap-0.5 items-center">
+                                    <span className="text-[11px]"><span className="text-zinc-400">Inicio:</span> {new Date(u.membership_start).toLocaleDateString('es-EC')}</span>
+                                    <span className="text-[11px]"><span className="text-zinc-400">Fin:</span> {new Date(u.membership_end).toLocaleDateString('es-EC')}</span>
+                                  </div>
+                                ) : (
+                                  <span className="text-zinc-400 dark:text-zinc-600">-</span>
+                                )}
                               </td>
                             </tr>
                           ))
