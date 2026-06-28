@@ -110,6 +110,10 @@ const Shop = () => {
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [whiteBgProductIds, setWhiteBgProductIds] = useState(new Set());
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [soloOfertas, setSoloOfertas] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const ITEMS_POR_PAGINA = 12;
+  const [selectedSizeProductId, setSelectedSizeProductId] = useState(null);
 
   const handleMinChange = (valStr) => {
     if (valStr === "") {
@@ -203,6 +207,10 @@ const Shop = () => {
   }, [category]);
 
   useEffect(() => {
+    setPaginaActual(1);
+  }, [category, selectedCategories, selectedSizes, selectedColor, minPrice, priceRange, searchQuery, soloOfertas]);
+
+  useEffect(() => {
     const fetchProductos = async () => {
       setIsLoading(true);
       try {
@@ -285,6 +293,9 @@ const Shop = () => {
       const price = parseFloat(p.price);
       return price >= min && price <= max;
     });
+  }
+  if (soloOfertas) {
+    productosFiltrados = productosFiltrados.filter(p => p.original_price && parseFloat(p.original_price) > parseFloat(p.price));
   }
 
   // Lógica de ordenamiento
@@ -462,6 +473,14 @@ const Shop = () => {
               </div>
             </div>
           </FilterAccordion>
+
+          <FilterAccordion title="DESCUENTOS" defaultOpen={true}>
+            <FilterCheckbox
+              label="Solo Ofertas"
+              checked={soloOfertas}
+              onChange={() => setSoloOfertas(!soloOfertas)}
+            />
+          </FilterAccordion>
         </aside>
 
         {/* --- CONTENIDO PRINCIPAL (Productos) --- */}
@@ -520,7 +539,7 @@ const Shop = () => {
           </div>
 
           {/* Chips de Filtros Activos */}
-          {(selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColor || min > 0 || max < 300 || searchQuery) && (
+          {(selectedCategories.length > 0 || selectedSizes.length > 0 || selectedColor || min > 0 || max < 300 || searchQuery || soloOfertas) && (
             <div className="flex flex-wrap items-center gap-2 mb-8">
               {searchQuery && (
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
@@ -530,6 +549,12 @@ const Shop = () => {
                     newParams.delete('search');
                     setSearchParams(newParams);
                   }} className="hover:text-zinc-900 dark:hover:text-white"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </span>
+              )}
+              {soloOfertas && (
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-[11px] font-semibold tracking-wider uppercase text-zinc-700 dark:text-zinc-300">
+                  Solo Ofertas
+                  <button onClick={() => setSoloOfertas(false)} className="hover:text-zinc-900 dark:hover:text-white"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </span>
               )}
               {selectedCategories.map(cat => (
@@ -571,6 +596,7 @@ const Shop = () => {
                   setSelectedColor(null);
                   setMinPrice("0");
                   setPriceRange("300");
+                  setSoloOfertas(false);
                   const newParams = new URLSearchParams(searchParams);
                   newParams.delete('search');
                   setSearchParams(newParams);
@@ -597,91 +623,154 @@ const Shop = () => {
               ))}
             </div>
           ) : productosFiltrados.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-5 md:gap-y-12">
-              {productosFiltrados.map((item) => (
-                <div
-                  key={item.id}
-                  className="group cursor-pointer flex flex-col"
-                  onClick={() => navigate(`/shop/producto/${item.id}`)}
-                  onMouseEnter={() => setHoveredProductId(item.id)}
-                  onMouseLeave={() => setHoveredProductId(null)}
-                >
-                  <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#151515] mb-4 relative transition-colors duration-300">
-                    <img
-                      src={item.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-100"
-                      alt={item.name}
-                    />
-                    {item.image_url_2 && (
+            <>
+              <div 
+                key={`${category}-${selectedCategories.join(',')}-${selectedSizes.join(',')}-${selectedColor}-${minPrice}-${priceRange}-${searchQuery}-${soloOfertas}-${paginaActual}`}
+                className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-5 md:gap-y-12 animate-fade-in-up"
+              >
+                {productosFiltrados.slice((paginaActual - 1) * ITEMS_POR_PAGINA, paginaActual * ITEMS_POR_PAGINA).map((item) => (
+                  <div
+                    key={item.id}
+                    className="group cursor-pointer flex flex-col"
+                    onClick={() => navigate(`/shop/producto/${item.id}`)}
+                    onMouseEnter={() => setHoveredProductId(item.id)}
+                    onMouseLeave={() => setHoveredProductId(null)}
+                  >
+                    <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#151515] mb-4 relative transition-colors duration-300">
                       <img
-                        src={item.image_url_2}
-                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${hoveredProductId === item.id ? 'opacity-100' : 'opacity-0'}`}
-                        alt={`${item.name} vista trasera`}
+                        src={item.image_url || `https://placehold.co/600x800/f5f5f4/d6d3d1?text=SIN+FOTO`}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-100"
+                        alt={item.name}
                       />
-                    )}
+                      {item.image_url_2 && (
+                        <img
+                          src={item.image_url_2}
+                          className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${hoveredProductId === item.id ? 'opacity-100' : 'opacity-0'}`}
+                          alt={`${item.name} vista trasera`}
+                        />
+                      )}
 
-                    {/* Etiqueta de Descuento */}
-                    {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (
-                      <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm z-10">
-                        -{Math.round((1 - parseFloat(item.price) / parseFloat(item.original_price)) * 100)}%
+                      {/* Etiqueta de Descuento */}
+                      {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (
+                        <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm z-10">
+                          -{Math.round((1 - parseFloat(item.price) / parseFloat(item.original_price)) * 100)}%
+                        </div>
+                      )}
+
+                      {/* Botón de Wishlist */}
+                      <div className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:-translate-y-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(item);
+                          }}
+                          title={isInWishlist(item.id) ? "Quitar de favoritos" : "Añadir a favoritos"}
+                          className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all duration-300 hover:scale-110"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20"
+                            viewBox="0 0 24 24"
+                            fill={isInWishlist(item.id) ? "#ef4444" : "none"}
+                            stroke={isInWishlist(item.id) ? "#ef4444" : "currentColor"}
+                            strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                            className="transition-colors duration-300"
+                          >
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Botón Vista Rápida */}
+                      <div className="absolute bottom-3 left-3 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setQuickViewProduct(item);
+                          }}
+                          title="Vista Rápida"
+                          className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
+                          style={{ backgroundColor: (hoveredProductId === item.id && !whiteBgProductIds.has(item.id)) ? getHoverBg(item.color) : 'rgba(9, 9, 11, 0.4)' }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                        </button>
+                      </div>
+
+                    {/* Indicadores de Talla en Hover (Fase 2) */}
+                    {item.sizes && item.sizes.length > 0 && (
+                      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/70 dark:bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex gap-1.5 transition-all duration-300 z-10 ${hoveredProductId === item.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+                        {['S', 'M', 'L', 'XL'].map((tallaDefault) => {
+                          const disponible = item.sizes.includes(tallaDefault);
+                          return (
+                            <span
+                              key={tallaDefault}
+                              className={`text-[9px] font-extrabold tracking-wider w-4 h-4 rounded flex items-center justify-center transition-opacity ${disponible ? 'text-zinc-900 dark:text-white' : 'text-zinc-400/40 dark:text-zinc-600/40 line-through'}`}
+                            >
+                              {tallaDefault}
+                            </span>
+                          );
+                        })}
                       </div>
                     )}
 
-                    {/* Botón de Wishlist */}
-                    <div className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:group-hover:translate-y-0 md:-translate-y-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleWishlist(item);
-                        }}
-                        title={isInWishlist(item.id) ? "Quitar de favoritos" : "Añadir a favoritos"}
-                        className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all duration-300 hover:scale-110"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20" height="20"
-                          viewBox="0 0 24 24"
-                          fill={isInWishlist(item.id) ? "#ef4444" : "none"}
-                          stroke={isInWishlist(item.id) ? "#ef4444" : "currentColor"}
-                          strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                          className="transition-colors duration-300"
-                        >
-                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                        </svg>
-                      </button>
-                    </div>
-
-                    {/* Botón Vista Rápida */}
-                    <div className="absolute bottom-3 left-3 z-10">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setQuickViewProduct(item);
-                        }}
-                        title="Vista Rápida"
-                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
-                        style={{ backgroundColor: (hoveredProductId === item.id && !whiteBgProductIds.has(item.id)) ? getHoverBg(item.color) : 'rgba(9, 9, 11, 0.4)' }}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                          <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                      </button>
-                    </div>
-
-                    {/* Botón de Carrito (estilo bolsa) */}
+                    {/* Botón de Carrito con Selector de Talla Rápido (Fase 1) */}
                     <div className="absolute bottom-3 right-3 z-10">
+                      {selectedSizeProductId === item.id && item.sizes && item.sizes.length > 0 ? (
+                        <div 
+                          className="absolute bottom-full right-0 mb-2 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200/80 dark:border-white/10 rounded-2xl p-2 shadow-xl flex gap-1.5 backdrop-blur-md animate-fade-in-up z-20 shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {item.sizes.map((talla) => (
+                            <button
+                              key={talla}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                agregarAlCarrito({
+                                  id: item.id,
+                                  nombre: `${item.name} (${talla})`,
+                                  precio: parseFloat(item.price),
+                                  categoria: item.category_name,
+                                  imagen: item.image_url,
+                                  stock_quantity: item.stock_quantity
+                                });
+                                setSelectedSizeProductId(null);
+                              }}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-950 hover:text-white dark:hover:bg-white dark:hover:text-zinc-950 transition-colors"
+                            >
+                              {talla}
+                            </button>
+                          ))}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedSizeProductId(null);
+                            }}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center border border-transparent text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                            title="Cancelar"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        </div>
+                      ) : null}
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          agregarAlCarrito({
-                            id: item.id,
-                            nombre: item.name,
-                            precio: parseFloat(item.price),
-                            categoria: item.category_name,
-                            imagen: item.image_url,
-                            stock_quantity: item.stock_quantity
-                          });
+                          if (item.sizes && item.sizes.length > 0) {
+                            setSelectedSizeProductId(item.id);
+                          } else {
+                            agregarAlCarrito({
+                              id: item.id,
+                              nombre: item.name,
+                              precio: parseFloat(item.price),
+                              categoria: item.category_name,
+                              imagen: item.image_url,
+                              stock_quantity: item.stock_quantity
+                            });
+                          }
                         }}
                         title="Añadir al carrito"
                         className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transform transition-all duration-500 ease-out active:scale-95 text-white border border-white/10 backdrop-blur-md"
@@ -696,19 +785,64 @@ const Shop = () => {
                     </div>
                   </div>
 
-                  <div className="mt-auto px-1">
-                    <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mb-1.5">{item.category_name || 'PRENDA'}</p>
-                    <h3 className="text-[13px] md:text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 leading-snug">{item.name}</h3>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs md:text-[13px] text-zinc-900 dark:text-white font-bold">S/ {parseFloat(item.price).toFixed(2)}</p>
-                      {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (
-                        <p className="text-xs md:text-[13px] text-zinc-400 dark:text-zinc-500 font-medium line-through">S/ {parseFloat(item.original_price).toFixed(2)}</p>
-                      )}
+                    <div className="mt-auto px-1">
+                      <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mb-1.5">{item.category_name || 'PRENDA'}</p>
+                      <h3 className="text-[13px] md:text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 leading-snug">{item.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs md:text-[13px] text-zinc-900 dark:text-white font-bold">S/ {parseFloat(item.price).toFixed(2)}</p>
+                        {item.original_price && parseFloat(item.original_price) > parseFloat(item.price) && (
+                          <p className="text-xs md:text-[13px] text-zinc-400 dark:text-zinc-500 font-medium line-through">S/ {parseFloat(item.original_price).toFixed(2)}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+              {productosFiltrados.length > ITEMS_POR_PAGINA && (
+                <div className="flex justify-center items-center gap-2 mt-16">
+                  <button
+                    onClick={() => {
+                      setPaginaActual(prev => Math.max(1, prev - 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={paginaActual === 1}
+                    className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-200 dark:border-zinc-800/80 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors disabled:opacity-30 disabled:pointer-events-none focus:outline-none"
+                    title="Página anterior"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                  </button>
+
+                  {Array.from({ length: Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA) }).map((_, i) => {
+                    const numPagina = i + 1;
+                    const esActiva = numPagina === paginaActual;
+                    return (
+                      <button
+                        key={numPagina}
+                        onClick={() => {
+                          setPaginaActual(numPagina);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className={`w-10 h-10 rounded-full text-xs font-bold tracking-widest transition-all duration-300 ${esActiva ? 'bg-zinc-900 border border-zinc-900 text-white dark:bg-white dark:border-white dark:text-zinc-900 shadow-md scale-105' : 'bg-transparent border border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 hover:text-zinc-950 dark:hover:text-white'}`}
+                      >
+                        {numPagina}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => {
+                      setPaginaActual(prev => Math.min(Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA), prev + 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={paginaActual === Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-200 dark:border-zinc-800/80 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors disabled:opacity-30 disabled:pointer-events-none focus:outline-none"
+                    title="Página siguiente"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="py-24 text-center text-zinc-500 dark:text-zinc-400 flex flex-col items-center justify-center w-full bg-zinc-50/50 dark:bg-zinc-900/20 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
               <p>No se encontraron productos con los filtros seleccionados.</p>
@@ -719,6 +853,7 @@ const Shop = () => {
                   setSelectedColor(null);
                   setMinPrice("0");
                   setPriceRange("300");
+                  setSoloOfertas(false);
                   const newParams = new URLSearchParams(searchParams);
                   newParams.delete('search');
                   setSearchParams(newParams);

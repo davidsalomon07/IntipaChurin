@@ -36,7 +36,26 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (reque
     console.log(`✅ ¡Pago exitoso! Procesando orden: ${session.id}`);
 
     try {
-      if (session.metadata && session.metadata.cartData && session.metadata.user_id) {
+      if (session.metadata && session.metadata.tipo_compra === 'membresia') {
+        const userId = parseInt(session.metadata.user_id);
+
+        // INICIAMOS UNA TRANSACCIÓN SQL
+        await pool.query('BEGIN');
+
+        // a) UPDATE users SET is_vip = true WHERE id = $1
+        await pool.query('UPDATE users SET is_vip = true WHERE id = $1', [userId]);
+
+        // b) INSERT INTO memberships (user_id, status, start_date, end_date, discount_rate) VALUES ($1, 'ACTIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 month', 15.00)
+        await pool.query(
+          `INSERT INTO memberships (user_id, status, start_date, end_date, discount_rate) 
+           VALUES ($1, 'ACTIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 month', 15.00)`,
+          [userId]
+        );
+
+        await pool.query('COMMIT');
+        console.log(`💎 ¡Usuario #${userId} actualizado a VIP y membresía activada con éxito!`);
+
+      } else if (session.metadata && session.metadata.cartData && session.metadata.user_id) {
         const userId = parseInt(session.metadata.user_id);
         const itemsComprados = JSON.parse(session.metadata.cartData);
 
@@ -184,13 +203,59 @@ app.post('/api/usuarios/login', async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
-        role_id: user.role_id
+        role_id: user.role_id,
+        is_vip: user.is_vip
       }
     });
 
   } catch (error) {
     console.error("❌ Error en el login:", error.message);
     res.status(500).json({ error: "Hubo un problema al iniciar sesión." });
+  }
+});
+
+// ==========================================
+// 2b. READ: Obtener Perfil de Usuario (Fresh)
+// ==========================================
+app.get('/api/usuarios/perfil', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: "No autorizado. Falta el token." });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'secreto_intipa_2026');
+    const userId = decoded.id;
+
+    const userQuery = await pool.query(
+      `SELECT 
+        u.id, 
+        u.email, 
+        u.first_name, 
+        u.last_name, 
+        u.phone, 
+        u.role_id, 
+        u.is_vip,
+        m.start_date AS membership_start,
+        m.end_date AS membership_end
+       FROM users u
+       LEFT JOIN memberships m ON u.id = m.user_id AND m.status = 'ACTIVA'
+       WHERE u.id = $1`,
+      [userId]
+    );
+
+    if (userQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    res.json({
+      user: userQuery.rows[0]
+    });
+
+  } catch (error) {
+    console.error("❌ Error al obtener perfil:", error.message);
+    res.status(500).json({ error: "Error al obtener datos del perfil." });
   }
 });
 
@@ -208,7 +273,7 @@ app.put('/api/usuarios/perfil', async (req, res) => {
     const decoded = jwt.verify(token, 'secreto_intipa_2026');
     const userId = decoded.id;
 
-    const { first_name, last_name, email, phone } = req.body;
+    const { first_name, last_name, email, phone } = req.body || {};
 
     const emailCheck = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, userId]);
     if (emailCheck.rows.length > 0) {
@@ -216,7 +281,7 @@ app.put('/api/usuarios/perfil', async (req, res) => {
     }
 
     const updateQuery = await pool.query(
-      'UPDATE users SET first_name = $1, last_name = $2, email = $3, phone = $4 WHERE id = $5 RETURNING id, first_name, last_name, email, phone, role_id',
+      'UPDATE users SET first_name = $1, last_name = $2, email = $3, phone = $4 WHERE id = $5 RETURNING id, first_name, last_name, email, phone, role_id, is_vip',
       [first_name, last_name, email, phone, userId]
     );
 
@@ -681,7 +746,19 @@ app.post('/api/admin/categories', verificarAdmin, async (req, res) => {
 app.get('/api/admin/users', verificarAdmin, async (req, res) => {
   try {
     const users = await pool.query(
-      "SELECT id, first_name, last_name, email, created_at FROM users WHERE role_id = (SELECT id FROM roles WHERE name = 'CLIENTE') ORDER BY created_at DESC"
+      `SELECT 
+        u.id, 
+        u.first_name, 
+        u.last_name, 
+        u.email, 
+        u.created_at, 
+        u.is_vip,
+        m.start_date AS membership_start,
+        m.end_date AS membership_end
+       FROM users u
+       LEFT JOIN memberships m ON u.id = m.user_id AND m.status = 'ACTIVA'
+       WHERE u.role_id = (SELECT id FROM roles WHERE name = 'CLIENTE') 
+       ORDER BY u.created_at DESC`
     );
     res.json(users.rows);
   } catch (error) {
@@ -784,7 +861,7 @@ app.delete('/api/wishlist/:productId', async (req, res) => {
 // ==========================================
 app.post('/api/checkout', async (req, res) => {
   try {
-    const { cartItems, user_id } = req.body;
+    const { cartItems, user_id } = req.body || {};
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
     // Verificación de seguridad rápida
@@ -804,15 +881,34 @@ app.post('/api/checkout', async (req, res) => {
       }
     }
 
+    // VERIFICAR SI EL USUARIO ES VIP PARA APLICAR DESCUENTOS
+    let discountRate = 0;
+    const userQuery = await pool.query('SELECT is_vip FROM users WHERE id = $1', [user_id]);
+    if (userQuery.rows.length > 0 && userQuery.rows[0].is_vip) {
+      // Buscar la membresía activa
+      const membershipQuery = await pool.query(
+        `SELECT discount_rate FROM memberships 
+         WHERE user_id = $1 AND status = 'ACTIVA' AND end_date > CURRENT_TIMESTAMP`,
+        [user_id]
+      );
+      if (membershipQuery.rows.length > 0) {
+        discountRate = parseFloat(membershipQuery.rows[0].discount_rate) / 100;
+      }
+    }
+
     const line_items = cartItems.map((item) => {
+      // Aplicar el descuento si existe
+      const finalPrice = discountRate > 0 ? item.precio * (1 - discountRate) : item.precio;
+      const finalName = discountRate > 0 ? `${item.nombre} (Descuento VIP)` : item.nombre;
+
       return {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: item.nombre,
+            name: finalName,
             images: item.imagen ? [item.imagen] : [],
           },
-          unit_amount: Math.round(item.precio * 100),
+          unit_amount: Math.round(finalPrice * 100),
         },
         quantity: item.cantidad,
       };
@@ -837,6 +933,51 @@ app.post('/api/checkout', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al crear la sesión de Stripe:", error.message);
     res.status(500).json({ error: "No se pudo generar el enlace de pago." });
+  }
+});
+
+// ==========================================
+// 16b. RUTA DE CHECKOUT DE MEMBRESÍA VIP
+// ==========================================
+app.post('/api/checkout-membership', async (req, res) => {
+  try {
+    console.log("Cuerpo recibido en checkout-membership:", req.body);
+    const { user_id } = req.body || {};
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    if (!user_id) {
+      return res.status(400).json({ error: "Debes iniciar sesión para comprar la membresía." });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Membresía VIP Mensual',
+              description: 'Beneficios exclusivos de Intipa Churin: 15% de descuento en compras, envíos gratis y acceso anticipado.',
+            },
+            unit_amount: 500, // $5.00 en centavos
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&tipo=membresia`,
+      cancel_url: `${FRONTEND_URL}/cancel`,
+      metadata: {
+        tipo_compra: 'membresia',
+        user_id: user_id.toString(),
+      },
+    });
+
+    res.json({ url: session.url });
+
+  } catch (error) {
+    console.error("❌ Error al crear la sesión de membresía en Stripe:", error.message);
+    res.status(500).json({ error: "No se pudo generar el enlace de pago de membresía." });
   }
 });
 

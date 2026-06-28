@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { jwtDecode } from "jwt-decode";
+import toast from 'react-hot-toast';
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const { carrito, eliminarDelCarrito, restarCantidadDelCarrito, totalPrecio } = useCart();
-  const [deletingItemId, setDeletingItemId] = useState(null);
+  const [deletingItemNombre, setDeletingItemNombre] = useState(null);
   const [cantidadAEliminar, setCantidadAEliminar] = useState(1);
   const [isCargandoPago, setIsCargandoPago] = useState(false);
+
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const isVip = user ? user.is_vip : false;
 
   // NUEVA FUNCION: Llama al backend para ir a Stripe mandando el user_id
   const handleCheckout = async () => {
@@ -26,7 +31,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
       }
 
       if (!userId) {
-        alert("Debes iniciar sesión para poder comprar.");
+        toast.error("Debes iniciar sesión para poder comprar.", { id: 'checkout-login-error' });
         setIsCargandoPago(false);
         return;
       }
@@ -45,7 +50,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Hubo un problema al generar el enlace de pago.");
+        toast.error(data.error || "Hubo un problema al generar el enlace de pago.", { id: 'checkout-payment-error' });
         setIsCargandoPago(false);
       }
     } catch (error) {
@@ -84,7 +89,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
             </div>
           ) : (
             carrito.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl transition-colors duration-300">
+              <div key={item.nombre} className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl transition-colors duration-300">
                 <div className="w-14 h-14 bg-zinc-200 dark:bg-zinc-800 rounded-xl overflow-hidden shrink-0 transition-colors duration-300">
                   <img
                     src={item.imagen || `https://placehold.co/200x200/f5f5f4/d6d3d1?text=${(item.categoria || 'PRENDA').toUpperCase()}`}
@@ -93,7 +98,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  {deletingItemId === item.id ? (
+                  {deletingItemNombre === item.nombre ? (
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">¿Cuántos deseas eliminar?</span>
                       <div className="flex items-center gap-1.5">
@@ -114,8 +119,8 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         </select>
                         <button
                           onClick={() => {
-                            restarCantidadDelCarrito(item.id, cantidadAEliminar);
-                            setDeletingItemId(null);
+                            restarCantidadDelCarrito(item.nombre, cantidadAEliminar);
+                            setDeletingItemNombre(null);
                           }}
                           className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
                           title="Confirmar"
@@ -123,7 +128,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </button>
                         <button
-                          onClick={() => setDeletingItemId(null)}
+                          onClick={() => setDeletingItemNombre(null)}
                           className="w-7 h-7 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-lg flex items-center justify-center transition-colors"
                           title="Cancelar"
                         >
@@ -139,14 +144,14 @@ const CartDrawer = ({ isOpen, onClose }) => {
                     </>
                   )}
                 </div>
-                {deletingItemId !== item.id && (
+                {deletingItemNombre !== item.nombre && (
                   <button
                     onClick={() => {
                       if (item.cantidad > 1) {
-                        setDeletingItemId(item.id);
+                        setDeletingItemNombre(item.nombre);
                         setCantidadAEliminar(1);
                       } else {
-                        eliminarDelCarrito(item.id);
+                        eliminarDelCarrito(item.nombre);
                       }
                     }}
                     className="text-zinc-350 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-450 transition-colors shrink-0 p-1"
@@ -163,9 +168,22 @@ const CartDrawer = ({ isOpen, onClose }) => {
         {/* Pie con total y botón */}
         {carrito.length > 0 && (
           <div className="px-6 py-5 border-t border-zinc-100 dark:border-zinc-800 space-y-4 transition-colors duration-300">
+            {isVip && (
+              <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-400 p-3.5 rounded-xl flex items-center justify-between text-xs font-semibold gap-2">
+                <div className="flex items-center gap-2">
+                  <span>👑</span>
+                  <span>Descuento VIP (15%)</span>
+                </div>
+                <span>-${(totalPrecio * 0.15).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center">
-              <span className="text-sm text-zinc-500 dark:text-zinc-400 transition-colors duration-300">Total</span>
-              <span className="text-lg font-bold text-zinc-900 dark:text-white transition-colors duration-300">$ {totalPrecio.toFixed(2)}</span>
+              <span className="text-sm text-zinc-500 dark:text-zinc-400 transition-colors duration-300">
+                {isVip ? 'Total Estimado' : 'Total'}
+              </span>
+              <span className="text-lg font-bold text-zinc-900 dark:text-white transition-colors duration-300">
+                $ {(isVip ? totalPrecio * 0.85 : totalPrecio).toFixed(2)}
+              </span>
             </div>
             <button
               onClick={handleCheckout}

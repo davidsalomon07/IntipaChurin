@@ -55,12 +55,21 @@ const MobileMenu = ({ isOpen, onClose, theme, onToggleTheme, user, wishlistCount
         {/* [CAMBIO] Info del usuario si está logueado */}
         {user && (
           <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 text-sm font-bold uppercase shrink-0">
-              {user.first_name?.charAt(0) || 'U'}
+            <div className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 text-sm font-bold uppercase shrink-0 leading-none select-none">
+              <span className="flex items-center justify-center h-full w-full">{user.first_name?.charAt(0) || 'U'}</span>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{user.first_name} {user.last_name}</p>
-              <p className="text-xs text-zinc-400 truncate">{user.email}</p>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                  {user.first_name} {user.last_name}
+                </p>
+                {user.is_vip && (
+                  <span className="text-[9px] font-extrabold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0 select-none">
+                    VIP
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-zinc-400 truncate mt-0.5">{user.email}</p>
             </div>
           </div>
         )}

@@ -7,22 +7,22 @@ export const CartProvider = ({ children }) => {
   const [carrito, setCarrito] = useState([]);
 
   const agregarAlCarrito = (producto) => {
-    const existe = carrito.find((item) => item.id === producto.id);
+    const existe = carrito.find((item) => item.nombre === producto.nombre);
 
     if (existe) {
       if (producto.stock_quantity !== undefined && existe.cantidad >= producto.stock_quantity) {
-        toast.error("Límite de stock alcanzado para este producto.", { id: `stock-limit-${producto.id}` });
+        toast.error("Límite de stock alcanzado para este producto.", { id: `stock-limit-${producto.nombre}` });
         return;
       }
-      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.id}` });
+      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.nombre}` });
       setCarrito((prev) => {
-        const itemExistente = prev.find((item) => item.id === producto.id);
+        const itemExistente = prev.find((item) => item.nombre === producto.nombre);
         if (itemExistente) {
           if (producto.stock_quantity !== undefined && itemExistente.cantidad >= producto.stock_quantity) {
             return prev;
           }
           return prev.map((item) =>
-            item.id === producto.id
+            item.nombre === producto.nombre
               ? { ...item, cantidad: item.cantidad + 1 }
               : item
           );
@@ -31,18 +31,18 @@ export const CartProvider = ({ children }) => {
       });
     } else {
       if (producto.stock_quantity !== undefined && producto.stock_quantity <= 0) {
-        toast.error("Este producto está agotado.", { id: `out-of-stock-${producto.id}` });
+        toast.error("Este producto está agotado.", { id: `out-of-stock-${producto.nombre}` });
         return;
       }
-      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.id}` });
+      toast.success("Producto agregado al carrito", { id: `add-cart-${producto.nombre}` });
       setCarrito((prev) => {
-        const itemExistente = prev.find((item) => item.id === producto.id);
+        const itemExistente = prev.find((item) => item.nombre === producto.nombre);
         if (itemExistente) {
           if (producto.stock_quantity !== undefined && itemExistente.cantidad >= producto.stock_quantity) {
             return prev;
           }
           return prev.map((item) =>
-            item.id === producto.id
+            item.nombre === producto.nombre
               ? { ...item, cantidad: item.cantidad + 1 }
               : item
           );
@@ -54,22 +54,22 @@ export const CartProvider = ({ children }) => {
 
   const vaciarCarrito = () => setCarrito([]);
 
-  const eliminarDelCarrito = (id) => {
-    setCarrito((prev) => prev.filter((item) => item.id !== id));
+  const eliminarDelCarrito = (nombre) => {
+    setCarrito((prev) => prev.filter((item) => item.nombre !== nombre));
   };
 
-  const restarCantidadDelCarrito = (id, cantidadARestar) => {
+  const restarCantidadDelCarrito = (nombre, cantidadARestar) => {
     setCarrito((prev) => {
-      const existe = prev.find((item) => item.id === id);
+      const existe = prev.find((item) => item.nombre === nombre);
       if (!existe) return prev;
       if (existe.cantidad > cantidadARestar) {
         return prev.map((item) =>
-          item.id === id
+          item.nombre === nombre
             ? { ...item, cantidad: item.cantidad - cantidadARestar }
             : item
         );
       }
-      return prev.filter((item) => item.id !== id);
+      return prev.filter((item) => item.nombre !== nombre);
     });
   };
 

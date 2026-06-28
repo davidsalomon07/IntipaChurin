@@ -4,16 +4,30 @@ import Navbar from '../components/Navbar';
 import MiniFooter from '../components/MiniFooter';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { Share2, ChevronDown, ChevronUp } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const { agregarAlCarrito } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  
+
   const [producto, setProducto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tallaSeleccionada, setTallaSeleccionada] = useState('M'); // Talla por defecto
   const [selectedImage, setSelectedImage] = useState(0);
+  const [productosSimilares, setProductosSimilares] = useState([]);
+  const [completaElLook, setCompletaElLook] = useState([]);
+
+  // Estados para Gestos y Zoom
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchStartY, setTouchStartY] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [zoomProps, setZoomProps] = useState({ isZooming: false, x: 50, y: 50 });
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [openAccordion, setOpenAccordion] = useState('description');
+
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,6 +56,128 @@ const ProductDetail = () => {
     return () => clearInterval(interval);
   }, [id]);
 
+  useEffect(() => {
+    // Fetch para productos relacionados
+    if (producto && producto.category_name) {
+      const fetchRelacionados = async () => {
+        try {
+          const res = await fetch(`http://localhost:3000/api/products`);
+          if (res.ok) {
+            const data = await res.json();
+
+            // Misma categoría (Productos Similares)
+            const similares = data.filter(p => p.category_name === producto.category_name && p.id !== producto.id).slice(0, 4);
+            setProductosSimilares(similares);
+
+            // Diferente categoría (Completa el look)
+            const diferentes = data.filter(p => p.category_name !== producto.category_name && p.is_active).slice(0, 4);
+            setCompletaElLook(diferentes);
+          }
+        } catch (error) {
+          console.error("Error cargando relacionados:", error);
+        }
+      };
+      fetchRelacionados();
+    }
+  }, [producto?.category_name, producto?.id]);
+
+  // Manejadores de Touch (Mobile)
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStartY(e.targetTouches[0].clientY);
+  };
+  const onTouchMove = (e) => {
+    if (zoomProps.isZooming) {
+      // Pan image with finger
+      const currentX = e.targetTouches[0].clientX;
+      const currentY = e.targetTouches[0].clientY;
+      const deltaX = touchStart - currentX;
+      const deltaY = touchStartY - currentY;
+      
+      setZoomProps(prev => ({
+        ...prev,
+        x: Math.min(100, Math.max(0, prev.x + (deltaX / 3))),
+        y: Math.min(100, Math.max(0, prev.y + (deltaY / 3)))
+      }));
+      
+      setTouchStart(currentX);
+      setTouchStartY(currentY);
+    } else {
+      // Swipe gallery
+      setTouchEnd(e.targetTouches[0].clientX);
+    }
+  };
+  const onTouchEnd = () => {
+    if (zoomProps.isZooming) return; // Prevent swipe if zooming
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) setSelectedImage(prev => (prev === 4 ? 0 : prev + 1));
+    if (distance < -minSwipeDistance) setSelectedImage(prev => (prev === 0 ? 4 : prev - 1));
+  };
+
+  // Double Click / Double Tap to Zoom (Desktop & Mobile)
+  const handleClick = (e) => {
+    if (window.innerWidth >= 768) return; // Solo móvil/responsive para evitar conflictos con el hover
+    const currentTime = new Date().getTime();
+    const timeSinceLastClick = currentTime - lastClickTime;
+    
+    if (timeSinceLastClick < 500 && timeSinceLastClick > 0) {
+      // Es un doble clic / doble tap
+      if (zoomProps.isZooming) {
+        setZoomProps({ isZooming: false, x: 50, y: 50 });
+      } else {
+        const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX) || e.nativeEvent.offsetX + left;
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY) || e.nativeEvent.offsetY + top;
+        const x = ((clientX - left) / width) * 100;
+        const y = ((clientY - top) / height) * 100;
+        setZoomProps({ isZooming: true, x, y });
+      }
+    }
+    setLastClickTime(currentTime);
+  };
+
+  // Manejadores de zoom en Hover (Solo Escritorio)
+  const handleMouseEnter = (e) => {
+    if (window.innerWidth < 768) return;
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomProps({ isZooming: true, x, y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (window.innerWidth < 768) return;
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomProps({ isZooming: true, x, y });
+  };
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth < 768) return;
+    setZoomProps({ isZooming: false, x: 50, y: 50 });
+  };
+
+  // Manejador de Share
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: producto.name,
+          text: `Mira esto en Intipa Churin: ${producto.name}`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing', error);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Enlace copiado al portapapeles', { position: 'bottom-center' });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="bg-[#FCFCFC] dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-zinc-50 flex flex-col justify-between transition-colors duration-300">
@@ -49,7 +185,7 @@ const ProductDetail = () => {
         <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full animate-pulse">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {/* Lado Izquierdo: Galería de Imágenes Esqueleto */}
-            <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
+            <div className="relative flex flex-col-reverse gap-4 md:gap-0 md:block w-full md:pl-24 lg:pl-30">
               {/* Thumbnails */}
               <div className="flex md:grid md:grid-rows-5 gap-3 overflow-hidden shrink-0 md:w-20 lg:w-24 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full">
                 {Array.from({ length: 5 }).map((_, idx) => (
@@ -59,7 +195,7 @@ const ProductDetail = () => {
               {/* Imagen Principal */}
               <div className="w-full aspect-[3/4] rounded-3xl bg-zinc-200 dark:bg-zinc-800/50"></div>
             </div>
-            
+
             {/* Lado Derecho: Detalles Esqueleto */}
             <div className="flex flex-col h-full justify-center w-full">
               {/* Categoría */}
@@ -68,7 +204,7 @@ const ProductDetail = () => {
               <div className="h-10 bg-zinc-300 dark:bg-zinc-700/80 rounded-full w-3/4 mb-6"></div>
               {/* Precio */}
               <div className="h-6 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-10"></div>
-              
+
               <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
                 {/* Descripción label */}
                 <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/6 mb-4"></div>
@@ -79,7 +215,7 @@ const ProductDetail = () => {
                   <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800/50 rounded-full w-4/5"></div>
                 </div>
               </div>
-              
+
               {/* Tallas label */}
               <div className="mb-8">
                 <div className="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-full w-1/5 mb-4"></div>
@@ -89,7 +225,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
               </div>
-              
+
               {/* Stock status y botón */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -143,13 +279,13 @@ const ProductDetail = () => {
 
       <main className="max-w-[1400px] mx-auto px-6 md:px-12 pt-36 pb-24 flex-grow w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-          
+
           {/* Lado Izquierdo: Galería de Imágenes */}
-          <div className="relative flex flex-col-reverse md:block w-full md:pl-24 lg:pl-30">
+          <div className="relative flex flex-col-reverse gap-4 md:gap-0 md:block w-full md:pl-24 lg:pl-30">
             {/* Thumbnails */}
             <div className="flex md:grid md:grid-rows-5 gap-3 overflow-x-auto md:overflow-y-hidden pb-2 md:pb-0 md:w-20 lg:w-24 shrink-0 md:absolute md:left-0 md:top-0 md:bottom-0 md:h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {imagenes.map((img, idx) => (
-                <button 
+                <button
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(idx)}
@@ -162,15 +298,27 @@ const ProductDetail = () => {
             </div>
 
             {/* Imagen Principal */}
-            <div className="w-full aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm relative flex-grow">
-              <img 
-                src={imagenes[selectedImage]} 
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
+            <div
+              className={`w-full aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm relative flex-grow md:cursor-crosshair group select-none ${zoomProps.isZooming ? 'touch-none' : 'touch-pan-y'}`}
+              onMouseEnter={handleMouseEnter}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onClick={handleClick}
+              onDoubleClick={(e) => e.preventDefault()}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
+              <img
+                src={imagenes[selectedImage]}
+                className={`absolute inset-0 w-full h-full transition-transform duration-300 md:duration-100 pointer-events-none select-none ${zoomProps.isZooming ? 'scale-[2.5]' : 'scale-100 object-cover group-hover:scale-105'}`}
+                style={zoomProps.isZooming ? { transformOrigin: `${zoomProps.x}% ${zoomProps.y}%` } : {}}
                 alt={producto.name}
+                draggable="false"
               />
 
-              {/* 👇 NUEVO BOTÓN DE WISHLIST (Esquina Superior Derecha de la Imagen Principal) 👇 */}
-              <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
+              {/* 👇 BOTÓN DE WISHLIST Y SHARE 👇 */}
+              <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex flex-col gap-2">
                 <button
                   type="button"
                   onClick={() => toggleWishlist(producto)}
@@ -203,9 +351,25 @@ const ProductDetail = () => {
 
           {/* Lado Derecho: Detalles */}
           <div className="flex flex-col h-full justify-center">
-            <span className="text-xs font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500 mb-2 block">
-              {producto.category_name || 'Colección General'}
-            </span>
+
+            {/* Migas de Pan (Breadcrumbs) y Compartir */}
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex flex-wrap items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500">
+                <Link to="/" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Inicio</Link>
+                <span>/</span>
+                <Link to="/shop" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Tienda</Link>
+                <span>/</span>
+                <span className="text-zinc-900 dark:text-zinc-300">{producto.category_name || 'Colección'}</span>
+              </div>
+              <button
+                onClick={handleShare}
+                className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                title="Compartir producto"
+              >
+                <Share2 size={18} />
+              </button>
+            </div>
+
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 dark:text-white leading-tight">
               {producto.name}
             </h1>
@@ -225,11 +389,57 @@ const ProductDetail = () => {
               )}
             </div>
 
-            <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mb-8">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Descripción</h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-light whitespace-pre-line">
-                {producto.description || "Esta prenda minimalista ha sido diseñada con altos estándares estructurales para adaptarse con total soltura a tu día a día, manteniendo la comodidad absoluta y la expresión libre de género."}
-              </p>
+            <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-4 mb-6">
+              {/* Acordeón: Descripción */}
+              <div className="border-b border-zinc-100 dark:border-zinc-800/80">
+                <button
+                  onClick={() => setOpenAccordion(openAccordion === 'description' ? '' : 'description')}
+                  className="w-full py-4 flex justify-between items-center text-left transition-colors hover:text-zinc-600 dark:hover:text-zinc-400"
+                >
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Descripción</h2>
+                  {openAccordion === 'description' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openAccordion === 'description' ? 'max-h-96 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-light whitespace-pre-line">
+                    {producto.description || "Esta prenda minimalista ha sido diseñada con altos estándares estructurales para adaptarse con total soltura a tu día a día, manteniendo la comodidad absoluta y la expresión libre de género."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Acordeón: Material & Cuidados */}
+              <div className="border-b border-zinc-100 dark:border-zinc-800/80">
+                <button
+                  onClick={() => setOpenAccordion(openAccordion === 'material' ? '' : 'material')}
+                  className="w-full py-4 flex justify-between items-center text-left transition-colors hover:text-zinc-600 dark:hover:text-zinc-400"
+                >
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Material & Cuidados</h2>
+                  {openAccordion === 'material' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openAccordion === 'material' ? 'max-h-96 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <ul className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-light list-disc pl-4 space-y-1">
+                    <li>100% Algodón Premium Orgánico.</li>
+                    <li>Lavar a máquina en frío con colores similares.</li>
+                    <li>No usar blanqueador. Secar en secadora a baja temperatura.</li>
+                    <li>Planchar del revés si es necesario para cuidar el estampado.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Acordeón: Envíos */}
+              <div className="border-b border-zinc-100 dark:border-zinc-800/80">
+                <button
+                  onClick={() => setOpenAccordion(openAccordion === 'shipping' ? '' : 'shipping')}
+                  className="w-full py-4 flex justify-between items-center text-left transition-colors hover:text-zinc-600 dark:hover:text-zinc-400"
+                >
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Envíos y Devoluciones</h2>
+                  {openAccordion === 'shipping' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openAccordion === 'shipping' ? 'max-h-96 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-light">
+                    Envío estándar gratuito en pedidos superiores a S/ 200. Las devoluciones son aceptadas dentro de los primeros 14 días desde la entrega siempre que la prenda se mantenga en su estado original con etiquetas.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Selector de Tallas */}
@@ -267,10 +477,10 @@ const ProductDetail = () => {
               <div className="text-xs flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${producto.stock_quantity > 5 ? 'bg-green-500' : producto.stock_quantity > 0 ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`}></span>
                 <span className="text-zinc-500 dark:text-zinc-400">
-                  {producto.stock_quantity > 5 
-                    ? `Disponibilidad inmediata (${producto.stock_quantity} unidades en stock)` 
-                    : producto.stock_quantity > 0 
-                      ? `¡Últimas ${producto.stock_quantity} unidades disponibles!` 
+                  {producto.stock_quantity > 5
+                    ? `Disponibilidad inmediata (${producto.stock_quantity} unidades en stock)`
+                    : producto.stock_quantity > 0
+                      ? `¡Últimas ${producto.stock_quantity} unidades disponibles!`
                       : 'Sin existencias en inventario'}
                 </span>
               </div>
@@ -293,6 +503,70 @@ const ProductDetail = () => {
 
           </div>
         </div>
+
+        {/* Sección de Completa el look */}
+        {completaElLook.length > 0 && (
+          <div className="mt-24 pt-16 border-t border-zinc-200 dark:border-zinc-800/50">
+            <h3 className="text-2xl font-bold tracking-tight mb-8 text-center text-zinc-900 dark:text-white">Completa el look</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {completaElLook.map(rel => (
+                <Link key={rel.id} to={`/shop/producto/${rel.id}`} className="group block">
+                  <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-4 relative">
+                    <img
+                      src={rel.image_url}
+                      alt={rel.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {!rel.is_active && (
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
+                        <span className="text-white text-[10px] font-bold px-2 py-1 bg-red-600 rounded">AGOTADO</span>
+                      </div>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 truncate">{rel.name}</h4>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">S/ {parseFloat(rel.price).toFixed(2)}</p>
+                    {rel.original_price && parseFloat(rel.original_price) > parseFloat(rel.price) && (
+                      <p className="text-xs text-zinc-400 line-through">S/ {parseFloat(rel.original_price).toFixed(2)}</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Sección de Productos Similares */}
+        {productosSimilares.length > 0 && (
+          <div className="mt-16 pt-16 border-t border-zinc-200 dark:border-zinc-800/50">
+            <h3 className="text-2xl font-bold tracking-tight mb-8 text-center text-zinc-900 dark:text-white">Productos Similares</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {productosSimilares.map(rel => (
+                <Link key={rel.id} to={`/shop/producto/${rel.id}`} className="group block">
+                  <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-4 relative">
+                    <img
+                      src={rel.image_url}
+                      alt={rel.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {!rel.is_active && (
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
+                        <span className="text-white text-[10px] font-bold px-2 py-1 bg-red-600 rounded">AGOTADO</span>
+                      </div>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1 truncate">{rel.name}</h4>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">S/ {parseFloat(rel.price).toFixed(2)}</p>
+                    {rel.original_price && parseFloat(rel.original_price) > parseFloat(rel.price) && (
+                      <p className="text-xs text-zinc-400 line-through">S/ {parseFloat(rel.original_price).toFixed(2)}</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       <MiniFooter />
