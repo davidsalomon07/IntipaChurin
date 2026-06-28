@@ -2,18 +2,27 @@
 
 Esta tarea se ejecuta automáticamente cada vez que se realice una implementación importante o un cambio significativo en el proyecto.
 
-## Funcionalidad Activa
-* **Nombre:** Visibilidad del Botón de WhatsApp en Modo Responsivo
-* **Descripción:**
-  - **Como** visitante móvil de la plataforma Intipa Churin,
-  - **quiero** que el botón flotante de WhatsApp permanezca visible y sea accesible en todas las páginas públicas de la web,
-  - **para** poder contactar a soporte de manera inmediata ante cualquier consulta o duda, de la misma forma en que funciona en el modo escritorio.
+## Flujo de Ejecución y Condición
+Al finalizar la implementación de una **NUEVA FUNCIONALIDAD MAYOR** (ej. un nuevo filtro, sistema de paginación, nuevo flujo de compra), el agente generará un documento que describa la funcionalidad implementada bajo el formato de Historia de Usuario.
+
+**EXCEPCIONES (NO crear historia de usuario):**
+* Correcciones de errores (Bugfixes).
+* Retoques visuales o modificaciones menores de UI (ej. cambiar colores del header, márgenes, textos).
+* Refactorización de código que no añade valor de negocio visible al usuario.
+
+## Formato Estricto Requerido
+* **Nombre:** [Nombre descriptivo de la funcionalidad]
+* **Descripción:** [Descripción detallada desde la perspectiva del usuario final o de negocio]
+  - **Como** [tipo de usuario],
+  - **quiero** [objetivo/deseo],
+  - **para** [beneficio/valor].
   - **Criterios de Aceptación:**
-    - El botón de WhatsApp flotante debe tener un `z-index` de `9999` para garantizar que aparezca sobre todos los elementos fijos, carruseles, layouts o pies de página (footers).
-    - En el modo responsivo móvil (viewport < 768px), el botón debe renderizarse en el extremo inferior derecho (`bottom-6 right-6`) de manera visible y sin ser obstruido por otros elementos visuales.
-    - Se mantendrán las exclusiones de rutas especificadas (`/profile`, `/checkout`, `/login`, `/register`) y se ocultará automáticamente al abrir el carrito de compras (Cart Drawer) en cualquier parte de la web para evitar obstruir el botón de pago y los elementos del carrito, comportándose de manera idéntica al modo escritorio en el resto de páginas.
-* **Subtareas:**
-  - Modificar el `z-index` del botón flotante en `WhatsAppButton.jsx` a `z-[9999]` e inline `style={{ zIndex: 99999 }}`.
-  - Elevar el estado `cartOpen` y la función `setCartOpen` a `CartContext.jsx` para compartirlos globalmente.
-  - Consumir el estado `cartOpen` en `Navbar.jsx` y `WhatsAppButton.jsx` para ocultar dinámicamente el botón de WhatsApp cuando el carrito esté abierto.
-  - Probar la compilación y verificar la visualización responsive en pantallas móviles y con el carrito desplegado.
+    - [Criterio 1]
+    - [Criterio 2]
+* **Subtareas:** (Opcional, solo si aplica para desglosar el cambio)
+  - [Subtarea 1]
+  - [Subtarea 2]
+
+## Regla de Extractos de Código
+* **Código Corto y Literal:** Si se requiere incluir código en una subtarea, debe ser un fragmento **extremadamente corto y literal** (ej. nombre de un estado, variable o función simple).
+* **Evitar Código Largo:** Si el extracto que se quiere poner es largo (como operadores ternarios complejos, clases CSS extensas, o lógica anidada), **está prohibido poner el extracto de código**. En su lugar, se debe escribir únicamente una subtarea descriptiva que defina claramente el comportamiento en lenguaje natural.

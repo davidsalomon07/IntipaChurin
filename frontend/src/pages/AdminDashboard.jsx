@@ -434,12 +434,12 @@ const AdminDashboard = () => {
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto w-64 shrink-0">
           <div
             onClick={() => setActiveTab('productos')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'productos' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'productos' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'productos' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -447,12 +447,12 @@ const AdminDashboard = () => {
           </div>
           <div
             onClick={() => setActiveTab('categorias')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'categorias' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'categorias' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'categorias' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -460,12 +460,12 @@ const AdminDashboard = () => {
           </div>
           <div
             onClick={() => setActiveTab('usuarios')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'usuarios' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'usuarios' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'usuarios' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -473,12 +473,12 @@ const AdminDashboard = () => {
           </div>
           <div
             onClick={() => setActiveTab('pedidos')}
-            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'pedidos' ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === 'pedidos' ? 'text-zinc-955 dark:text-white font-semibold' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'}`}
           >
             {activeTab === 'pedidos' && (
               <motion.div
                 layoutId="activeAdminTabBackground"
-                className="absolute inset-0 bg-zinc-100 dark:bg-white rounded-xl -z-10 shadow-sm"
+                className="absolute inset-0 bg-zinc-100 dark:bg-white/[0.04] backdrop-blur-sm border border-transparent dark:border-white/10 rounded-xl -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -550,7 +550,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.05 }}
-              className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/[0.06] p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Ingresos Totales</span>
@@ -571,7 +571,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
-              className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/[0.06] p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Pedidos Pendientes</span>
@@ -590,7 +590,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.15 }}
-              className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/[0.06] p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Clientes</span>
@@ -609,7 +609,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
-              className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/[0.06] p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
+              className="bg-white dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 p-6 rounded-3xl shadow-sm hover:shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between dark:backdrop-blur-sm"
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[13px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Productos</span>
